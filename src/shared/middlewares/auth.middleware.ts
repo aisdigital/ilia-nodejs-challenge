@@ -18,7 +18,7 @@ export function AuthMiddleware(
   const parts = header.split(" ");
 
   if (parts.length !== 2) {
-    throw new UnauthorizedError("Invalid Token");
+    throw new UnauthorizedError("Token inválido");
   }
 
   const [, token] = parts;
@@ -27,7 +27,7 @@ export function AuthMiddleware(
 
   jwt.verify(token, secretToken, (err, decode) => {
     if (err) {
-      throw new UnauthorizedError("Invalid Token");
+      throw new UnauthorizedError("Token inválido");
     }
 
     response.locals["user"] = decode;
