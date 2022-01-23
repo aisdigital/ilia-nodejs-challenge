@@ -6,9 +6,9 @@ export const router = Router();
 const controller = new Controller();
 
 router.get(
-  "/list-by-type-user-id",
+  "/transactions",
   AuthMiddleware,
   controller.findAllByTransactionTypeAndUserId
 );
 router.get("/balance", AuthMiddleware, controller.findBalance);
-router.post("/save", AuthMiddleware, controller.store);
+router.post("/transactions", AuthMiddleware, controller.store);
