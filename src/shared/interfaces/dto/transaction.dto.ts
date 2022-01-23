@@ -4,5 +4,5 @@ export interface ITransactionDTO {
   user_id?: string;
   amount: number;
   type: TransactionType;
-  createdAt: Date
+  createdAt: Date;
 }

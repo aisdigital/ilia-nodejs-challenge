@@ -31,7 +31,7 @@ export class Controller {
   ) {
     try {
       const transactionType = request.query.type as string;
-      const userId = response?.locals["user"]?.id ?? "string"; // mudar implementação assim que adicionar o Auth middleware (body ou locals)
+      const userId = response.locals["user"].id
       const transactions = await service.findAllByTransactionTypeAndUserId(
         transactionType,
         userId
@@ -53,7 +53,7 @@ export class Controller {
 
   public async findBalance(request: Request, response: Response) {
     try {
-      const userId = response?.locals["user"]?.id ?? "string"; // mudar implementação assim que adicionar o Auth middleware (body ou locals)
+      const userId = response.locals["user"].id
       const balance = await service.findBalance(userId)
 
       return response.status(StatusCode.SUCCESS).json(balance)
