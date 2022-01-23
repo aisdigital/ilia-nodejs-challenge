@@ -9,7 +9,7 @@ async function initMongoDBConnection() {
   await mongoClient.connect();
 
   const database = mongoClient.db(process.env.MONGO_DB_NAME);
-  transactionCollection = database.collection("metrics");
+  transactionCollection = database.collection(process.env.MONGO_DB_COLLECTION);
 }
 
 export { initMongoDBConnection, mongoClient, transactionCollection };
