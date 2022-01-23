@@ -1,6 +1,7 @@
 import { TransactionType } from "../../shared/enums/transaction-type.enums";
 import { BadRequestError } from "../../shared/helpers/response/error.response";
 import { ITransactionDTO } from "../../shared/interfaces/dto/transaction.dto";
+import { ITransaction } from "../../shared/interfaces/transaction.interface";
 import { Repository } from "../repositories/repository";
 
 const repository = new Repository();
@@ -14,6 +15,11 @@ export class Service {
       throw new BadRequestError("O tipo da transição está incorreta!");
     }
 
+    data = {
+      ...data,
+      createdAt: new Date()
+    }
+
     const transaction = await repository.insertOne(data).catch((err) => {
       console.error(err);
       throw new BadRequestError(err);
@@ -21,6 +27,7 @@ export class Service {
     const response = await repository.findOne(
       transaction.insertedId.toString()
     );
+    delete response.createdAt
 
     return response;
   }
@@ -43,5 +50,40 @@ export class Service {
     );
 
     return response;
+  }
+
+  public async findBalance(userId: string) {
+    const transactions = await repository.findBalance(userId).catch((err) => {
+      console.error(err);
+      throw new BadRequestError(err);
+    });
+    const response = this.calculationAmountByTransactionType(transactions);
+
+    return response;
+  }
+
+  private calculationAmountByTransactionType(transactions: ITransaction[]) {
+    let amount = 0;
+    transactions.forEach((transaction: ITransaction) => {
+      if (TransactionType.CREDIT.includes(transaction.type)) {
+        amount += transaction.amount;
+
+        return;
+      }
+
+      if (TransactionType.DEBIT.includes(transaction.type)) {
+        if (transaction.amount < 0) {
+          amount += transaction.amount;
+
+          return;
+        }
+
+        amount -= transaction.amount;
+      }
+    });
+
+    return {
+      amount,
+    };
   }
 }

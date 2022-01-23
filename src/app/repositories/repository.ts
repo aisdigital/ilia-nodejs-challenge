@@ -43,4 +43,15 @@ export class Repository {
 
     return response;
   }
+
+  public async findBalance(userId: string) {
+    const filter = {
+      user_id: userId,
+    };
+    const response = await transactionCollection
+      .find(filter)
+      .toArray()
+
+    return response;
+  }
 }
