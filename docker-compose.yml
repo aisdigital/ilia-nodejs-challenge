@@ -15,6 +15,7 @@ services:
       MONGO_DB_NAME: "ilia-challenge"
       MONGO_DB_COLLECTION: "transactions"
       SECRET_JWT_TOKEN: "ILIACHALLENGE"
+      INTERNAL_SECRET_JWT_TOKEN: "ILIACHALLENGE_INTERNAL"
     ports:  
       - '3001:3001'
     depends_on: 
@@ -28,6 +29,7 @@ services:
       MONGO_DB_NAME: "ilia-challenge"
       MONGO_DB_COLLECTION: "users"
       SECRET_JWT_TOKEN: "ILIACHALLENGE"
+      INTERNAL_SECRET_JWT_TOKEN: "ILIACHALLENGE_INTERNAL"
       SECRET_JWT_TOKEN_EXPIRED_TIME: 900
     ports:  
       - '3002:3002'
