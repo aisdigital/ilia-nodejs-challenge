@@ -2,13 +2,35 @@
 
 ## Como usar
 
+### Clone o projeto MS-Wallet:
+
+### Clone o projeto MS-Users (no mesmo diretório do MS-Wallet):
+
+HTTP:
+```bash
+git clone https://github.com/JoaooGabriel/ilia-users-nodejs-challenge.git
+```
+SSH:
+```bash
+git clone git@github.com:JoaooGabriel/ilia-users-nodejs-challenge.git
+```
+
 ### Configuração SetUp:
 
 - Instale o [Node](https://nodejs.org/en/download/)
 
 - Instale o [MongoDB](https://www.mongodb.com/try/download/community)
+  
+- Instale o [Dcoker](https://docs.docker.com/desktop/windows/install/)
 
-### Para rodar o backend:
+### Para rodar docker:
+```bash
+docker-compose up
+```
+#### Nota
+o mongoDB vai estar rodando na porta padrão (27017)
+
+### Para rodar local:
 
 Instale as dependências:
 
