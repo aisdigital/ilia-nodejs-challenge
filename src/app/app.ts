@@ -1,10 +1,8 @@
 import "dotenv/config";
-import express, { Request, Response } from "express";
+import express from "express";
+import { router } from "./router";
 
 export const app = express();
 
 app.use(express.json());
-
-app.get("/", (resquest: Request, response: Response) => {
-  response.status(200).json({ message: "Hello world!" });
-});
+app.use("/api/v1/transactions/", router);
