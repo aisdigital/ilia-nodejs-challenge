@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+  ms-wallet:
+    container_name: ms-wallet
+    build: .
+    environment:
+      SERVER_PORT: 3001
+      MONGO_DB_URL_CONNECTION: "mongodb://mongodb:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
+      MONGO_DB_NAME: "ilia-challenge"
+      MONGO_DB_COLLECTION: "transactions"
+      SECRET_JWT_TOKEN: "ILIACHALLENGE"
+    ports:  
+      - '3001:3001'
+    depends_on: 
+      - mongo
+  ms-users:
+    container_name: ms-users
+    build: ../ilia-users-nodejs-challenge/
+    environment:
+      SERVER_PORT: 3002
+      MONGO_DB_URL_CONNECTION: "mongodb://mongodb:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
+      MONGO_DB_NAME: "ilia-challenge"
+      MONGO_DB_COLLECTION: "users"
+      SECRET_JWT_TOKEN: "ILIACHALLENGE"
+      SECRET_JWT_TOKEN_EXPIRED_TIME: 900
+    ports:  
+      - '3002:3002'
+    depends_on: 
+      - mongo
