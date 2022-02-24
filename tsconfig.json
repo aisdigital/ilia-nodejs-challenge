@@ -1,7 +1,0 @@
-{
-	"compilerOptions": {
-		"module": "commonjs",
-		"outDir": "ts-built",
-		"rootDir": "src"
-	}
-}

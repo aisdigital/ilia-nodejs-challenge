@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb";
 import { URI } from "./consts";
 import { TransactionsModel } from "./types";
 
-export const postTransactions = async (req, res) => {
+export const postTransactions = async (req: any, res: any) => {
   const info = req.body;
   console.log(info);
   const client = new MongoClient(URI);

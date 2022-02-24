@@ -1,9 +1,7 @@
 import { MongoClient } from "mongodb";
 import { URI } from "./consts";
-import { getTokenFromReq } from "./utils";
 
-export const getBalance = async (req, res) => {
-  const token = getTokenFromReq(req);
+export const getBalance = async (req: any, res: any) => {
   const client = new MongoClient(URI);
 
   try {
