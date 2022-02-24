@@ -6,6 +6,9 @@ import { MongoClient } from "mongodb";
 import { verifyToken } from "./utils";
 const express = require("express");
 
+console.log(process.env.HOSTDB);
+console.log(process.env.PORTDB);
+
 const port = 3001;
 const app = express();
 app.use(express.json());
