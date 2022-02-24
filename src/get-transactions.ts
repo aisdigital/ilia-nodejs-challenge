@@ -3,6 +3,10 @@ import { URI } from "./consts";
 
 export const getTransactions = async (req, res) => {
   const tp: string = req.query.type;
+  if (tp === undefined)
+    return res.status(422).json({ message: "missing 'type' parameter" });
+  if (tp !== "CREDIT" && tp !== "DEBIT")
+    return res.status(422).json({ message: "wrong type of transaction" });
   const client = new MongoClient(URI);
 
   try {
