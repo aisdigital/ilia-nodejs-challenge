@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import { URI } from "./consts";
 
-export const getTransactions = async (req, res) => {
+export const getTransactions = async (req: any, res: any) => {
   const tp: string = req.query.type;
   if (tp === undefined)
     return res.status(422).json({ message: "missing 'type' parameter" });

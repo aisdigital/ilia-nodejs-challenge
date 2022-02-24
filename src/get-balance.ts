@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import { URI } from "./consts";
 
-export const getBalance = async (req, res) => {
+export const getBalance = async (req: any, res: any) => {
   const client = new MongoClient(URI);
 
   try {

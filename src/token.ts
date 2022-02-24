@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-export const sendToken = (req, res) => {
+export const sendToken = (req: any, res: any) => {
   console.log(req);
   const body = req.body;
   console.log(body);

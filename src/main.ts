@@ -12,7 +12,10 @@ app.use(express.json());
 app.post("/transactions", verifyToken, postTransactions);
 app.get("/transactions", verifyToken, getTransactions);
 app.get("/balance", verifyToken, getBalance);
-app.post("/jwt", sendToken);
+app.post("/signup", sendToken);
+app.use((req: any, res: any, next: any) => {
+  res.status(404).send("<h1>Error 404</h1>\n<h1>Page not found</h1>");
+});
 app.listen(port);
 
 const hostDB = process.env.HOSTDB;
