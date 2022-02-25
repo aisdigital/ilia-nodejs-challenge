@@ -2,19 +2,14 @@ version: "3.9"
 services:
   mongo:
     image: mongo
-    # restart: always
     ports:
       - 27017:27017
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: root
-    #   MONGO_INITDB_ROOT_PASSWORD: example
 
   wallet:
     build: ./wallet/
     environment:
-      - FRONT_HOST=frontend
       - HOSTDB=mongo
-      - PORTDB=${PORTDB}
+      - PORTDB=27017
       - JWT_KEY=${JWT_KEY}
     ports:
       - "3001:3001"

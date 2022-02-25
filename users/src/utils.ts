@@ -1,4 +1,4 @@
-import { Transactions } from "./types";
+import { UserInfo } from "./types";
 
 const jwt = require("jsonwebtoken");
 
@@ -25,18 +25,18 @@ export const verifyToken = (req: any, res: any, next: any) => {
   });
 };
 
-export const isTransaction = (info: Object): boolean => {
-  const transaction: Transactions = {
-    user_id: "user_id",
-    amount: 0,
-    type: "CREDIT",
+export const isUserInfo = (info: Object): boolean => {
+  const userInfo: UserInfo = {
+    id: "id",
+    first_name: "first_name",
+    last_name: "last_name",
+    password: "password",
+    email: "email",
   };
 
-  for (const key in transaction) {
-    console.log(key);
+  for (const key in userInfo) {
     if (!(key in info)) return false;
   }
-  if (info["type"] !== "CREDIT" && info["type"] !== "DEBIT") return false;
-  if (Object.keys(info).length > 3) return false;
+  if (Object.keys(info).length > 5) return false;
   return true;
 };
