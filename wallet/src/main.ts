@@ -20,10 +20,3 @@ app.use((req: any, res: any, next: any) => {
   res.status(404).send("<h1>Error 404</h1>\n<h1>Page not found</h1>");
 });
 app.listen(port);
-
-const hostDB = process.env.HOSTDB;
-const portDB = process.env.PORTDB;
-
-const uri = "mongodb://" + hostDB + ":" + portDB;
-
-const client = new MongoClient(uri);
