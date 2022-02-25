@@ -3,10 +3,13 @@ import { MongoClient } from "mongodb";
 import { URI } from "./consts";
 import { isUserInfo } from "./utils";
 
-export const addUser = async (req: any, res: any) => {
+export const updateUser = async (req: any, res: any) => {
+  const userId = req.params.id;
   const info = req.body;
   if (!isUserInfo(info))
     return res.status(422).json({ message: "wrong body format" });
+  console.log(userId);
+
   const client = new MongoClient(URI);
 
   try {
@@ -15,29 +18,30 @@ export const addUser = async (req: any, res: any) => {
     const database = client.db("users");
     const collection = database.collection("info");
 
-    let cursor = collection.find({ id: info.id });
-    let users = await cursor.toArray();
-    if (users.length > 0) {
-      res.status(409).json({ message: "user id already exists" });
-      await client.close();
-      return;
-    }
-    cursor = collection.find({ email: info.email });
-    users = await cursor.toArray();
-    if (users.length > 0) {
-      res.status(409).json({ message: "user email already exists" });
+    const cursor = collection.find({ email: info.email });
+    const users = await cursor.toArray();
+    if (users.length > 0 && users[0]["id"] !== userId) {
+      res
+        .status(409)
+        .json({ message: "there is another user with this email" });
       await client.close();
       return;
     }
 
-    const result = await collection.insertOne(info);
+    const result = await collection.updateOne({ id: userId }, { $set: info });
+
     const response: UsersResponse = {
       id: info.id,
       first_name: info.first_name,
       last_name: info.last_name,
       email: info.email,
     };
-    res.status(200).json(response);
+
+    if (result.matchedCount === 1) {
+      res.status(200).json(response);
+    } else {
+      res.status(404).json({ message: "user not found" });
+    }
   } catch (e) {
     console.log(e);
     res.status(500).json({ message: "problem connecting to database" });

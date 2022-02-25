@@ -8,11 +8,16 @@ export const verifyToken = (req: any, res: any, next: any) => {
   const token = authorization && authorization.split(" ")[1];
 
   if (bearer !== "Bearer" || token === undefined)
-    return res.status(401).json({ message: "missing bearer token" });
+    return res
+      .status(401)
+      .json({ message: "Access token is missing or invalid" });
 
   jwt.verify(token, process.env.JWT_KEY, (err: Error, user: any) => {
     console.log(err);
-    if (err) return res.status(401).json({ message: "wrong token" });
+    if (err)
+      return res
+        .status(401)
+        .json({ message: "Access token is missing or invalid" });
 
     console.log(user);
 
@@ -30,8 +35,8 @@ export const isUserInfo = (info: Object): boolean => {
   };
 
   for (const key in userInfo) {
-    console.log(key);
     if (!(key in info)) return false;
   }
+  if (Object.keys(info).length > 5) return false;
   return true;
 };
