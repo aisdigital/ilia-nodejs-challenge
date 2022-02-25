@@ -6,6 +6,14 @@
 
 A wallet that stores transactions informations in a MongoDB. It is possible to: add transactions, see all transactions of a specified type (CREDIT or DEBIT) and check for the balance (CREDIT - DEBIT).
 
+## Runing the server and database
+
+To run the server you only need to have docker and docker-compose installed in your machine. Then, it is only needed to clone this repository, enter the repository folder and run:
+
+```sh
+docker-compose up
+```
+
 ## Authentication
 
 Every endpoint uses a Bearer Token JWT authentication. It is needed to acces every information in the server.
@@ -39,7 +47,7 @@ Example response of a credit query:
 ]
 ```
 
-### **/balance**
+#### **/balance**
 
 This endpoint does not need any other information. It returns the sum of all credits minus the sum of all debits.
 Example response of a balance endpoint:
@@ -50,9 +58,9 @@ Example response of a balance endpoint:
 }
 ```
 
-## POST
+### POST
 
-### **/transactions**
+#### **/transactions**
 
 This endpoint is used for adding info to the database. It needs a body in JSON format using the following syntax:
 
@@ -80,6 +88,14 @@ It returns a JSON response:
 ## Resumo
 
 Uma carteira que guarda as informações de transações em um MongoDB. É possível: adicionar transações, ver todas as transações de um tipo específico (CRÉDITO ou DÉBITO) e verificar o balanço (CRÉDITO - DÉBITO).
+
+## Rodando o servidor e o banco de dados
+
+Para rodar o programa, só é necessário ter docker e docker-compose instalados na sua máquina. Então, basta clonar o repositório, entrar na pasta do repositório e rodar:
+
+```sh
+docker-compose up
+```
 
 ## Autenticação
 
@@ -114,7 +130,7 @@ Exemplo de uma resposta de crédito
 ]
 ```
 
-### **/balance**
+#### **/balance**
 
 Este endpoint não precisa de nenhuma outra informação. Ele retorna a soma de todos os créditos menos a soma de todos os débitos.
 Exemplo de resposta:
@@ -125,9 +141,9 @@ Exemplo de resposta:
 }
 ```
 
-## POST
+### POST
 
-### **/transactions**
+#### **/transactions**
 
 Este endpoint é utilizado para adicionar informação ao banco de dados. É necessário um corpo no formato JSON usando a sintaxe:
 
