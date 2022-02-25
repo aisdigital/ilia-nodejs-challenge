@@ -15,7 +15,7 @@ app.use(express.json());
 app.post("/transactions", verifyToken, postTransactions);
 app.get("/transactions", verifyToken, getTransactions);
 app.get("/balance", verifyToken, getBalance);
-app.post("/signup", sendToken);
+// app.post("/signup", sendToken);
 app.use((req: any, res: any, next: any) => {
   res.status(404).send("<h1>Error 404</h1>\n<h1>Page not found</h1>");
 });

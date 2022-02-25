@@ -13,7 +13,9 @@
   "author": "Luiz Felipe",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "express": "^4.17.3",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.4.0",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
