@@ -8,7 +8,7 @@ A wallet that stores transactions informations in a MongoDB. It is possible to: 
 
 ## Runing the server and database
 
-To run the server you only need to have docker and docker-compose installed in your machine. Then, it is only needed to clone this repository, enter the repository folder and run:
+To run the program you only need to have docker and docker-compose installed in your machine. Then, it is only needed to clone this repository, enter the repository folder and run:
 
 ```sh
 docker-compose up
