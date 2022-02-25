@@ -1,7 +1,8 @@
 import { MongoClient } from "mongodb";
 import { URI } from "./consts";
 
-export const getTransactions = async (req: any, res: any) => {
+export const getTransactionsId = async (req: any, res: any) => {
+  const userId = req.params.id;
   const tp: string = req.query.type;
   if (tp === undefined)
     return res.status(422).json({ message: "Missing 'type' parameter" });
@@ -15,7 +16,7 @@ export const getTransactions = async (req: any, res: any) => {
     const database = client.db("wallet");
     const collection = database.collection("transactions");
 
-    const cursor = collection.find({ type: tp });
+    const cursor = collection.find({ type: tp, user_id: userId });
     const temp = await cursor.toArray();
     const transactions = temp.map(({ _id, ...rest }) =>
       Object.assign({}, { id: _id }, rest)

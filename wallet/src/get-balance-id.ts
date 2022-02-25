@@ -1,7 +1,8 @@
 import { MongoClient } from "mongodb";
 import { URI } from "./consts";
 
-export const getBalance = async (req: any, res: any) => {
+export const getBalanceId = async (req: any, res: any) => {
+  const userId = req.params.id;
   const client = new MongoClient(URI);
 
   try {
@@ -10,7 +11,7 @@ export const getBalance = async (req: any, res: any) => {
     const database = client.db("wallet");
     const collection = database.collection("transactions");
 
-    const cursor = collection.find({});
+    const cursor = collection.find({ user_id: userId });
     const transactions = await cursor.toArray();
 
     const response = transactions.reduce((acc: number, curr) => {
