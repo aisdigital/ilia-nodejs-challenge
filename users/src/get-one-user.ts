@@ -16,7 +16,7 @@ export const getOneUser = async (req: any, res: any) => {
     const cursor = collection.find({ id: userId });
     const users = await cursor.toArray();
     if (users.length === 0) {
-      res.status(404).json({ message: "user not found" });
+      res.status(404).json({ message: "User not found" });
     } else {
       const user = users.map(({ password, _id, ...rest }) => rest)[0];
 
@@ -24,7 +24,7 @@ export const getOneUser = async (req: any, res: any) => {
     }
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "problem connecting to database" });
+    res.status(500).json({ message: "Problem connecting to database" });
   } finally {
     await client.close();
   }

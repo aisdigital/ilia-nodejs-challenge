@@ -7,7 +7,7 @@ export const updateUser = async (req: any, res: any) => {
   const userId = req.params.id;
   const info = req.body;
   if (!isUserInfo(info))
-    return res.status(422).json({ message: "wrong body format" });
+    return res.status(422).json({ message: "Wrong body format" });
   console.log(userId);
 
   const client = new MongoClient(URI);
@@ -21,9 +21,7 @@ export const updateUser = async (req: any, res: any) => {
     const cursor = collection.find({ email: info.email });
     const users = await cursor.toArray();
     if (users.length > 0 && users[0]["id"] !== userId) {
-      res
-        .status(409)
-        .json({ message: "there is another user with this email" });
+      res.status(409).json({ message: "Email already taken" });
       await client.close();
       return;
     }
@@ -40,11 +38,11 @@ export const updateUser = async (req: any, res: any) => {
     if (result.matchedCount === 1) {
       res.status(200).json(response);
     } else {
-      res.status(404).json({ message: "user not found" });
+      res.status(404).json({ message: "User not found" });
     }
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "problem connecting to database" });
+    res.status(500).json({ message: "Problem connecting to database" });
   } finally {
     await client.close();
   }

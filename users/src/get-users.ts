@@ -17,7 +17,7 @@ export const getUsers = async (req: any, res: any) => {
     res.status(200).json(users);
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "problem connecting to database" });
+    res.status(500).json({ message: "Problem connecting to database" });
   } finally {
     await client.close();
   }

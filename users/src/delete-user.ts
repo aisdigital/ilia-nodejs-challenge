@@ -16,13 +16,13 @@ export const deleteUser = async (req: any, res: any) => {
     const result = await collection.deleteOne({ id: userId });
 
     if (result.deletedCount === 1) {
-      res.status(200).json({ message: "successfully deleted user" });
+      res.status(200).json({ message: "Successfully deleted user" });
     } else {
-      res.status(404).json({ message: "user not found" });
+      res.status(404).json({ message: "User not found" });
     }
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "problem connecting to database" });
+    res.status(500).json({ message: "Problem connecting to database" });
   } finally {
     await client.close();
   }
