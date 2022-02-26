@@ -18,6 +18,7 @@ services:
       - mongo
 
   users:
+    profiles: ["users"]
     build: ./users/
     environment:
       - HOSTDB=mongo
