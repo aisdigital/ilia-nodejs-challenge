@@ -11,7 +11,22 @@ services:
       - HOSTDB=mongo
       - PORTDB=27017
       - JWT_KEY=${JWT_KEY}
+      - INT_JWT=${INT_JWT}
     ports:
       - "3001:3001"
     depends_on:
       - mongo
+
+  users:
+    build: ./users/
+    environment:
+      - HOSTDB=mongo
+      - PORTDB=27017
+      - HOSTWALLET=wallet
+      - PORTWALLET=3001
+      - JWT_KEY=${JWT_KEY}
+      - INT_JWT=${INT_JWT}
+    ports:
+      - "3002:3002"
+    depends_on:
+      - wallet

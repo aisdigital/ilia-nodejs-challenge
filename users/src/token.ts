@@ -5,9 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 export const getToken = async (req: any, res: any) => {
-  console.log(req);
   const user = req.body.user;
-  console.log(user);
   if (user === undefined)
     return res.status(422).json({ message: "Missing user info" });
   if (user.email === undefined)

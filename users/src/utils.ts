@@ -1,4 +1,4 @@
-import { UserInfo } from "./types";
+import { Transactions, UserInfo } from "./types";
 
 const jwt = require("jsonwebtoken");
 
@@ -13,13 +13,10 @@ export const verifyToken = (req: any, res: any, next: any) => {
       .json({ message: "Access token is missing or invalid" });
 
   jwt.verify(token, process.env.JWT_KEY, (err: Error, user: any) => {
-    console.log(err);
     if (err)
       return res
         .status(401)
         .json({ message: "Access token is missing or invalid" });
-
-    console.log(user);
 
     next();
   });
@@ -38,5 +35,20 @@ export const isUserInfo = (info: Object): boolean => {
     if (!(key in info)) return false;
   }
   if (Object.keys(info).length > 5) return false;
+  return true;
+};
+
+export const isTransaction = (info: any): boolean => {
+  const transaction: Transactions = {
+    user_id: "user_id",
+    amount: 0,
+    type: "CREDIT",
+  };
+
+  for (const key in transaction) {
+    if (!(key in info)) return false;
+  }
+  if (info["type"] !== "CREDIT" && info["type"] !== "DEBIT") return false;
+  if (Object.keys(info).length > 3) return false;
   return true;
 };

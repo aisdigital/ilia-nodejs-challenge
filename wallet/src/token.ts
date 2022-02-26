@@ -1,9 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 export const sendToken = (req: any, res: any) => {
-  console.log(req);
   const body = req.body;
-  console.log(body);
   if (body.user_id === undefined)
     res.status(422).json({ message: "Missing user id" });
   else {

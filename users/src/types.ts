@@ -12,3 +12,9 @@ export type UsersResponse = {
   last_name: string;
   email: string;
 };
+
+export type Transactions = {
+  user_id: string;
+  amount: number;
+  type: string;
+};
