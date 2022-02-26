@@ -8,7 +8,7 @@ export const addTransaction = async (req: any, res: any) => {
     const request = req.body;
     if (!isTransaction(request))
       return res.status(422).json({ message: "Wrong body format" });
-    const token = jwt.sign(request.id, process.env.INT_JWT);
+    const token = jwt.sign(request.user_id, process.env.INT_JWT);
 
     const headers = {
       "Content-Type": "application/json",
@@ -21,7 +21,6 @@ export const addTransaction = async (req: any, res: any) => {
       { headers: headers }
     );
     res.status(response.status).json(response.data);
-    console.log(response);
   } catch (e) {
     res.status(500).json(e);
   }

@@ -4,7 +4,6 @@ import { TransactionsModel } from "./types";
 
 export const postTransactions = async (req: any, res: any) => {
   const info = req.body;
-  console.log(info);
   const client = new MongoClient(URI);
 
   try {

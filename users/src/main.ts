@@ -10,6 +10,8 @@ import { getTransactions } from "./get-transactions";
 import { getBalance } from "./get-balance";
 const express = require("express");
 
+console.log(process.env.INT_JWT);
+
 const port = 3002;
 const app = express();
 app.use(express.json());

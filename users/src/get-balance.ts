@@ -16,7 +16,6 @@ export const getBalance = async (req: any, res: any) => {
       headers: headers,
     });
     res.status(response.status).json(response.data);
-    console.log(response);
   } catch (e) {
     res.status(500).json(e);
   }
