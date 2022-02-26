@@ -8,7 +8,6 @@ export const updateUser = async (req: any, res: any) => {
   const info = req.body;
   if (!isUserInfo(info))
     return res.status(422).json({ message: "Wrong body format" });
-  console.log(userId);
 
   const client = new MongoClient(URI);
 

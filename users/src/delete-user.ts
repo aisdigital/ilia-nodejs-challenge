@@ -3,7 +3,6 @@ import { URI } from "./consts";
 
 export const deleteUser = async (req: any, res: any) => {
   const userId = req.params.id;
-  console.log(userId);
 
   const client = new MongoClient(URI);
 
