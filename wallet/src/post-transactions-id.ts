@@ -4,7 +4,6 @@ import { TransactionsModel } from "./types";
 import { isTransaction } from "./utils";
 
 export const postTransactions = async (req: any, res: any) => {
-  console.log("entrou aqui");
   const info = req.body;
   if (!isTransaction(info))
     return res.status(422).json({ message: "Wrong body format" });

@@ -10,7 +10,3 @@ export type TransactionsModel = {
   amount: number;
   type: string;
 };
-
-export type Balance = {
-  amount: number;
-};

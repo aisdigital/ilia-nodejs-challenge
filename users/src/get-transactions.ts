@@ -21,7 +21,6 @@ export const getTransactions = async (req: any, res: any) => {
       WALLET + `/transactions/${userId}?type=${tp}`,
       { headers: headers }
     );
-    console.log(response);
     res.status(response.status).json(response.data);
   } catch (e) {
     res.status(500).json(e);
