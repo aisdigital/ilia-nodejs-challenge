@@ -17,8 +17,15 @@ export const updateUser = async (req: any, res: any) => {
     const database = client.db("users");
     const collection = database.collection("info");
 
-    const cursor = collection.find({ email: info.email });
-    const users = await cursor.toArray();
+    let cursor = collection.find({ id: info.id });
+    let users = await cursor.toArray();
+    if (users.length > 0 && users[0]["id"] !== userId) {
+      res.status(409).json({ message: "Id already taken" });
+      await client.close();
+      return;
+    }
+    cursor = collection.find({ email: info.email });
+    users = await cursor.toArray();
     if (users.length > 0 && users[0]["id"] !== userId) {
       res.status(409).json({ message: "Email already taken" });
       await client.close();
