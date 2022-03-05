@@ -23,6 +23,6 @@ export default class TransactionsController {
       type,
     });
 
-    return response.json(transaction);
+    return response.status(201).json(transaction);
   }
 }

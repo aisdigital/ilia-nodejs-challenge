@@ -45,3 +45,5 @@ app.listen(3001, () => {
   // eslint-disable-next-line no-console
   console.log('Server started. Port 3001');
 });
+
+export default app;
