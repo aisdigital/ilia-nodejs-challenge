@@ -1,6 +1,6 @@
 enum TransactionType {
   CREDIT,
-  DEBIT
+  DEBIT,
 }
 
 export default interface ICreateTransactionDTO {

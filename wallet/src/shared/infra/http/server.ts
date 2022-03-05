@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
 import cors from 'cors';
+import AppError from '@shared/errors/AppErros';
 
 import '@shared/infra/mongoose';
 import AppError from '@shared/erros/AppErros';
@@ -24,6 +25,7 @@ app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
   });
 });
 
-app.listen(3001,()=>{
-  console.log("Server started. Port 3001")
+app.listen(3001, () => {
+  // eslint-disable-next-line no-console
+  console.log('Server started. Port 3001');
 });

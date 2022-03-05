@@ -7,12 +7,11 @@ let fakeTransactionsRepository: FakeTransactionsRepository;
 let transactionsFinder: TransactionsFinder;
 
 describe('Transactions', () => {
-
-  function createTransaction({ user_id, amount, type, }:ICreateTransactionDTO) {
+  function createTransaction({ user_id, amount, type }: ICreateTransactionDTO) {
     return fakeTransactionsRepository.create({
       user_id,
       amount,
-      type
+      type,
     });
   }
 
@@ -22,11 +21,21 @@ describe('Transactions', () => {
   });
 
   it('should be able to list the transactions', async () => {
-    const transactionOne = await createTransaction({ user_id:'user_01', amount: 1, type: TransactionType.CREDIT });
-    const transactionTwo = await createTransaction({ user_id: 'user_02', amount: 4, type: TransactionType.DEBIT });
+    const transactionOne = await createTransaction({
+      user_id: 'user_01',
+      amount: 1,
+      type: TransactionType.CREDIT,
+    });
+    const transactionTwo = await createTransaction({
+      user_id: 'user_02',
+      amount: 4,
+      type: TransactionType.DEBIT,
+    });
 
     const transactions = await transactionsFinder.execute();
 
-    expect(transactions).toEqual(expect.arrayContaining([transactionOne,transactionTwo]));
+    expect(transactions).toEqual(
+      expect.arrayContaining([transactionOne, transactionTwo]),
+    );
   });
 });

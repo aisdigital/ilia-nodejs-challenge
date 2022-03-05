@@ -1,3 +1,8 @@
 /*.js
 node_modules
 dist
+tsconfig.json
+package.json
+package-lock.json
+jest.config.ts
+.

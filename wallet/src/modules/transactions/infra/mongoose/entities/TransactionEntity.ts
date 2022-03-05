@@ -1,8 +1,8 @@
 import mongoose, { Document } from 'mongoose';
 
-enum TransactionType {
-  CREDIT,
-  DEBIT
+export enum TransactionType {
+  CREDIT = 'CREDIT',
+  DEBIT = 'DEBIT',
 }
 export interface ITransaction extends Document {
   user_id: string;
@@ -13,10 +13,10 @@ export interface ITransaction extends Document {
 const TransactionSchema = new mongoose.Schema({
   user_id: { type: String, required: true },
   amount: { type: Number, required: true },
-  type: { 
-    type: String, 
+  type: {
+    type: String,
     required: true,
-    enum : ['CREDIT','DEBIT'],
+    enum: ['CREDIT', 'DEBIT'],
   },
 });
 
