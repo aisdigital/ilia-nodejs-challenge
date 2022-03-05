@@ -17,7 +17,8 @@
     "express-async-errors": "^3.1.1",
     "mongoose": "^6.2.4",
     "reflect-metadata": "^0.1.13",
-    "ts-node-dev": "^1.1.8"
+    "ts-node-dev": "^1.1.8",
+    "tsyringe": "^4.6.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
