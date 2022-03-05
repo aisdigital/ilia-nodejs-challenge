@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
+import { errors, isCelebrate } from 'celebrate';
 import cors from 'cors';
 import AppError from '@shared/errors/AppErros';
 import routes from './routes';
@@ -10,8 +11,10 @@ import '@shared/infra/mongoose';
 import '@shared/container';
 
 const app = express();
+app.use(errors());
 app.use(cors());
 app.use(express.json());
+
 app.use(routes);
 
 app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
@@ -21,6 +24,14 @@ app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
       message: err.message,
     });
   }
+
+  if (isCelebrate(err)) {
+    return response.status(400).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+
   // eslint-disable-next-line no-console
   console.error(err);
 

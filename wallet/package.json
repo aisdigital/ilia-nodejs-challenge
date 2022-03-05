@@ -11,6 +11,7 @@
     "lint": "eslint --config .eslintrc.json --ext .ts --ignore-path .gitignore --ignore-path .eslintignore ."
   },
   "dependencies": {
+    "celebrate": "12.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
