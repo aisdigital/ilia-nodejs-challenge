@@ -8,4 +8,5 @@ export default interface ITransactionsRepository {
   find(): Promise<ITransaction[]>;
   findByType(type: TransactionType): Promise<ITransaction[]>;
   create(data: ICreateTransactionDTO): Promise<ITransaction>;
+  calculateBalance(): Promise<number>;
 }

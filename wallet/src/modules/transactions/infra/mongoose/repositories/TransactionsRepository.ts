@@ -19,6 +19,27 @@ class TransactionsRepository implements ITransactionsRepository {
   ): Promise<ITransaction> {
     return TransactionEntity.create(transaction);
   }
+
+  public async calculateBalance(): Promise<number> {
+    const result = await TransactionEntity.aggregate([
+      {
+        $group: {
+          _id: null,
+          amount: {
+            $sum: {
+              $cond: {
+                if: { $eq: ['$type', 'CREDIT'] },
+                then: '$amount',
+                else: { $multiply: ['$amount', -1] },
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    return result?.[0]?.amount || 0;
+  }
 }
 
 export default TransactionsRepository;

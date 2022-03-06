@@ -35,7 +35,7 @@ describe('BalanceController', () => {
     expect(response.body).toEqual({ amount: 5 });
   });
 
-  it('should be able to return { amount: 5 } if no transactions exist', async () => {
+  it('should be able to return { amount: 0 } if no transactions exist', async () => {
     const response = await request(app).get('/balance').send();
 
     expect(response.status).toBe(200);

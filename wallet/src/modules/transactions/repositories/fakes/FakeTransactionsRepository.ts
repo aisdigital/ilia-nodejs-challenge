@@ -29,6 +29,17 @@ class FakeTransactionsRepository implements ITransactionsRepository {
 
     return transaction;
   }
+
+  public async calculateBalance(): Promise<number> {
+    return this.transactions.reduce(
+      (acc: number, transaction: ITransaction) => {
+        return transaction.type === 'CREDIT'
+          ? acc + transaction.amount
+          : acc - transaction.amount;
+      },
+      0,
+    );
+  }
 }
 
 export default FakeTransactionsRepository;
