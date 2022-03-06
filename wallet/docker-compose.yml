@@ -4,17 +4,24 @@ services:
   wallet:
     container_name: server_wallet
     depends_on:
-      - iliamongodb
+      - db
+    links:
+      - db
     build: .
-    command: npm run dev
+    command: npm run debug
     ports:
       - '3001:3001'
+      - '9229:9229'
+    volumes:
+      - ./:/home/node/wallet
+      - /home/node/wallet/node_modules
     environment:
-      - DATABASE_URI=${DATABASE_URI}
+      - DATABASE_URI=${DATABASE_URI_DOCKER}
       - PRIVATE_KEY=${PRIVATE_KEY}
+      - NODE_ENV=${NODE_ENV}
 
-  iliamongodb:
+  db:
     image: mongo
-    container_name: iliamongodb
+    container_name: ilia_mongo_db
     ports:
       - '27017:27017'

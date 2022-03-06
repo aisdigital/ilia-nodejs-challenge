@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node-dev -r tsconfig-paths/register --ignore-watch node_modules src/shared/infra/http/server.ts",
+    "debug": "ts-node-dev -r tsconfig-paths/register  --ignore-watch node_modules --no-notify --inspect=0.0.0.0:9229 src/shared/infra/http/server.ts",
     "test": "jest",
     "lint": "eslint --config .eslintrc.json --ext .ts --ignore-path .gitignore --ignore-path .eslintignore ."
   },
