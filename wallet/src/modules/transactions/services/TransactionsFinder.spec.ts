@@ -38,4 +38,23 @@ describe('Transactions', () => {
       expect.arrayContaining([transactionOne, transactionTwo]),
     );
   });
+
+  it('should be able to list the transactions by type', async () => {
+    await createTransaction({
+      user_id: 'user_01',
+      amount: 1,
+      type: TransactionType.CREDIT,
+    });
+    const transactionTwo = await createTransaction({
+      user_id: 'user_02',
+      amount: 4,
+      type: TransactionType.DEBIT,
+    });
+
+    const transactions = await transactionsFinder.execute(
+      TransactionType.DEBIT,
+    );
+
+    expect(transactions).toEqual(expect.arrayContaining([transactionTwo]));
+  });
 });

@@ -118,18 +118,77 @@ describe('TransactionsController', () => {
 
   describe('Find Transactions', () => {
     it('should be able to list the transactions', async () => {
+      const transactionsToCreate = [
+        {
+          user_id: 'laco',
+          amount: 112,
+          type: TransactionType.CREDIT,
+        },
+        {
+          user_id: 'laco2',
+          amount: 2,
+          type: TransactionType.DEBIT,
+        },
+      ];
+      await transactionsRepository.create(transactionsToCreate[0]);
+      await transactionsRepository.create(transactionsToCreate[1]);
+
+      const response = await request(app).get('/transactions').send();
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+
+      expect(response.body[0]).toEqual(
+        expect.objectContaining(transactionsToCreate[0]),
+      );
+      expect(response.body[1]).toEqual(
+        expect.objectContaining(transactionsToCreate[1]),
+      );
+    });
+
+    it('should be able to list the transactions by type', async () => {
+      const transactionsToCreate = [
+        {
+          user_id: 'laco',
+          amount: 112,
+          type: TransactionType.CREDIT,
+        },
+        {
+          user_id: 'laco2',
+          amount: 2,
+          type: TransactionType.DEBIT,
+        },
+      ];
+
+      await transactionsRepository.create(transactionsToCreate[0]);
+      await transactionsRepository.create(transactionsToCreate[1]);
+
+      const response = await request(app)
+        .get('/transactions?type=DEBIT')
+        .send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+      expect(response.body[0]).toEqual(
+        expect.objectContaining(transactionsToCreate[1]),
+      );
+    });
+
+    it('should be able to throw error 500 if unable to record transaction', async () => {
       const transactionToCreate = {
         user_id: 'laco',
         amount: 112,
         type: TransactionType.CREDIT,
       };
+
       await transactionsRepository.create(transactionToCreate);
 
-      const response = await request(app).get('/transactions').send();
-      expect(response.status).toBe(200);
+      const response = await request(app)
+        .get('/transactions?type=ERRO_TYPE')
+        .send();
 
-      expect(response.body[0]).toEqual(
-        expect.objectContaining(transactionToCreate),
+      expect(response.status).toBe(400);
+      expect(response?.body?.message).toBe(
+        'type deve ser do tipo string sendo CREDIT ou DEBIT.',
       );
     });
   });
