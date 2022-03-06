@@ -3,6 +3,7 @@ import ITransactionsRepository from '@modules/transactions/repositories/ITransac
 import ICreateTransactionDTO from '@modules/transactions/dtos/ICreateTransactionDTO';
 import TransactionEntity, {
   ITransaction,
+  TransactionType,
 } from '@modules/transactions/infra/mongoose/entities/TransactionEntity';
 
 class FakeTransactionsRepository implements ITransactionsRepository {
@@ -10,6 +11,10 @@ class FakeTransactionsRepository implements ITransactionsRepository {
 
   public async find(): Promise<ITransaction[]> {
     return this.transactions;
+  }
+
+  public async findByType(type: TransactionType): Promise<ITransaction[]> {
+    return this.transactions.filter(transaction => transaction.type === type);
   }
 
   public async create(data: ICreateTransactionDTO): Promise<ITransaction> {

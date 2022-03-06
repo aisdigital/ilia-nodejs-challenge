@@ -4,12 +4,16 @@ import { container } from 'tsyringe';
 
 import TransactionsCreator from '@modules/transactions/services/TransactionsCreator';
 import TransactionsFinder from '@modules/transactions/services/TransactionsFinder';
+import { TransactionType } from '../../mongoose/entities/TransactionEntity';
 
 export default class TransactionsController {
   public async getAll(request: Request, response: Response): Promise<Response> {
+    const { type } = request.query;
     const transactionsFinder = container.resolve(TransactionsFinder);
 
-    const transactions = await transactionsFinder.execute();
+    const transactions = await transactionsFinder.execute(
+      type as TransactionType | undefined,
+    );
     return response.json(transactions);
   }
 

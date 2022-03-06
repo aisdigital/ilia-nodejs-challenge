@@ -1,5 +1,6 @@
 import ITransactionsRepository from '@modules/transactions/repositories/ITransactionsRepository';
 import { inject, injectable } from 'tsyringe';
+import { TransactionType } from '../infra/mongoose/entities/TransactionEntity';
 
 @injectable()
 class TransactionsFinder {
@@ -8,7 +9,8 @@ class TransactionsFinder {
     private transactionsRepository: ITransactionsRepository,
   ) {}
 
-  execute() {
+  execute(type?: TransactionType) {
+    if (type) return this.transactionsRepository.findByType(type);
     return this.transactionsRepository.find();
   }
 }

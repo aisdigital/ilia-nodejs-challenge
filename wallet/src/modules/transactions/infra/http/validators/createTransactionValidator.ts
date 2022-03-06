@@ -1,6 +1,6 @@
 import { celebrate, Joi } from 'celebrate';
 
-const createUserValidators = celebrate({
+const createTransactionValidator = celebrate({
   body: Joi.object().keys({
     user_id: Joi.string()
       .required()
@@ -19,4 +19,4 @@ const createUserValidators = celebrate({
   }),
 });
 
-export default createUserValidators;
+export default createTransactionValidator;
