@@ -2,14 +2,18 @@ import TransactionsRepository from '@modules/transactions/infra/mongoose/reposit
 // eslint-disable-next-line import/no-extraneous-dependencies
 import request from 'supertest';
 import app from '@shared/infra/http/app';
+import { sign } from 'jsonwebtoken';
+import authConfig from '@config/auth';
 import TransactionEntity, {
   TransactionType,
 } from '../../mongoose/entities/TransactionEntity';
 
 let transactionsRepository: TransactionsRepository;
+let token: string;
 
 describe('TransactionsController', () => {
   beforeAll(() => {
+    token = sign({}, authConfig.jwt.secret);
     transactionsRepository = new TransactionsRepository();
   });
 
@@ -18,12 +22,23 @@ describe('TransactionsController', () => {
   });
 
   describe('Create Transactions', () => {
+    it('should be able to require authentication when trying to create transaction', async () => {
+      const response = await request(app).post('/transactions').send();
+      expect(response.status).toBe(401);
+      expect(response?.body?.message).toBe(
+        'Favor, é preciso estar logado para continuar',
+      );
+    });
+
     it('should be able to create the transaction', async () => {
-      const response = await request(app).post('/transactions').send({
-        user_id: 'laco',
-        amount: 112,
-        type: 'CREDIT',
-      });
+      const response = await request(app)
+        .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
+        .send({
+          user_id: 'laco',
+          amount: 112,
+          type: 'CREDIT',
+        });
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('_id');
     });
@@ -31,6 +46,7 @@ describe('TransactionsController', () => {
     it("should be able to throw error 400 if not receiving 'user_id' or not having correct type", async () => {
       await request(app)
         .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
         .send({})
         .then(response => {
           expect(response.status).toBe(400);
@@ -41,6 +57,7 @@ describe('TransactionsController', () => {
 
       await request(app)
         .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
         .send({ user_id: 1 })
         .then(response => {
           expect(response.status).toBe(400);
@@ -53,6 +70,7 @@ describe('TransactionsController', () => {
     it("should be able to throw error 400 if not receiving 'amount' or not having correct type", async () => {
       await request(app)
         .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
         .send({
           user_id: 'qwe',
         })
@@ -65,6 +83,7 @@ describe('TransactionsController', () => {
 
       await request(app)
         .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
         .send({ user_id: 'qwe', amount: 'qwe' })
         .then(response => {
           expect(response.status).toBe(400);
@@ -77,6 +96,7 @@ describe('TransactionsController', () => {
     it("should be able to throw error 400 if not receiving 'type' or not having correct type", async () => {
       await request(app)
         .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
         .send({
           user_id: 'qwe',
           amount: 12,
@@ -90,6 +110,7 @@ describe('TransactionsController', () => {
 
       await request(app)
         .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
         .send({ user_id: 'qwe', amount: 12, type: 'type_error' })
         .then(response => {
           expect(response.status).toBe(400);
@@ -109,7 +130,10 @@ describe('TransactionsController', () => {
         amount: 12,
         type: 'CREDIT',
       };
-      const response = await request(app).post('/transactions').send(input);
+      const response = await request(app)
+        .post('/transactions')
+        .set('Authorization', `bearer ${token}`)
+        .send(input);
 
       expect(response.status).toBe(500);
       expect(response?.body?.message).toBe('Erro ao registrar transação.');
@@ -117,6 +141,14 @@ describe('TransactionsController', () => {
   });
 
   describe('Find Transactions', () => {
+    it('should be able to require authentication when trying to list the transactions', async () => {
+      const response = await request(app).get('/transactions').send();
+      expect(response.status).toBe(401);
+      expect(response?.body?.message).toBe(
+        'Favor, é preciso estar logado para continuar',
+      );
+    });
+
     it('should be able to list the transactions', async () => {
       const transactionsToCreate = [
         {
@@ -133,7 +165,10 @@ describe('TransactionsController', () => {
       await transactionsRepository.create(transactionsToCreate[0]);
       await transactionsRepository.create(transactionsToCreate[1]);
 
-      const response = await request(app).get('/transactions').send();
+      const response = await request(app)
+        .get('/transactions')
+        .set('Authorization', `bearer ${token}`)
+        .send();
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(2);
 
@@ -164,6 +199,7 @@ describe('TransactionsController', () => {
 
       const response = await request(app)
         .get('/transactions?type=DEBIT')
+        .set('Authorization', `bearer ${token}`)
         .send();
 
       expect(response.status).toBe(200);
@@ -184,6 +220,7 @@ describe('TransactionsController', () => {
 
       const response = await request(app)
         .get('/transactions?type=ERRO_TYPE')
+        .set('Authorization', `bearer ${token}`)
         .send();
 
       expect(response.status).toBe(400);
