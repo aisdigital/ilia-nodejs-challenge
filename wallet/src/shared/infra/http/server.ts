@@ -1,49 +1,9 @@
-import 'reflect-metadata';
+import 'dotenv/config';
+import app from './app';
 
-import express, { NextFunction, Request, Response } from 'express';
-import 'express-async-errors';
-import { errors, isCelebrate } from 'celebrate';
-import cors from 'cors';
-import AppError from '@shared/errors/AppErros';
-import routes from './routes';
+const port = process.env.PORT || 3001;
 
-import '@shared/infra/mongoose';
-import '@shared/container';
-
-const app = express();
-app.use(errors());
-app.use(cors());
-app.use(express.json());
-
-app.use(routes);
-
-app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
-  if (err instanceof AppError) {
-    return response.status(err.statusCode).json({
-      status: 'error',
-      message: err.message,
-    });
-  }
-
-  if (isCelebrate(err)) {
-    return response.status(400).json({
-      status: 'error',
-      message: err.message,
-    });
-  }
-
+app.listen(port, () => {
   // eslint-disable-next-line no-console
-  console.error(err);
-
-  return response.status(500).json({
-    status: 'error',
-    message: 'Internal server error',
-  });
+  console.log(`Server started. Port ${port}`);
 });
-
-app.listen(3001, () => {
-  // eslint-disable-next-line no-console
-  console.log('Server started. Port 3001');
-});
-
-export default app;

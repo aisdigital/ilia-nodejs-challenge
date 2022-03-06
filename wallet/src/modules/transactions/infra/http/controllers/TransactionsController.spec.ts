@@ -1,7 +1,7 @@
 import FakeTransactionsRepository from '@modules/transactions/repositories/fakes/FakeTransactionsRepository';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import request from 'supertest';
-import server from '@shared/infra/http/server';
+import app from '@shared/infra/http/app';
 import { TransactionType } from '../../mongoose/entities/TransactionEntity';
 
 let fakeTransactionsRepository: FakeTransactionsRepository;
@@ -13,7 +13,7 @@ describe('TransactionsController', () => {
 
   describe('Create Transactions', () => {
     it('should be able to create the transaction', async () => {
-      const response = await request(server).post('/transactions').send({
+      const response = await request(app).post('/transactions').send({
         user_id: 'laco',
         amount: 112,
         type: 'CREDIT',
@@ -23,7 +23,7 @@ describe('TransactionsController', () => {
     });
 
     it("should be able to throw error 400 if not receiving 'user_id' or not having correct type", async () => {
-      await request(server)
+      await request(app)
         .post('/transactions')
         .send({})
         .then(response => {
@@ -33,7 +33,7 @@ describe('TransactionsController', () => {
           );
         });
 
-      await request(server)
+      await request(app)
         .post('/transactions')
         .send({ user_id: 1 })
         .then(response => {
@@ -45,7 +45,7 @@ describe('TransactionsController', () => {
     });
 
     it("should be able to throw error 400 if not receiving 'amount' or not having correct type", async () => {
-      await request(server)
+      await request(app)
         .post('/transactions')
         .send({
           user_id: 'qwe',
@@ -57,7 +57,7 @@ describe('TransactionsController', () => {
           );
         });
 
-      await request(server)
+      await request(app)
         .post('/transactions')
         .send({ user_id: 'qwe', amount: 'qwe' })
         .then(response => {
@@ -69,7 +69,7 @@ describe('TransactionsController', () => {
     });
 
     it("should be able to throw error 400 if not receiving 'type' or not having correct type", async () => {
-      await request(server)
+      await request(app)
         .post('/transactions')
         .send({
           user_id: 'qwe',
@@ -82,7 +82,7 @@ describe('TransactionsController', () => {
           );
         });
 
-      await request(server)
+      await request(app)
         .post('/transactions')
         .send({ user_id: 'qwe', amount: 12, type: 'type_error' })
         .then(response => {
@@ -103,7 +103,7 @@ describe('TransactionsController', () => {
       };
       await fakeTransactionsRepository.create(transactionToCreate);
 
-      const response = await request(server).get('/transactions').send();
+      const response = await request(app).get('/transactions').send();
       expect(response.status).toBe(200);
 
       expect(response.body[0]).toEqual(
