@@ -2,13 +2,19 @@ import TransactionsRepository from '@modules/transactions/infra/mongoose/reposit
 // eslint-disable-next-line import/no-extraneous-dependencies
 import request from 'supertest';
 import app from '@shared/infra/http/app';
-import { TransactionType } from '../../mongoose/entities/TransactionEntity';
+import TransactionEntity, {
+  TransactionType,
+} from '../../mongoose/entities/TransactionEntity';
 
 let transactionsRepository: TransactionsRepository;
 
 describe('BalanceController', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     transactionsRepository = new TransactionsRepository();
+  });
+
+  beforeEach(async () => {
+    await TransactionEntity.deleteMany({}).exec();
   });
 
   it('should be able to return correct balance', async () => {
@@ -27,5 +33,12 @@ describe('BalanceController', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ amount: 5 });
+  });
+
+  it('should be able to return { amount: 5 } if no transactions exist', async () => {
+    const response = await request(app).get('/balance').send();
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ amount: 0 });
   });
 });

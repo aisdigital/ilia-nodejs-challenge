@@ -1,14 +1,20 @@
-import FakeTransactionsRepository from '@modules/transactions/repositories/fakes/FakeTransactionsRepository';
+import TransactionsRepository from '@modules/transactions/infra/mongoose/repositories/TransactionsRepository';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import request from 'supertest';
 import app from '@shared/infra/http/app';
-import { TransactionType } from '../../mongoose/entities/TransactionEntity';
+import TransactionEntity, {
+  TransactionType,
+} from '../../mongoose/entities/TransactionEntity';
 
-let fakeTransactionsRepository: FakeTransactionsRepository;
+let transactionsRepository: TransactionsRepository;
 
 describe('TransactionsController', () => {
-  beforeEach(() => {
-    fakeTransactionsRepository = new FakeTransactionsRepository();
+  beforeAll(() => {
+    transactionsRepository = new TransactionsRepository();
+  });
+
+  beforeEach(async () => {
+    await TransactionEntity.deleteMany({}).exec();
   });
 
   describe('Create Transactions', () => {
@@ -92,6 +98,22 @@ describe('TransactionsController', () => {
           );
         });
     });
+
+    it('should be able to throw error 500 if unable to record transaction', async () => {
+      jest
+        .spyOn(TransactionsRepository.prototype, 'create')
+        .mockImplementationOnce(() => Promise.reject(Error('Teste error')));
+
+      const input = {
+        user_id: 'qwe',
+        amount: 12,
+        type: 'CREDIT',
+      };
+      const response = await request(app).post('/transactions').send(input);
+
+      expect(response.status).toBe(500);
+      expect(response?.body?.message).toBe('Erro ao registrar transação.');
+    });
   });
 
   describe('Find Transactions', () => {
@@ -101,7 +123,7 @@ describe('TransactionsController', () => {
         amount: 112,
         type: TransactionType.CREDIT,
       };
-      await fakeTransactionsRepository.create(transactionToCreate);
+      await transactionsRepository.create(transactionToCreate);
 
       const response = await request(app).get('/transactions').send();
       expect(response.status).toBe(200);
