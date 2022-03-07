@@ -2,13 +2,7 @@
   Wallet
 </h1>
 
-<p align="center">
-  <img alt="Repository size" src="https://img.shields.io/github/repo-size/JonasCastro/ilia-nodejs-challenge">
-
-  <a href="https://github.com/JonasCastro/ilia-nodejs-challenge/commits/master">
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/JonasCastro/ilia-nodejs-challenge">
-  </a>
-    
+<p align="center">   
    <img alt="License" src="https://img.shields.io/badge/license-MIT-brightgreen">
 
   <a href="https://www.linkedin.com/in/jonas-castro-b4044111a/">
