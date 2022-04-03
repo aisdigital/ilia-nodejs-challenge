@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  wallet:
+    build:
+      target: production
+    command: node build/server.js
+  users:
+    build:
+      target: production
+    command: node build/server.js

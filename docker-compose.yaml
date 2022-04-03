@@ -1,0 +1,79 @@
+version: '3.8'
+services:
+  userDb:
+    image: mongo:4.4.13
+    container_name: userDb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - userDb:/data/db
+    ports:
+      - 27017:27017
+
+  walletDb:
+    image: mongo:4.4.13
+    container_name: walletDb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - walletDb:/data/db
+    ports:
+      - 27018:27017
+
+  wallet:
+    container_name: wallet
+    build:
+      context: ./wallet
+      dockerfile: Dockerfile
+      target: base
+    environment:
+      PORT: 3001
+      DB_HOSTNAME: 'walletDb'
+      DB_PORT: 27017
+      JWT_SECRET: ${JWT_SECRET}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./wallet/src:/home/node/app/src
+      - ./wallet/nodemon.json:/home/node/app/nodemon.json
+    links:
+      - walletDb
+    expose:
+      - '3001'
+    ports:
+      - '3001:3001'
+    depends_on:
+      - userDb
+    command: npm run dev
+
+  users:
+    container_name: users
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+      target: base
+    environment:
+      PORT: 3002
+      DB_HOSTNAME: 'userDb'
+      DB_PORT: 27018
+      JWT_SECRET: ${JWT_SECRET}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./users/src:/home/node/app/src
+      - ./users/nodemon.json:/home/node/app/nodemon.json
+    links:
+      - userDb
+    expose:
+      - '3002'
+    ports:
+      - '3002:3002'
+    depends_on:
+      - userDb
+    command: npm run dev
+
+volumes:
+  walletDb:
+  userDb:

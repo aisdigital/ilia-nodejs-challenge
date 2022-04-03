@@ -1,0 +1,40 @@
+{
+  "name": "wallet-service",
+  "version": "0.0.1",
+  "description": "Wallet service - Ilia NodeJS challenge",
+  "main": "src/server.ts",
+  "scripts": {
+    "start": "NODE_PATH=./build node build/server.js",
+    "build": "tsc -p .",
+    "dev": "nodemon src/server.ts",
+    "local": "export NODE_ENV=local && nodemon src/server.ts"
+  },
+  "author": "Pedro Bonifacio",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "express-validator": "^6.14.0",
+    "helmet": "^5.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "mongoose": "^6.2.9",
+    "morgan": "^1.10.0",
+    "passport": "^0.5.2",
+    "passport-jwt": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/helmet": "^4.0.0",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/lodash": "^4.14.181",
+    "@types/mongoose": "^5.11.97",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^17.0.23",
+    "@types/passport": "^1.0.7",
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  }
+}
