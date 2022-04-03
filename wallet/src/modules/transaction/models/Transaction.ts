@@ -2,8 +2,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { UserModel } from '../../../database/mongoose';
 
 export enum TransactionType {
-  CREDIT = 'credit',
-  DEBIT = 'debit',
+  CREDIT = 'CREDIT',
+  DEBIT = 'DEBIT',
 }
 
 export interface Transaction extends Document {
