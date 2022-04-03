@@ -1,8 +1,14 @@
+### Before committing
+
+run `npm run prepare` or `yarn prepare`
+
 ## For running locally
 
-First set the env
+Run the commands below and enter them in the services you want to run
 
-local inside service
+`cd wallet`
+
+Install packages
 
 `npm i` or `yarn`
 
