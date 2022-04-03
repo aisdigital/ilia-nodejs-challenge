@@ -12,6 +12,7 @@ import { usePassport } from './utils/passport-helper';
 import routes from './modules/routes';
 import database from './database/mongoose';
 import morgan from 'morgan';
+import { errorHandlerMiddleware } from './utils/error';
 
 const app = express();
 
@@ -34,6 +35,8 @@ app.use(routes);
 routes.get('/', (_req, res) => {
   return res.send('<h1>Wallet Up!</h1>');
 });
+
+app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT ?? 3001;
 app.listen(port, () => {

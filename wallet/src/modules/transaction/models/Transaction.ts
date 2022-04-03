@@ -12,6 +12,16 @@ export interface Transaction extends Document {
   type: keyof typeof TransactionType;
   createdAt: Date;
   updatedAt: Date;
+  serialize: () => SerializedTransaction;
+}
+
+interface SerializedTransaction {
+  _id: string;
+  amount: number;
+  type: keyof typeof TransactionType;
+  createdAt: Date;
+  updatedAt: Date;
+  user_id: string;
 }
 
 const TransactionSchema: Schema<Transaction> = new Schema(
@@ -28,5 +38,18 @@ const TransactionSchema: Schema<Transaction> = new Schema(
     timestamps: true,
   },
 );
+
+TransactionSchema.methods.serialize = function (): SerializedTransaction {
+  const obj = {
+    _id: this._id,
+    user_id: this.user_id,
+    amount: this.amount,
+    type: this.type,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  };
+
+  return obj;
+};
 
 export default mongoose.model<Transaction>('Transaction', TransactionSchema);

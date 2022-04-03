@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { Dictionary } from 'lodash';
+import { Dictionary, isEmpty } from 'lodash';
+import { ValidationError, validationResult } from 'express-validator';
 
 export default class ErrorHandler extends Error {
   statusCode: number;
@@ -19,18 +20,55 @@ export default class ErrorHandler extends Error {
   }
 }
 
+const parseErrors = (errors: ValidationError[]): Dictionary<{ id: string; message: string }[]> => {
+  const dict = {};
+
+  errors.forEach((error) => {
+    if (dict[error.param]) {
+      if (
+        !dict[error.param].find((singleError: { id: string }) => singleError.id === error.msg.id)
+      ) {
+        dict[error.param].push(error.msg);
+      }
+    } else {
+      dict[error.param] = [error.msg];
+    }
+  });
+
+  return dict;
+};
+
+export const validationMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const errors = validationResult(req).array();
+
+    if (!isEmpty(errors))
+      return next(new ErrorHandler(422, 'There are validation errors.', parseErrors(errors)));
+
+    return next();
+  } catch (error) {
+    if (error instanceof ErrorHandler) {
+      return next(error);
+    } else {
+      return next(
+        new ErrorHandler(500, 'Internal Error', null, [error?.message ?? 'Internal Error']),
+      );
+    }
+  }
+};
+
 export const errorHandlerMiddleware = async (
   err: ErrorHandler,
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const { statusCode, message, fieldErrors, nonFieldErrors } = err;
+  const { statusCode, message, fieldErrors } = err;
+
   res.status(statusCode).json({
     message,
     field_errors: fieldErrors,
-    non_field_errors: nonFieldErrors,
   });
 
-  next();
+  return next();
 };

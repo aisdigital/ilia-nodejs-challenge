@@ -34,7 +34,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-export const listUsers = async (req: Request, res: Response, next: NextFunction) => {
+export const listUsers = async (req: Req, res: Response, next: NextFunction) => {
   try {
     const users = await UserModel.find({});
 
@@ -48,7 +48,7 @@ export const listUsers = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUser = async (req: Req, res: Response, next: NextFunction) => {
   try {
     const { user_id } = req.params;
     const { password, ...body } = req.body;
@@ -60,7 +60,6 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 
     return res.status(200).json({ ...user.serialize() });
   } catch (error) {
-    console.log(error);
     if (error instanceof ErrorHandler) {
       next(error);
     } else {
@@ -69,7 +68,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserById = async (req: Req, res: Response, next: NextFunction) => {
   try {
     const { user_id } = req.params;
     const user = await UserModel.findById(user_id);
@@ -84,7 +83,7 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteUser = async (req: Req, res: Response, next: NextFunction) => {
   try {
     const { user_id } = req.params;
     await UserModel.deleteOne({ _id: user_id });
