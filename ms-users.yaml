@@ -2,12 +2,11 @@ openapi: 3.0.0
 info:
   title: Microservice Users
   version: 1.0.0
-  
+
 servers:
   - url: http://localhost:3002
     description: Local
-  
-  
+
 tags:
   - name: Users
   - name: Auth
@@ -24,19 +23,24 @@ paths:
       tags:
         - Users
       responses:
-        '200':
+        201:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UsersResponse'
+                $ref: '#/components/schemas/UsersCreateResponse'
           description: Response
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-      
+        422:
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
     get:
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
         200:
@@ -47,7 +51,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UsersResponse'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
   /users/:id:
     patch:
@@ -58,22 +62,28 @@ paths:
               $ref: '#/components/schemas/Users'
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
-        '200':
+        200:
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersResponse'
           description: Response
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-      
+        422:
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
     get:
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
         200:
@@ -82,21 +92,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersResponse'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
+        422:
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
     delete:
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
         200:
           description: OK
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-  
+        422:
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
   # Auth
-  /auth:
+  /login:
     post:
       requestBody:
         content:
@@ -106,29 +128,64 @@ paths:
       tags:
         - Auth
       responses:
-        '200':
+        200:
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
           description: Response
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-    
-  
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        422:
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /refresh_token:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      tags:
+        - Auth
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          description: Response
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        422:
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
 components:
   schemas:
     Users:
       type: object
       required:
-      - id
-      - first_name
-      - last_name
-      - password
-      - email
+        - first_name
+        - last_name
+        - password
+        - email
       properties:
-        id: 
-          type: string
         first_name:
           type: string
         last_name:
@@ -140,13 +197,13 @@ components:
     UsersModel:
       type: object
       required:
-      - id
-      - first_name
-      - last_name
-      - password
-      - email
+        - id
+        - first_name
+        - last_name
+        - password
+        - email
       properties:
-        id: 
+        id:
           type: string
         first_name:
           type: string
@@ -159,12 +216,13 @@ components:
     UsersResponse:
       type: object
       required:
-      - id
-      - first_name
-      - last_name
-      - email
+        - id
+        - first_name
+        - last_name
+        - email
+        - createdAt
       properties:
-        id: 
+        id:
           type: string
         first_name:
           type: string
@@ -172,44 +230,95 @@ components:
           type: string
         email:
           type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+    UsersCreateResponse:
+      type: object
+      required:
+        - id
+        - first_name
+        - last_name
+        - email
+        - createdAt
+        - updatedAt
+        - acress_token
+      properties:
+        id:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        acress_token:
+          type: string
     AuthRequest:
       type: object
       required:
-      - email
-      - password
+        - email
+        - password
       properties:
-        user: 
-          type: object
-          properties:
-            email: 
-              type: string
-            password:
-              type: string
+        email:
+          type: string
+        password:
+          type: string
 
     AuthResponse:
       type: object
       required:
-      - email
-      - password
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
       properties:
-        user: 
-          type: object
-          properties:
-            id: 
-              type: string
-            first_name:
-              type: string
-            last_name:
-              type: string
-            email:
-              type: string
         access_token:
           type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: number
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+
+    ValidationError:
+      type: object
+      required:
+        - message
+        - field_errors
+      properties:
+        message:
+          type: string
+        field_errors:
+          type: object
+          properties:
+            field:
+              type: object
+              properties:
+                id:
+                  type: string
+                message:
+                  type: string
+
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth: # arbitrary name for the security scheme
       type: http
       scheme: bearer
       bearerFormat: JWT
   responses:
     UnauthorizedError:
-      description: Access token is missing or invalid    
+      description: Unauthorized
