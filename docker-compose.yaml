@@ -31,21 +31,18 @@ services:
     environment:
       PORT: 3001
       DB_HOSTNAME: 'walletDb'
-      DB_PORT: 27017
       JWT_SECRET: ${JWT_SECRET}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_USER_PORT: 27018
     volumes:
       - ./wallet/src:/home/node/app/src
       - ./wallet/nodemon.json:/home/node/app/nodemon.json
-    links:
-      - walletDb
     expose:
       - '3001'
     ports:
       - '3001:3001'
     depends_on:
+      - walletDb
       - userDb
     command: npm run dev
 
@@ -58,15 +55,12 @@ services:
     environment:
       PORT: 3002
       DB_HOSTNAME: 'userDb'
-      DB_PORT: 27018
       JWT_SECRET: ${JWT_SECRET}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./users/src:/home/node/app/src
       - ./users/nodemon.json:/home/node/app/nodemon.json
-    links:
-      - userDb
     expose:
       - '3002'
     ports:

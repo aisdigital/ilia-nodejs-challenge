@@ -2,10 +2,9 @@
 import mongoose from 'mongoose';
 import chalk from 'chalk';
 
-const { DB_PORT, DB_USERNAME, DB_PASSWORD, DB_URI } = process.env;
+const { DB_USERNAME, DB_PASSWORD, DB_URI } = process.env;
 const DB_URL =
-  DB_URI ?? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@userDb:${DB_PORT}/users?authSource=admin`;
-
+  DB_URI ?? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@userDb:27017/users?authSource=admin`;
 export const connected = chalk.bold.cyan;
 export const error = chalk.bold.red;
 export const disconnected = chalk.bold.yellow;
@@ -17,12 +16,15 @@ const connect = (): void => {
   mongoose.connection.on('connected', function (): void {
     console.log(connected('Mongoose default connection is open to', DB_URL));
   });
+
   mongoose.connection.on('error', function (err): void {
     console.log(error(`Mongoose default connection has occured ${err} error`));
   });
+
   mongoose.connection.on('disconnected', function (): void {
     console.log(disconnected('Mongoose default connection is disconnected'));
   });
+
   process.on('SIGINT', function (): void {
     mongoose.connection.close(function () {
       console.log(

@@ -32,10 +32,10 @@ app.use(passport.initialize());
 app.use(routes);
 
 routes.get('/', (_req, res) => {
-  return res.send('<h1>Up!</h1>');
+  return res.send('<h1>Wallet Up!</h1>');
 });
 
-const port = process.env.PORT ?? 3002;
+const port = process.env.PORT ?? 3001;
 app.listen(port, () => {
   console.log('Server Local On:', port);
 });

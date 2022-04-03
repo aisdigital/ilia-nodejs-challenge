@@ -2,12 +2,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import chalk from 'chalk';
 
-const { DB_PORT, DB_USER_PORT, DB_USERNAME, DB_PASSWORD, DB_URI, DB_USER_URI } = process.env;
+const { DB_USERNAME, DB_PASSWORD, DB_URI, DB_USER_URI } = process.env;
 const DB_URL =
-  DB_URI ?? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@walletDb:${DB_PORT}/wallet?authSource=admin`;
+  DB_URI ?? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@walletDb:27017/wallet?authSource=admin`;
 const DB_USER_URL =
-  DB_USER_URI ??
-  `mongodb://${DB_USERNAME}:${DB_PASSWORD}@walletDb:${DB_USER_PORT}/users?authSource=admin`;
+  DB_USER_URI ?? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@userDb:27017/users?authSource=admin`;
 
 export const connected = chalk.bold.cyan;
 export const error = chalk.bold.red;
@@ -15,8 +14,6 @@ export const disconnected = chalk.bold.yellow;
 export const termination = chalk.bold.magenta;
 
 const connect = (): void => {
-  console.log({ DB_PORT, DB_USERNAME, DB_PASSWORD, DB_URI });
-
   mongoose.connect(DB_URL);
 
   mongoose.connection.on('connected', function (): void {

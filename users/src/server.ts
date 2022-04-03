@@ -12,11 +12,11 @@ import { usePassport } from './utils/passport-helper';
 import routes from './modules/routes';
 import database from './database/mongoose';
 import morgan from 'morgan';
+import { errorHandlerMiddleware } from './utils/error';
 
 const app = express();
 
 database();
-
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
@@ -32,10 +32,12 @@ app.use(passport.initialize());
 app.use(routes);
 
 routes.get('/', (_req, res) => {
-  return res.send('<h1>Up!</h1>');
+  return res.send('<h1>User Up!</h1>');
 });
 
-const port = process.env.PORT ?? 3002;
+app.use(errorHandlerMiddleware);
+
+const port = process.env.PORT ?? 3001;
 app.listen(port, () => {
   console.log('Server Local On:', port);
 });
