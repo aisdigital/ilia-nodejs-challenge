@@ -35,6 +35,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      DB_USER_PORT: 27018
     volumes:
       - ./wallet/src:/home/node/app/src
       - ./wallet/nodemon.json:/home/node/app/nodemon.json

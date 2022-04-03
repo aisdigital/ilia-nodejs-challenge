@@ -1,10 +1,13 @@
 // require mongoose module
-import mongoose from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import chalk from 'chalk';
 
-const { DB_PORT, DB_USERNAME, DB_PASSWORD, DB_URI } = process.env;
+const { DB_PORT, DB_USER_PORT, DB_USERNAME, DB_PASSWORD, DB_URI, DB_USER_URI } = process.env;
 const DB_URL =
-  DB_URI ?? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@walletDb:${DB_PORT}/users?authSource=admin`;
+  DB_URI ?? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@walletDb:${DB_PORT}/wallet?authSource=admin`;
+const DB_USER_URL =
+  DB_USER_URI ??
+  `mongodb://${DB_USERNAME}:${DB_PASSWORD}@walletDb:${DB_USER_PORT}/users?authSource=admin`;
 
 export const connected = chalk.bold.cyan;
 export const error = chalk.bold.red;
@@ -34,5 +37,31 @@ const connect = (): void => {
     });
   });
 };
+
+const userDb = mongoose.createConnection(DB_USER_URL);
+
+interface IUser extends Document {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const UserModel = userDb.model<IUser>(
+  'User',
+  new Schema(
+    {
+      email: { type: String, required: true, unique: true },
+      first_name: { type: String, required: true },
+      last_name: { type: String, required: true },
+      password: { type: String, required: true },
+    },
+    {
+      timestamps: true,
+    },
+  ),
+);
 
 export default connect;
