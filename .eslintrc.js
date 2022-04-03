@@ -19,5 +19,6 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'prettier/prettier': ['error'],
+    'no-async-promise-executor': 'off',
   },
 };
