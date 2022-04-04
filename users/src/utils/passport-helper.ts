@@ -12,8 +12,12 @@ export interface TokenData {
   aud: string;
   iss: string;
 }
-
-const { JWT_SECRET } = process.env;
+let JWT_SECRET;
+if (process.env.NODE_ENV === 'test') {
+  JWT_SECRET = 'testJwtSecret';
+} else {
+  JWT_SECRET = process.env.JWT_SECRET;
+}
 const JWT_EXPIRATION = 4 * 60 * 60;
 
 export const usePassport = (): void => {

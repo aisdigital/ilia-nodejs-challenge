@@ -54,9 +54,11 @@ export const updateUser = async (req: Req, res: Response, next: NextFunction) =>
     const { password, ...body } = req.body;
     const user = await UserModel.findByIdAndUpdate(user_id, body, { new: true });
 
-    user.password = password;
+    if (user && password) {
+      user.password = password;
 
-    user.save();
+      user.save();
+    }
 
     return res.status(200).json({ ...user.serialize() });
   } catch (error) {
@@ -88,7 +90,7 @@ export const deleteUser = async (req: Req, res: Response, next: NextFunction) =>
     const { user_id } = req.params;
     await UserModel.deleteOne({ _id: user_id });
 
-    return res.status(200).end();
+    return res.status(204).end();
   } catch (error) {
     if (error instanceof ErrorHandler) {
       next(error);

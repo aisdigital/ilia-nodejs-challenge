@@ -35,4 +35,22 @@ const connect = (): void => {
   });
 };
 
+// let mongoServer1;
+
+// const connections = {
+//   conn1: mongoose.createConnection(),
+// };
+// if (process.env.NODE_ENV === 'test') {
+//   mongoServer1 = new MongoMemoryServer();
+//   mongoServer1.getUri('USER_DB').then((mongoUri) => {
+//     connections.conn1.openUri(mongoUri);
+//     mongoose.connection.once('open', () => {
+//       return true;
+//     });
+//   });
+// }
+// const accountDb =
+//   process.env.NODE_ENV !== 'test'
+//     ? mongoose.createConnection(process.env.ACCOUNT_DB)
+//     : connections.conn1;
 export default connect;
