@@ -52,9 +52,7 @@ if (process.env.NODE_ENV === 'test') {
   });
 }
 const userDb =
-  process.env.NODE_ENV !== 'test'
-    ? mongoose.createConnection(process.env.DB_USER_URL)
-    : connections.conn1;
+  process.env.NODE_ENV !== 'test' ? mongoose.createConnection(DB_USER_URL) : connections.conn1;
 
 interface IUser extends Document {
   first_name: string;

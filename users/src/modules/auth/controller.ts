@@ -2,12 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import RefreshToken from './models/RefreshToken';
 import UserModel, { User } from '../user/models/User';
 import ErrorHandler from '../../utils/error';
-import { getToken, promisifyLocalAuthenticate, TokenData } from '../../utils/passport-helper';
+import { getToken, promisifyLocalAuthenticate } from '../../utils/passport-helper';
 import uuid4 from 'uuid4';
 
-type Req = Request & {
-  user: TokenData;
-};
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await promisifyLocalAuthenticate(req, res);
