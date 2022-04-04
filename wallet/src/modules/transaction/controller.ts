@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { NextFunction, Request, Response } from 'express';
-import { isEmpty } from 'lodash';
 import ErrorHandler from '../../utils/error';
 import { TokenData } from '../../utils/passport-helper';
 import TransactionModel from './models/Transaction';
