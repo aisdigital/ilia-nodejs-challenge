@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { NextFunction, Request, Response } from 'express';
-import { isEmpty } from 'lodash';
 import ErrorHandler from '../../utils/error';
 import { TokenData } from '../../utils/passport-helper';
 import TransactionModel from './models/Transaction';
@@ -80,9 +79,9 @@ export const getBalace = async (req: Req, res: Response, next: NextFunction) => 
       },
       {
         $project: {
-          credit: { amount: '$credit.amount' },
-          debit: { amount: '$debit.amount' },
-          all: { amount: { $sum: ['$credit.amount', '$debit.amount'] } },
+          credit: { amount: '$CREDIT.amount' },
+          debit: { amount: '$DEBIT.amount' },
+          all: { amount: { $sum: ['$CREDIT.amount', '$DEBIT.amount'] } },
         },
       },
     ]);

@@ -16,7 +16,9 @@ import { errorHandlerMiddleware } from './utils/error';
 
 const app = express();
 
-database();
+if (process.env.NODE_ENV !== 'test') {
+  database();
+}
 
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
@@ -38,7 +40,7 @@ routes.get('/', (_req, res) => {
 
 app.use(errorHandlerMiddleware);
 
-const port = process.env.PORT ?? 3001;
+const port = process.env.NODE_ENV === 'test' ? 3011 : process.env.PORT ?? 3001;
 app.listen(port, () => {
   console.log('Server Local On:', port);
 });

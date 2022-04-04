@@ -50,7 +50,7 @@ export const mongoServerInit = () => {
   });
 };
 export const getRandomEmail = async () => {
-  const random = Math.random() * (99999 - 111) + 111;
+  const random = Math.round(Math.random() * (99999 - 111) + 111);
   return `test${random}@test.com`;
 };
 export const createFakeUser = async () => {

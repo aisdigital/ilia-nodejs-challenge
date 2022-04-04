@@ -40,7 +40,7 @@ routes.get('/', (_req, res) => {
 
 app.use(errorHandlerMiddleware);
 
-const port = process.env.NODE_ENV === 'local' ? 3010 : process.env.PORT ?? 3001;
+const port = process.env.NODE_ENV === 'test' ? 3010 : process.env.PORT ?? 3002;
 app.listen(port, () => {
   console.log('Server Local On:', port);
 });

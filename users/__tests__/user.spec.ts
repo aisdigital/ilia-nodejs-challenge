@@ -4,8 +4,6 @@ import app from '../src/server';
 import mongoose from 'mongoose';
 import assert from 'assert';
 
-//TODO teste com diferentes tipos de imagens
-
 import {
   mongoServerInit,
   accessToken,
@@ -131,7 +129,7 @@ describe('GET /', () => {
       })
       .catch((err) => done(err));
   });
-  it('Should not list combo without JWT', (done) => {
+  it('Should not list users without JWT', (done) => {
     return supertest(app)
       .get('/users')
       .expect(401)
