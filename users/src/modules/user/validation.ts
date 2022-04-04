@@ -42,7 +42,9 @@ export const validateCreateUser = (): ValidationChain[] => [
     .withMessage({ id: 'required-password', message: 'Password is required' })
     .bail()
     .isString()
-    .withMessage({ id: 'invalid-password', message: 'Format is not accepted' }),
+    .withMessage({ id: 'invalid-password', message: 'Format is not accepted' })
+    .isLength({ min: 8 })
+    .withMessage({ id: 'invalid-password', message: 'Min 8 characters' }),
 ];
 
 export const validateUserId = (): ValidationChain[] => [
@@ -53,7 +55,7 @@ export const validateUserId = (): ValidationChain[] => [
     .custom(
       (user_id) =>
         new Promise<void>(async (resolve, reject) => {
-          if (mongoose.Types.ObjectId.isValid('user_id')) {
+          if (mongoose.Types.ObjectId.isValid(user_id)) {
             const exists = await UserModel.exists({
               _id: user_id,
             });
@@ -104,5 +106,8 @@ export const validateUpdateUser = (): ValidationChain[] => [
     .optional()
     .bail()
     .isString()
-    .withMessage({ id: 'invalid-password', message: 'Format is not accepted' }),
+    .withMessage({ id: 'invalid-password', message: 'Format is not accepted' })
+    .bail()
+    .isLength({ min: 8 })
+    .withMessage({ id: 'invalid-password', message: 'Min 8 characters' }),
 ];
