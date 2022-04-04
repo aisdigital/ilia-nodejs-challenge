@@ -1,6 +1,7 @@
 // require mongoose module
 import mongoose, { Schema, Document } from 'mongoose';
 import chalk from 'chalk';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 const { DB_USERNAME, DB_PASSWORD, DB_URI, DB_USER_URI } = process.env;
 const DB_URL =
@@ -35,7 +36,25 @@ const connect = (): void => {
   });
 };
 
-const userDb = mongoose.createConnection(DB_USER_URL);
+let mongoServer1;
+const connections = {
+  conn1: mongoose.createConnection(),
+};
+
+if (process.env.NODE_ENV === 'test') {
+  mongoServer1 = new MongoMemoryServer();
+
+  mongoServer1.getUri('USER_DB').then((mongoUri) => {
+    connections.conn1.openUri(mongoUri);
+    mongoose.connection.once('open', () => {
+      return true;
+    });
+  });
+}
+const userDb =
+  process.env.NODE_ENV !== 'test'
+    ? mongoose.createConnection(process.env.DB_USER_URL)
+    : connections.conn1;
 
 interface IUser extends Document {
   first_name: string;

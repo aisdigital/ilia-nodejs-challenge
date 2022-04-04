@@ -80,9 +80,9 @@ export const getBalace = async (req: Req, res: Response, next: NextFunction) => 
       },
       {
         $project: {
-          credit: { amount: '$credit.amount' },
-          debit: { amount: '$debit.amount' },
-          all: { amount: { $sum: ['$credit.amount', '$debit.amount'] } },
+          credit: { amount: '$CREDIT.amount' },
+          debit: { amount: '$DEBIT.amount' },
+          all: { amount: { $sum: ['$CREDIT.amount', '$DEBIT.amount'] } },
         },
       },
     ]);

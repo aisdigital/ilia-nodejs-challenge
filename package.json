@@ -8,7 +8,8 @@
   "scripts": {
     "prettier-format": "prettier --config .prettierrc '**/src/**/*.ts' --write",
     "lint": "eslint . --ext .ts",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "cd ./users && yarn test && cd ../wallet && yarn test"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
