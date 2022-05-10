@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  node:
+    hostname: users-node
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/node/Dockerfile
+      args:
+        - USER_ID=${USER_ID:-1000}
+        - GROUP_ID=${GROUP_ID:-1000}
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: users-node/node:latest
+    ports:
+      - "${NODE_HOST_PORT:-3002}:${PORT:-3000}"
+      - "${NODE_HOST_DEBUG_PORT:-9229}:9229"
+    networks:
+      - main
+      - services
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/app
+    command: npm run start:debug
+
+  database:
+    hostname: users-database
+    image: postgres:13-alpine
+    restart: unless-stopped
+    networks:
+      - main
+      - services
+    ports:
+      - "${DB_HOST_PORT:-5432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./docker/database/entrypoints:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DATABASES=${DB_DATABASE} # comma separated list of databases
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  main:
+    driver: bridge
+  services:
+    name: services
+    external: true

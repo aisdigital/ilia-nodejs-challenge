@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  swagger:
+    image: swaggerapi/swagger-ui:latest
+    environment:
+      - BASE_URL=/swagger
+      - SWAGGER_JSON=/app/api.yaml
+    ports:
+    - "8081:8080"
+    volumes:
+      - ./openapi/:/app
+    networks:
+      - main
+  swagger-tools:
+    image: swagger-tools:latest
+    build:
+      context: .
+      dockerfile: ./docker/swagger-tools/Dockerfile
+    volumes:
+      - ./openapi/:/app
+    networks:
+      - main
+  editor:
+    image: swaggerapi/swagger-editor
+    networks:
+      - main
+    ports:
+      - "8082:8080"
+
+
+networks:
+  main:
+    driver: bridge

@@ -1,0 +1,43 @@
+root: true
+parserOptions:
+  project: './tsconfig.json'
+extends:
+  - airbnb-base
+  - airbnb-typescript/base
+  - plugin:prettier/recommended
+parser: '@typescript-eslint/parser'
+plugins:
+  - '@typescript-eslint'
+rules:
+  camelcase:
+  - error
+  '@typescript-eslint/ban-types': 0
+  import/prefer-default-export: 0
+  import/no-extraneous-dependencies:
+  - error
+  - devDependencies:
+    - "**/*.test.ts"
+    - "**/*.spec.ts"
+    - "**/*.test.tsx"
+    - "**/*.spec.tsx"
+    - "**/*.helper.ts"
+overrides:
+  - files:
+    - "**/*.entity.ts"
+    - "**/*.entity.tsx"
+    - "**/*.schema.ts"
+    - "**/*.schema.tsx"
+    - "**/*.type.ts"
+    - "**/*.type.tsx"
+    - "**/*.repository.ts"
+    - "**/*.repository.tsx"
+    rules:
+      camelcase: 0
+      '@typescript-eslint/camelcase': 0
+      '@typescript-eslint/naming-convention':
+        - error
+        - selector: property
+          format:
+          - snake_case
+          - camelCase
+          - UPPER_CASE
