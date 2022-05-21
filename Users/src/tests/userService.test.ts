@@ -1,11 +1,11 @@
 import { dbConnection } from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
-import AuthRoute from '@routes/auth.route';
 import UserService from '@services/users.service';
 import connection from './connection';
 
 beforeAll(async () => {
   await connection.create(dbConnection);
+  await connection.clear();
 });
 
 afterAll(async () => {
@@ -13,7 +13,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await connection.clear();
+  // await connection.clear();
 });
 
 describe('Testing User Service', () => {
@@ -36,6 +36,32 @@ describe('Testing User Service', () => {
       expect(user.first_name).toBe(userData.first_name);
       expect(user.last_name).toBe(userData.last_name);
       expect(user.id).toBe(userData.id);
+    });
+  });
+
+  describe('patch user', () => {
+    it('change partial entity', async () => {
+      const usersService = new UserService();
+
+      const id = 'asdfa-123213-asd-fffd-2';
+      const newUser: CreateUserDto = {
+        first_name: 'User',
+        last_name: 'Admin',
+        password: 'user_admin',
+        email: 'user.admissna@email.com',
+        id: id,
+      };
+
+      const userData: any = {
+        first_name: 'zxcvzxcvzxcv',
+        id: 'zzzzzzz',
+      };
+      const user = await usersService.patchUser(id, userData);
+
+      expect(user).not.toBeUndefined();
+      expect(user.first_name).not.toBe(newUser.first_name);
+      expect(user.first_name).toBe(userData.first_name);
+      expect(user.id).toBe(id);
     });
   });
 });

@@ -39,13 +39,13 @@ class UsersController {
     }
   };
 
-  public updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public patchUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
+      const userId = req.params.id;
       const userData: CreateUserDto = req.body;
-      const updateUserData: User = await this.userService.updateUser(userId, userData);
+      const updateUserData: User = await this.userService.patchUser(userId, userData);
 
-      res.status(200).json({ data: updateUserData });
+      res.status(200).json(mapUser(updateUserData));
     } catch (error) {
       next(error);
     }

@@ -30,21 +30,31 @@ class UserService extends Repository<UserEntity> {
 
     const hashedPassword = await hash(userData.password, 10);
     const createUserData: User = await UserEntity.create({ ...userData, password: hashedPassword }).save();
-
     return createUserData;
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<User> {
+  public async patchUser(userId: string, userData: Object): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "You're not user");
 
-    const hashedPassword = await hash(userData.password, 10);
-    await UserEntity.update(userId, { ...userData, password: hashedPassword });
+    const changedUser = await this.patchProperties(userData, findUser);
+    await UserEntity.update(userId, changedUser);
 
     const updateUser: User = await UserEntity.findOne({ where: { id: userId } });
     return updateUser;
+  }
+
+  private async patchProperties(userData: Object, findUser: User): Promise<User> {
+    const canModify = ['email', 'password', 'first_name', 'last_name'];
+    const keys = Object.keys(userData);
+    for (const key of keys) {
+      if (!canModify.includes(key)) continue;
+      if (key == 'password') userData['key'] = await hash(userData['key'], 10);
+      findUser[key] = userData[key];
+    }
+    return findUser;
   }
 
   public async deleteUser(userId: string): Promise<User> {
