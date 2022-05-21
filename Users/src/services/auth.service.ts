@@ -3,6 +3,7 @@ import { sign } from 'jsonwebtoken';
 import { EntityRepository, Repository } from 'typeorm';
 import { SECRET_KEY } from '@config';
 import { CreateUserDto } from '@dtos/users.dto';
+import { AuthUserDto } from '@/dtos/auth.dto';
 import { UserEntity } from '@entities/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
@@ -22,7 +23,7 @@ class AuthService extends Repository<UserEntity> {
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: AuthUserDto): Promise<{ token: string; findUser: User }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
@@ -32,9 +33,9 @@ class AuthService extends Repository<UserEntity> {
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
 
     const tokenData = this.createToken(findUser);
-    const cookie = this.createCookie(tokenData);
+    const token = this.createCookie(tokenData);
 
-    return { cookie, findUser };
+    return { token, findUser };
   }
 
   public async logout(userData: User): Promise<User> {
@@ -55,7 +56,7 @@ class AuthService extends Repository<UserEntity> {
   }
 
   public createCookie(tokenData: TokenData): string {
-    return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
+    return tokenData.token;
   }
 }
 

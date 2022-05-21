@@ -4,7 +4,7 @@ import { User } from '@interfaces/users.interface';
 
 @Entity()
 export class UserEntity extends BaseEntity implements User {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -31,5 +31,4 @@ export class UserEntity extends BaseEntity implements User {
   @Column()
   @UpdateDateColumn()
   updatedAt: Date;
-
 }
