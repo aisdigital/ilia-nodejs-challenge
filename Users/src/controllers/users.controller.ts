@@ -11,7 +11,7 @@ class UsersController {
     try {
       const findAllUsersData: User[] = await this.userService.findAllUser();
 
-      res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+      res.status(200).json(findAllUsersData.map(mapUser));
     } catch (error) {
       next(error);
     }

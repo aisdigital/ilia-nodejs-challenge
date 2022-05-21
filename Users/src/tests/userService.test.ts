@@ -16,8 +16,8 @@ beforeEach(async () => {
   await connection.clear();
 });
 
-describe('Testing Auth', () => {
-  describe('[POST] /signup', () => {
+describe('Testing User Service', () => {
+  describe('create user', () => {
     it('response should have the Create userData', async () => {
       const usersService = new UserService();
 
