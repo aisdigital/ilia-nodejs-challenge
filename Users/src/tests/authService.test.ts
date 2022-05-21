@@ -1,21 +1,19 @@
-import bcrypt from 'bcrypt';
-import request from 'supertest';
-import { createConnection, getConnection } from 'typeorm';
-import App from '@/app';
 import { dbConnection } from '@databases';
 import { AuthUserDto } from '@dtos/auth.dto';
-import AuthRoute from '@routes/auth.route';
-import { UserEntity } from '@entities/users.entity';
 import AuthService from '@services/auth.service';
+import connection from './connection';
 
 beforeAll(async () => {
-  await createConnection(dbConnection);
+  await connection.create(dbConnection);
 });
 
 afterAll(async () => {
-  await getConnection().close();
+  await connection.close();
 });
 
+beforeEach(async () => {
+  await connection.clear();
+});
 describe('Testing Auth', () => {
   describe('[POST] /signup', () => {
     it('response should have the Create userData', async () => {
