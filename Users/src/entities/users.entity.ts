@@ -31,4 +31,7 @@ export class UserEntity extends BaseEntity implements User {
   @Column()
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ default: true })
+  activated: boolean;
 }

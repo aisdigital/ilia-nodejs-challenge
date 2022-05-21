@@ -89,4 +89,24 @@ describe('Testing User Service', () => {
       expect(user.id).toBe(id);
     });
   });
+
+  describe('delete user', () => {
+    it('delete by id', async () => {
+      const usersService = new UserService();
+
+      const id = 'zxczxcvzxccccvv';
+      const newUser: CreateUserDto = {
+        first_name: 'User',
+        last_name: 'Admin',
+        password: 'user_admin',
+        email: 'userasda.admissnzxca@email.com',
+        id: id,
+      };
+      await usersService.createUser(newUser);
+
+      const user = await usersService.inactiveUser(id);
+
+      expect(user).toBeUndefined();
+    });
+  });
 });

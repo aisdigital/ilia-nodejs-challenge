@@ -9,14 +9,14 @@ import { isEmpty } from '@utils/util';
 @EntityRepository()
 class UserService extends Repository<UserEntity> {
   public async findAllUser(): Promise<User[]> {
-    const users: User[] = await UserEntity.find();
+    const users: User[] = await UserEntity.find({ where: { activated: true } });
     return users;
   }
 
   public async findUserById(userId: string): Promise<User> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 
-    const findUser: User = await UserEntity.findOne({ where: { id: userId } });
+    const findUser: User = await UserEntity.findOne({ where: { id: userId, activated: true } });
     if (!findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
@@ -26,6 +26,7 @@ class UserService extends Repository<UserEntity> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
+    if (findUser && !findUser.activated) throw new HttpException(409, "You're not activated");
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
 
     const hashedPassword = await hash(userData.password, 10);
@@ -38,12 +39,13 @@ class UserService extends Repository<UserEntity> {
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "You're not user");
+    if (!findUser.activated) throw new HttpException(409, "You're not activated");
 
     const changedUser = await this.patchProperties(userData, findUser);
     await UserEntity.update(userId, changedUser);
 
-    const updateUser: User = await UserEntity.findOne({ where: { id: userId } });
-    return updateUser;
+    const updatedUser: User = await UserEntity.findOne({ where: { id: userId } });
+    return updatedUser;
   }
 
   private async patchProperties(userData: Object, findUser: User): Promise<User> {
@@ -57,14 +59,14 @@ class UserService extends Repository<UserEntity> {
     return findUser;
   }
 
-  public async deleteUser(userId: string): Promise<User> {
+  public async inactiveUser(userId: string): Promise<void> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "You're not user");
 
-    await UserEntity.delete({ id: userId });
-    return findUser;
+    findUser.activated = false;
+    await UserEntity.update(userId, findUser);
   }
 }
 
