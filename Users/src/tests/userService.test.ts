@@ -43,14 +43,15 @@ describe('Testing User Service', () => {
     it('change partial entity', async () => {
       const usersService = new UserService();
 
-      const id = 'asdfa-123213-asd-fffd-2';
+      const id = 'asdfa-123213-asd-fffd-2qq';
       const newUser: CreateUserDto = {
         first_name: 'User',
         last_name: 'Admin',
         password: 'user_admin',
-        email: 'user.admissna@email.com',
+        email: 'user.admisszzna@email.com',
         id: id,
       };
+      await usersService.createUser(newUser);
 
       const userData: any = {
         first_name: 'zxcvzxcvzxcv',
@@ -61,6 +62,30 @@ describe('Testing User Service', () => {
       expect(user).not.toBeUndefined();
       expect(user.first_name).not.toBe(newUser.first_name);
       expect(user.first_name).toBe(userData.first_name);
+      expect(user.id).toBe(id);
+    });
+  });
+
+  describe('get user', () => {
+    it('get by id', async () => {
+      const usersService = new UserService();
+
+      const id = 'zxcv';
+      const newUser: CreateUserDto = {
+        first_name: 'User',
+        last_name: 'Admin',
+        password: 'user_admin',
+        email: 'user.admissnzxca@email.com',
+        id: id,
+      };
+      await usersService.createUser(newUser);
+
+      const user = await usersService.findUserById(id);
+
+      expect(user).not.toBeUndefined();
+      expect(user.first_name).toBe(newUser.first_name);
+      expect(user.last_name).toBe(newUser.last_name);
+      expect(user.email).toBe(newUser.email);
       expect(user.id).toBe(id);
     });
   });
