@@ -4,7 +4,7 @@ export interface Transactions {
   type: string;
 }
 
-export enum TransactionType{
+export enum TransactionType {
   CREDIT = 'CREDIT',
   DEBIT = 'DEBIT',
 }

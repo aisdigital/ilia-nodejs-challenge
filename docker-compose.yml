@@ -1,16 +1,16 @@
 version: '3.7'
 
 services:
-  server:
+  server_users:
     build:
-      context: ./
+      context: Users/
       target: development-build-stage
       dockerfile: Dockerfile
-    container_name: server
+    container_name: server_users
     ports:
       - '3000:3000'
     volumes:
-      - ./:/app
+      - ./Users/:/app
       - /app/node_modules
     restart: 'unless-stopped'
     networks:
@@ -19,13 +19,33 @@ services:
       - pg
     depends_on:
       - pg
+
+  server_wallet:
+    build:
+      context: Wallet/
+      target: development-build-stage
+      dockerfile: Dockerfile
+    container_name: server_wallet
+    ports:
+      - '3001:3000'
+    volumes:
+      - ./Wallet/:/app
+      - /app/node_modules
+    restart: 'unless-stopped'
+    networks:
+      - backend
+    links:
+      - pg
+    depends_on:
+      - pg
+
   pg:
     image: bitnami/postgresql
     container_name: pg
     environment:
       POSTGRESQL_USERNAME: root
       POSTGRESQL_PASSWORD: password
-      POSTGRESQL_DATABASE: db-users
+      POSTGRESQL_DATABASE: db-wallet
     ports:
       - '5432:5432'
     networks:
