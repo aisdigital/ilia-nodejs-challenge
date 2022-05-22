@@ -13,18 +13,18 @@ afterAll(async () => {
   await connection.close();
 });
 
-describe('Testing User Service', () => {
+describe('Testing Transactions Service', () => {
   describe('create transaction', () => {
-    it('response should have the Create userData', async () => {
+    it('response should have the Create transactionData', async () => {
       const transactionsService = new TransactionsService();
 
-      const userData: CreateTransactionDto = {
+      const transactionData: CreateTransactionDto = {
         user_id: '61ede14f77302924b82c3e80',
         amount: 58,
         type: 'DEBIT',
       };
 
-      const transaction = await transactionsService.createTransaction(userData);
+      const transaction = await transactionsService.createTransaction(transactionData);
 
       expect(transaction).not.toBeUndefined();
       expect(transaction).toHaveProperty('user_id');
