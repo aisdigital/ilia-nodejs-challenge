@@ -7,25 +7,23 @@ import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
-    const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
+    const Authorization = extractAuthorization(req);
+    if (!Authorization) return next(new HttpException(401, 'Access token is missing or invalid'));
 
-    if (Authorization) {
-      const secretKey: string = SECRET_KEY;
-      const { id } = (await verify(Authorization, secretKey)) as DataStoredInToken;
-      const findUser = await UserEntity.findOne(id, { select: ['id', 'email', 'password'] });
+    const secretKey: string = SECRET_KEY;
+    const { id } = (await verify(Authorization, secretKey)) as DataStoredInToken;
+    const findUser = await UserEntity.findOne(id, { select: ['id', 'email', 'password'] });
+    if (!findUser) return next(new HttpException(401, 'Wrong authentication token'));
 
-      if (findUser) {
-        req.user = findUser;
-        next();
-      } else {
-        next(new HttpException(401, 'Wrong authentication token'));
-      }
-    } else {
-      next(new HttpException(404, 'Authentication token missing'));
-    }
+    req.user = findUser;
+    next();
   } catch (error) {
     next(new HttpException(401, 'Wrong authentication token'));
   }
 };
+
+function extractAuthorization(req: RequestWithUser) {
+  return req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
+}
 
 export default authMiddleware;
