@@ -5,9 +5,14 @@ import { UserEntity } from '@entities/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
+import { MessengerService } from '@/interfaces/messengerService.interface';
 
 @EntityRepository()
 class UserService extends Repository<UserEntity> {
+  constructor(private messengerService: MessengerService) {
+    super();
+  }
+
   public async findAllUser(): Promise<User[]> {
     const users: User[] = await UserEntity.find({ where: { activated: true } });
     return users;
@@ -31,6 +36,7 @@ class UserService extends Repository<UserEntity> {
 
     const hashedPassword = await hash(userData.password, 10);
     const createUserData: User = await UserEntity.create({ ...userData, password: hashedPassword }).save();
+    await this.messengerService.publish(createUserData);
     return createUserData;
   }
 
@@ -67,6 +73,7 @@ class UserService extends Repository<UserEntity> {
 
     findUser.activated = false;
     await UserEntity.update(userId, findUser);
+    await this.messengerService.publish(findUser);
   }
 }
 
