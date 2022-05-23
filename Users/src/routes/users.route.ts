@@ -11,8 +11,8 @@ class UsersRoute implements Routes {
   public usersController = new UsersController();
 
   constructor() {
-    this.initializeRoutes();
     this.initializeMiddlewareAuthentication();
+    this.initializeRoutes();
   }
 
   private initializeMiddlewareAuthentication() {

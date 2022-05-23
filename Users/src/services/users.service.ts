@@ -73,7 +73,7 @@ class UserService extends Repository<UserEntity> {
 
     findUser.activated = false;
     await UserEntity.update(userId, findUser);
-    await this.messengerService.publish(findUser);
+    await this.messengerService?.publish(findUser);
   }
 
   public async createDefaultUserAdmin() {
