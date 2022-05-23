@@ -1,0 +1,83 @@
+version: '3.7'
+
+services:
+  server_users:
+    build:
+      context: Users/
+      target: development-build-stage
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./Users/:/app
+    restart: 'unless-stopped'
+    networks:
+      - backend
+    links:
+      - pg_users
+      - rabbitmq3
+    depends_on:
+      - pg_users
+      - rabbitmq3
+
+  pg_users:
+    image: bitnami/postgresql
+    environment:
+      POSTGRESQL_USERNAME: root
+      POSTGRESQL_PASSWORD: password
+      POSTGRESQL_DATABASE: db-users
+    ports:
+      - '5432:5432'
+    networks:
+      - backend
+
+  server_wallet:
+    build:
+      context: Wallet/
+      target: development-build-stage
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3000'
+    volumes:
+      - ./Wallet/:/app
+    restart: 'unless-stopped'
+    networks:
+      - backend
+    links:
+      - pg_wallet
+      - rabbitmq3
+    depends_on:
+      - pg_wallet
+      - rabbitmq3
+
+  pg_wallet:
+    image: bitnami/postgresql
+    environment:
+      POSTGRESQL_USERNAME: root
+      POSTGRESQL_PASSWORD: password
+      POSTGRESQL_DATABASE: db-wallet
+    ports:
+      - '5433:5432'
+    networks:
+      - backend
+
+  rabbitmq3:
+    image: rabbitmq:3.8-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      # AMQP protocol port
+      - '5672:5672'
+      # HTTP management UI
+      - '15672:15672'
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  data:
+    driver: local
