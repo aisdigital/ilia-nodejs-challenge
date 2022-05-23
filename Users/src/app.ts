@@ -14,6 +14,7 @@ import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { amqpConnection } from './connections/messenger';
 import { createConnectionMessenger } from './messenger';
+import UserService from './services/users.service';
 
 class App {
   public app: express.Application;
@@ -31,8 +32,15 @@ class App {
         this.initializeRoutes(routes);
         this.initializeErrorHandling();
         await this.connectToMessengerBroker();
+
+        if (this.env === 'development') await this.createDefaultUserAdmin();
       })
       .catch(logger.crit);
+  }
+
+  createDefaultUserAdmin() {
+    const userService = new UserService();
+    return userService.createDefaultUserAdmin();
   }
 
   public listen() {

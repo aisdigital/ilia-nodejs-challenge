@@ -75,6 +75,19 @@ class UserService extends Repository<UserEntity> {
     await UserEntity.update(userId, findUser);
     await this.messengerService.publish(findUser);
   }
+
+  public async createDefaultUserAdmin() {
+    const exists = await UserEntity.findOne({ where: { email: 'admin@admin.com' } });
+    if (exists) return;
+
+    const userDefault = new CreateUserDto();
+    userDefault.id = '000000000000000';
+    userDefault.email = 'admin@admin.com';
+    userDefault.password = 'admin';
+    userDefault.first_name = 'admin';
+    userDefault.last_name = 'admin';
+    await this.createUser(userDefault);
+  }
 }
 
 export default UserService;
