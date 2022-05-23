@@ -10,7 +10,6 @@ services:
       - '3000:3000'
     volumes:
       - ./Users/:/app
-      - /app/node_modules
     restart: 'unless-stopped'
     networks:
       - backend
@@ -41,7 +40,6 @@ services:
       - '3001:3000'
     volumes:
       - ./Wallet/:/app
-      - /app/node_modules
     restart: 'unless-stopped'
     networks:
       - backend

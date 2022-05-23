@@ -14,5 +14,7 @@ export interface Connection {
 export interface Channel {
   close(): Promise<void>;
   assertQueue(queue: string, options?: any): Promise<any>;
-  sendToQueue(queue: string, content: Buffer, options?: any): boolean;
+  sendToQueue(queue: string, content: any, options?: any): boolean;
+  consume(queue: string, onMessage: (msg: any | null) => void, options?: any): Promise<any>;
+  ack(message: any | null): void;
 }
