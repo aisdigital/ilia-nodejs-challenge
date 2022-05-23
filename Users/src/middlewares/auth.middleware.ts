@@ -23,7 +23,7 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
 };
 
 function extractAuthorization(req: RequestWithUser) {
-  return req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
+  return req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null;
 }
 
 export default authMiddleware;
