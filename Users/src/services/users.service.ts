@@ -9,7 +9,7 @@ import { MessengerService } from '@/interfaces/messengerService.interface';
 
 @EntityRepository()
 class UserService extends Repository<UserEntity> {
-  constructor(private messengerService: MessengerService) {
+  constructor(private messengerService: MessengerService | null = null) {
     super();
   }
 
@@ -36,7 +36,7 @@ class UserService extends Repository<UserEntity> {
 
     const hashedPassword = await hash(userData.password, 10);
     const createUserData: User = await UserEntity.create({ ...userData, password: hashedPassword }).save();
-    await this.messengerService.publish(createUserData);
+    await this.messengerService?.publish(createUserData);
     return createUserData;
   }
 
