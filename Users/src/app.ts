@@ -8,10 +8,13 @@ import morgan from 'morgan';
 import compression from 'compression';
 import { createConnection } from 'typeorm';
 import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
-import { dbConnection } from '@databases';
+import { dbConnection } from '@/connections/database';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import { amqpConnection } from './connections/messenger';
+import { createConnectionMessenger } from './messenger';
+import UserService from './services/users.service';
 
 class App {
   public app: express.Application;
@@ -24,12 +27,20 @@ class App {
     this.port = PORT || 3000;
 
     this.connectToDatabase()
-      .then(() => {
+      .then(async () => {
         this.initializeMiddlewares();
         this.initializeRoutes(routes);
         this.initializeErrorHandling();
+        await this.connectToMessengerBroker();
+
+        if (this.env === 'development') await this.createDefaultUserAdmin();
       })
       .catch(logger.crit);
+  }
+
+  createDefaultUserAdmin() {
+    const userService = new UserService();
+    return userService.createDefaultUserAdmin();
   }
 
   public listen() {
@@ -47,6 +58,10 @@ class App {
 
   private connectToDatabase() {
     return createConnection(dbConnection);
+  }
+
+  private connectToMessengerBroker() {
+    return createConnectionMessenger(amqpConnection);
   }
 
   private initializeMiddlewares() {
