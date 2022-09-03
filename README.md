@@ -17,27 +17,27 @@ This microservice must be a digital Wallet where the user transactions will be s
 
 ### The Application must have
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.
-    - Have a dedicated database (Postgres, MySQL, Mongo...).
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Configure the Microservice port to 3001.
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a team work and not just a commit.
+    - Project setup documentation (readme.md)
+    - Application and Database running on a container (Docker, ...)
+    - This Microservice must receive HTTP Request
+    - Have a dedicated database (Postgres, MySQL, Mongo...)
+    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var)
+    - Configure the Microservice port to 3001 
+    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a team work and not just a commit
 
 ## Part 2 - Microservice Users and Wallet Integration
 
 ### The Application must have:
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.
-    - Have a dedicated database (Postgres, MySQL, Mongo...).
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Set the Microservice port to 3002.
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a teamwork and not just a commit.
-    - Internal Communication Security (JWT, SSL, ...), if it is JWT the PrivateKey must be ILIACHALLENGE_INTERNAL (passed by env var).
-    - Communication between Microservices using gRPC, REST, Kafka, RabbitMQ, (if this communication needs a Docker environment too).
+    - Project setup documentation (readme.md)
+    - Application and Database running on a container (Docker, ...)
+    - This Microservice must receive HTTP Request   
+    - Have a dedicated database (Postgres, MySQL, Mongo...)
+    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var)
+    -Set the Microservice port to 3002 
+    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a teamwork and not just a commit
+    - Internal Communication Security (JWT, SSL, ...), if it is JWT the PrivateKey must be ILIACHALLENGE_INTERNAL (passed by env var)
+    - Communication between Microservices using gRPC, REST, Kafka, RabbitMQ , (if this communication needs a Docker environment too)
 
 #### In the end, a pull request must be created in the Github repo. As soon as you finish, please let us know.
 
