@@ -1,0 +1,14 @@
+FROM node:16
+
+WORKDIR /wallet
+
+COPY . /wallet/
+
+RUN npm i
+
+CMD ["npm", "run", "prismagen"]
+
+EXPOSE 3001
+
+CMD ["npm", "run", "build"]
+

@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext", "ES2018", "ES2015"],
+    "module": "CommonJS",
+    "rootDir": ".",
+    "typeRoots": ["node_modules/@types/, ./src/@types/"],
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "outDir": "./build",
+    "removeComments": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@controller/*": ["./src/controllers/*"],
+      "@service/*": ["./src/service/*"],
+      "@repositories/*": ["./src/repositories/*"],
+      "@database/*": ["./src/database/*"],
+      "@entities/*": ["./src/entities/*"],
+      "@middlewares/*": ["./src/middlewares/*"]
+    }
+  },
+  "include": ["src/"],
+  "exclude": ["node_modules", "build"]
+}
