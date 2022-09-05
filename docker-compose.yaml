@@ -1,5 +1,4 @@
-version: "3"
-
+version: "3.9"
 services:
   iliadb:
     image: postgres:13.8
@@ -21,6 +20,18 @@ services:
       - .docker/pg_wallet/:/var/lib/postgresql/data 777
       - .docker:/docker-entrypoint-initdb.d
 
+  wallet_app:
+    image: wallet_app:latest
+    container_name: wallet_app_container
+    depends_on:
+      - iliadb
+    networks:
+      - postgres
+    ports:
+      - 3001:3001
+    env_file:
+      - ./wallet/.env
+
   users_app:
     image: users_app:latest
     container_name: users_app_container
@@ -32,19 +43,6 @@ services:
       - 3002:3002
     env_file:
       - ./users/.env
-
-  wallet_app:
-    image: wallet_app:latest
-    container_name: wallet_app_container
-    depends_on:
-      - iliadb
-      - users_app
-    networks:
-      - postgres
-    ports:
-      - 3001:3001
-    env_file:
-      - ./wallet/.env
 
 networks:
   postgres:

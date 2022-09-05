@@ -15,6 +15,7 @@
     "baseUrl": ".",
     "paths": {
       "@controller/*": ["./src/controllers/*"],
+      "@api/*": ["./src/api/*"],
       "@service/*": ["./src/service/*"],
       "@repositories/*": ["./src/repositories/*"],
       "@database/*": ["./src/database/*"],
