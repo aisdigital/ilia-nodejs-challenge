@@ -2,7 +2,6 @@ import { FindBalanceController } from "@controller/transaction-controller/FindBa
 import { FindTransactionController } from "@controller/transaction-controller/FindTransactionController";
 import { SaveTransactionController } from "@controller/transaction-controller/SaveTransactionController";
 import { FindAllBalances } from "@controller/transaction-controller/FindAllBalancesController";
-// import { verifyUserAuthentication } from "@middlewares/userAuthentication";
 import { Router } from "express";
 
 const router = Router();
