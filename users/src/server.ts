@@ -4,10 +4,10 @@ import { connectDB, disconnectDB } from "./database";
 const PORT = process.env.PORT || 3002;
 
 server.listen(PORT, () => {
-  connectDB();
+  // connectDB();
   console.log(`Listening on PORT: http://localhost:${PORT} 🚀.`);
 });
 
-process.on("SIGABRT", () => disconnectDB);
-process.on("SIGTERM", () => disconnectDB);
-process.on("SIGQUIT", () => disconnectDB);
+// process.on("SIGABRT", () => disconnectDB);
+// process.on("SIGTERM", () => disconnectDB);
+// process.on("SIGQUIT", () => disconnectDB);
