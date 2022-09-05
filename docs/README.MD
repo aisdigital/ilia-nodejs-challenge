@@ -36,7 +36,7 @@ the microservices are running on port **3001** and **3002** and the database in 
 
 The wallet microservice has 4 available endpoints:
 
-### /transactions/?type=""
+### /transactions/?type=
 This endpoint returns all transactions filtering by type in the database
 
 example response:
@@ -53,7 +53,7 @@ example response:
 ```
 #
 
-### /transactions/balance/?user_id=""
+### /transactions/balance/?user_id=
 This endpoint returns all balances filtering per user_id
 
 example response:
