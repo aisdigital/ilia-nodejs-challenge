@@ -18,8 +18,14 @@ A Wallet app that positive and negative transactions and storage all the exchang
 
 To run the wallet microsservice make a git clone in this repo, after this enter in the directory and type the command:
 ```docker
-docker-compose build
-docker-compose up
+cd users/
+	docker image build -t users_app .
+
+cd wallet/
+	docker image build -t wallet_app .
+
+cd users/
+docker-compose up --build
 ```
 This command will up the postgres database and two microsservices (**users** and **wallet**), 
 the microservices are running on port **3001** and **3002** and the database in the default port 5432.
@@ -196,7 +202,7 @@ This endpoint will return only the status code showing that request was successf
 
 
 ## Environments
-The environment 
+The environment variables to connect with DB and generate secret
 
 ```env
 POSTGRES_USER=""     # DATABASE USER
@@ -208,6 +214,12 @@ DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:5432/<DB>?schema=public"
 JWT_SECRET_TOKEN_TRANSACTIONS="ILIADIGITAL" BY DEFAULT
 JWT_SECRET_TOKEN_USERS="ILIACHALLENGE_INTERNAL" BY DEFAULT
 ```
+#
+
+## DISCLAIMER
+There aren't any volume saved. To run all the project need to download the images in dockerfile before
+compose all the containers and in the images have a command to generate the migrations in the container DB.
+**there are no persisted data in the DB**
 
 ## LICENSE: 
 ### APACHE 2.0
