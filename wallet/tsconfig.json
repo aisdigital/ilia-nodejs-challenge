@@ -14,7 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@controller/*": ["./src/controllers/*"],
+      "@controller/*": ["src/controller/*"],
       "@service/*": ["./src/service/*"],
       "@repositories/*": ["./src/repositories/*"],
       "@database/*": ["./src/database/*"],
@@ -22,6 +22,6 @@
       "@middlewares/*": ["./src/middlewares/*"]
     }
   },
-  "include": ["src/"],
+  "include": ["src"],
   "exclude": ["node_modules", "build"]
 }

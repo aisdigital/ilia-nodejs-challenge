@@ -1,18 +1,51 @@
 version: "3"
 
 services:
-  db:
-    image: postgres
-    container_name: ilia_postgres
-    restart: always   
+  iliadb:
+    image: postgres:13.8
+    container_name: wallet_ilia_db
+    restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      DATABASE_URL:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+      PG_DATA: /var/lib/postgresql/data
+    networks:
+      - postgres
     ports:
       - 5432:5432
+    env_file:
+      - ./wallet/.env
     volumes:
-      - .docker/postgres-vol:/var/lib/postgresql/data 777
-      - .docker/postgres-vol:/docker-entrypoint-initdb.d
-volumes:
-  postgres-vol:
+      - .docker/pg_wallet/:/var/lib/postgresql/data 777
+      - .docker:/docker-entrypoint-initdb.d
+
+  users_app:
+    image: users_app:latest
+    container_name: users_app_container
+    depends_on:
+      - iliadb
+    networks:
+      - postgres
+    ports:
+      - 3002:3002
+    env_file:
+      - ./users/.env
+
+  wallet_app:
+    image: wallet_app:latest
+    container_name: wallet_app_container
+    depends_on:
+      - iliadb
+      - users_app
+    networks:
+      - postgres
+    ports:
+      - 3001:3001
+    env_file:
+      - ./wallet/.env
+
+networks:
+  postgres:
+    driver: bridge

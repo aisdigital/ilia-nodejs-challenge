@@ -4,11 +4,10 @@ WORKDIR /wallet
 
 COPY . /wallet/
 
-RUN npm i
+COPY package*.json /wallet/
 
-CMD ["npm", "run", "prismagen"]
+RUN npm i
 
 EXPOSE 3001
 
 CMD ["npm", "run", "build"]
-

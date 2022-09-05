@@ -1,2 +1,13 @@
 FROM node:16
 
+WORKDIR /users
+
+COPY . /users/
+
+COPY package*.json /users/
+
+RUN npm i
+
+EXPOSE 3001
+
+CMD ["npm", "run", "build"]
