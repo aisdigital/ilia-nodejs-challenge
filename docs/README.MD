@@ -1,4 +1,4 @@
-# Tecnologies used
+# Technologies used
 
 - [Node](https://nodejs.org/pt/)
 - [JWT](https://jwt.io)
