@@ -6,8 +6,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "npx tsc && tsc-alias && rm -rf dist && node build/src/server.js",
-    "prismagen": "npx prisma migrate dev --name transactions",
+    "build": "npx prisma migrate dev --name transactions && npx tsc && tsc-alias && rm -rf dist && node build/src/server.js",
     "lint": "eslint ./src/",
     "dev": "tsnd -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules src/server.ts"
   },

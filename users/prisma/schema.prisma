@@ -10,7 +10,7 @@ datasource db {
 model User {
   id         String    @id @default(uuid())
   created_at DateTime  @default(now())
-  updated_at DateTime?
+  updated_at DateTime? @default(now())
   first_name String
   last_name  String
   password   String
