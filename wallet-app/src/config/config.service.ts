@@ -1,18 +1,18 @@
-import dotenv from 'dotenv';
+import { randomUUID } from 'crypto';
+import dotenv, { DotenvConfigOutput } from 'dotenv';
 import fs from 'fs';
+import { IAuthParams } from 'src/shared/auth/interfaces/auth.interface';
 import { IMongoConnection } from './interfaces/mongo-connection.interface';
 
 export class ConfigService {
-  private readonly envConfig: { [key: string]: string };
+  private readonly envConfig: any;
 
   constructor() {
-    this.envConfig = dotenv.parse(
-      fs.readFileSync(`${process.env.NODE_ENV}.env`),
-    );
+    this.envConfig = (key) => process.env[key];
   }
 
   getString(key: string): string {
-    return this.envConfig[key];
+    return this.envConfig(key);
   }
 
   getNumber(key: string): number {
@@ -40,6 +40,8 @@ export class ConfigService {
   }
 
   getMongoConfig(): IMongoConnection {
+    console.log(this.getMongoUri());
+
     return {
       name: this.getString('MONGO_NAME') || 'wallet',
       host: this.getString('MONGO_HOST'),
@@ -50,11 +52,19 @@ export class ConfigService {
     };
   }
 
-  getMongoUri(): string {
+  private getMongoUri(): string {
     return `mongodb://${this.getString('MONGO_USERNAME')}:${this.getString(
       'MONGO_PASSWORD',
     )}@${this.getString('MONGO_HOST')}:${this.getNumber(
       'MONGO_PORT',
     )}/${this.getString('MONGO_NAME')}`;
+  }
+
+  getMockAuthUser(): IAuthParams {
+    return {
+      id: randomUUID(),
+      username: this.getString('TESTE_API_USER'),
+      password: this.getString('TESTE_API_PASS'),
+    };
   }
 }

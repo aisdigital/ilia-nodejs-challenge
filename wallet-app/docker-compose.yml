@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  node-app:
+    depends_on:
+      - mongodb
+    build:
+      context: ./
+      dockerfile: dockerfile
+      target: development
+    command: yarn start:dev
+    image: node:16.14.0-alpine3.14
+    container_name: node-app
+    restart: always
+    tty: true
+    ports:
+      - 3001:3001
+    volumes:
+      - '.:/src/app'
+    working_dir: /src/app
+    environment:
+      - TZ=America/Sao_Paulo
+
+    # networks:
+    #   - node-app-network
+
+  mongodb:
+    image: mongo
+    container_name: mongo-app
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_NAME}
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_db:/data/mongo_db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    # networks:
+    #   - node-app-network
+
+volumes:
+  mongo_db: {}
+# networks:
+#   node-app-network:
+#     driver: bridge
