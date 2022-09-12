@@ -15,3 +15,7 @@ export interface ITransactionResponse {
   amount: string;
   type: TransactionTypes;
 }
+
+export interface ITransactionBalanceResponse {
+  amount: number;
+}

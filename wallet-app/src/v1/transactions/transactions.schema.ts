@@ -6,7 +6,7 @@ export const TransactionSchema = new Schema({
     required: true,
     trim: true,
   },
-  amout: {
+  amount: {
     type: Number,
     required: true,
   },
