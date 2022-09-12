@@ -1,73 +1,152 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Wallet API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![Author](https://img.shields.io/badge/author-paulodevsilva-D54F44?style=flat-square)](https://github.com/paulodevsilva)
+[![Stars](https://img.shields.io/github/stars/paulodevsilva/foodfy?color=D54F44&style=flat-square)](https://github.com/paulodevsilva/https://github.com/paulodevsilva/qualicorp-app.git)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> Wallet API.
 
-## Description
+# :pushpin: Table of Contents
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [Installation](#construction_worker-installation)
+- [Technologies](#rocket-technologies)
+- [Getting Started](#runner-getting-started)
+- [Routes](#runner-routes)
 
-## Installation
+## :rocket: Technologies
 
-```bash
-$ npm install
+The following tools were used in this project:
+
+- [Node.js](https://nodejs.org/en/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [MongoDB](https://www.mongodb.com/)
+- [Docker](https://www.docker.com/)
+
+# :construction_worker: Installation
+
+**You need to install [Node.js](https://nodejs.org/en/download/) and [Yarn](https://yarnpkg.com/) first, then clone the repository.**
+
+**Cloning Repository**
+
+```
+git clone https://github.com/paulodevsilva/https://github.com/paulodevsilva/iia-nodejs-challenge.git
+
 ```
 
-## Running the app
+**Install dependencies**
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```
+npm install or yarn install
 ```
 
-## Test
+**Insert environment variables**
 
-```bash
-# unit tests
-$ npm run test
+```
+MONGO_USERNAME='Your Credentials'
+MONGO_PASSWORD='Your Credentials'
+MONGO_NAME='Your Credentials'
+MONGO_PORT='Your Credentials'
+MONGO_URI='Your Credentials'
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+API_PORT='Your Credentials'
 ```
 
-## Support
+# :runner: Getting Started
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Run the following command in order to start the application in a development environment:
 
-## Stay in touch
+```
+yarn start:dev or npm run start:dev
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Run the following command in order to start the application in docker:
 
-## License
+```
+docker-compose up -d
+```
 
-Nest is [MIT licensed](LICENSE).
+Run the following command in order to view logs the application in docker:
+
+```
+docker logs app-backend -f
+```
+
+Run the following command in order to start the application in a development environment:
+
+```
+yarn build or npm run build
+
+yarn start or npm run start
+```
+
+# :runner: Routes
+
+Authentication:
+
+```js
+url: {{base_url}}/auth/token
+body: {
+    username: string,
+    password: string,
+  }
+
+# curl example
+
+ curl --request POST \
+  --url http://localhost:3001/auth/token \
+  --header 'Content-Type: application/json' \
+  --data '{
+	 "username": "teste",
+	 "password": "teste"
+}'
+
+```
+
+Create Transaction:
+
+```js
+url: {{base_url}}/v1/transactions
+body: {
+    user_id: string,
+    amount: number,
+    type: enum  |  'CREDIT'  | 'DEBIT'
+  }
+
+# curl example
+
+curl --request POST \
+  --url http://localhost:3001/v1/transactions \
+  --header 'Authorization: Bearer {{token}}' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "user_id": "1236542da32",
+  "amount": 10,
+  "type": "CREDIT"
+}'
+
+```
+
+Get all transactions:
+
+```js
+url: {{base_url}}/v1/transactions
+
+# curl example
+
+  curl --request GET \
+  --url http://localhost:3001/v1/transactions/ \
+  --header 'Authorization: Bearer {{token}}'
+
+```
+
+Get balance:
+
+```js
+url: {{base_url}}/v1/transactions/:user_id
+
+# curl example
+
+  curl --request GET \
+  --url http://localhost:3001/v1/transactions/balance/1236542da32 \
+  --header 'Authorization: Bearer {{token}}'
+
+```
