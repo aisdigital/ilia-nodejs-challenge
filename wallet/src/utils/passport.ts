@@ -1,8 +1,7 @@
-import { doesNotMatch } from 'assert'
 import passport from 'passport'
 import passportJwt from 'passport-jwt'
 
-interface Data {
+export interface Token {
   _id: string
 }
 
@@ -12,7 +11,7 @@ export const passportHelper = () => {
       jwtFromRequest: passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.JWT_SECRET,
     },
-    async (data: Data, callback: passportJwt.VerifiedCallback) => callback(null, data)
+    async (data: Token, callback: passportJwt.VerifiedCallback) => callback(null, data)
   )
 
   passport.use(strategy)

@@ -2,7 +2,8 @@ import mongoose from 'mongoose'
 import request from 'supertest'
 import { User } from '../../modules/user/types'
 import { app } from '../../server'
-import { clearDatabase, createFakeUser, getAccessToken, mongoServerInit } from '../utils'
+import { getAccessToken } from '../../utils/getAccessToken'
+import { clearDatabase, createFakeUser, mongoServerInit } from '../utils'
 
 describe('User test suite', () => {
   mongoServerInit()
@@ -30,8 +31,10 @@ describe('User test suite', () => {
     
       expect(result.statusCode).toEqual(201)
       expect(result.body).toMatchObject({
-        email: 'joao@email.com',
-        name: 'joao'
+        user: {
+          email: 'joao@email.com',
+          name: 'joao'
+        }
       })
     })
 
@@ -110,8 +113,8 @@ describe('User test suite', () => {
       .send()
     
       expect(result.statusCode).toEqual(200)
-      expect(result.body).toMatchObject({ _id: user._id, email: user.email, name: user.name })
-      expect(result.body).not.toMatchObject({ _id: wrongUser._id, email: wrongUser.email, name: wrongUser.name })
+      expect(result.body).toMatchObject({ user: { _id: user._id, email: user.email, name: user.name } })
+      expect(result.body).not.toMatchObject({ user: { _id: wrongUser._id, email: wrongUser.email, name: wrongUser.name } })
     })
   })
 })

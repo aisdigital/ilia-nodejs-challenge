@@ -25,24 +25,6 @@ export const clearDatabase = async () => {
   return mongoose.connection.db.dropDatabase()
 }
 
-export const getAccessToken = (_id?: string) => {
-  const { JWT_AUDIENCE, JWT_ISSUER } = process.env;
-  const JWT_SECRET = String(process.env.JWT_SECRET);
-  const JWT_EXPIRATION = 4 * 60 * 60;
-
-  return `Bearer ${jwt.sign(
-    {
-      _id: _id ?? uuid4(),
-    },
-    JWT_SECRET ?? '',
-    {
-      audience: JWT_AUDIENCE,
-      issuer: JWT_ISSUER,
-      expiresIn: JWT_EXPIRATION,
-    },
-  )}`;
-};
-
 export const createFakeUser = async () => {
   return UserModel.create({
     email: faker.internet.email(),
