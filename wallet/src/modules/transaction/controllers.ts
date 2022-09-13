@@ -39,6 +39,20 @@ export const transactionController = {
       return res.status(400).send((err as any).message)
     }
   },
+  get: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+
+      const transaction = await TransactionModel
+        .findOne({ _id: id })
+        .populate({ path: 'receiving_user_id', select: '_id email name' })
+        .populate({ path: 'paying_user_id', select: '_id email name' })
+
+      return res.status(200).json(transaction?.serialize()).end()
+    } catch (err) {
+      return res.status(400).send((err as any).message)
+    }
+  },
   create: async (req: Request, res: Response) => {
     try {
       const { price, type, receiving_user_id } = req.body
@@ -51,7 +65,7 @@ export const transactionController = {
         paying_user_id
       })
   
-      return res.status(201).json(transaction).end()
+      return res.status(201).json(transaction.serialize()).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }

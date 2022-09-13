@@ -1,4 +1,4 @@
-import { check, query, ValidationChain } from 'express-validator'
+import { check, param, query, ValidationChain } from 'express-validator'
 import { UserModel } from '../user/models/user'
 import { TransactionType } from './types'
 
@@ -50,4 +50,12 @@ export const validateCreateTransaction = (): ValidationChain[] => [
       return Promise.reject()
     })
     .withMessage('Type must be debit or credit')
+]
+
+export const validateGetTransaction = (): ValidationChain[] => [
+  param('id')
+    .exists()
+    .withMessage('Transaction id is required')
+    .isString()
+    .withMessage('Transaction id must be string')
 ]
