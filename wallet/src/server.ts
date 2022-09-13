@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { connectDb } from './database/mongodb'
+import { router } from './modules/routes'
 
 if(process.env.NODE_ENV !== 'test') {
   connectDb()
@@ -9,6 +10,7 @@ if(process.env.NODE_ENV !== 'test') {
 const app = express()
 app.use(cors())
 app.use(express.json())
+app.use(router)
 
 app.get('/', (req, res) => {
   return res.send('It works!')
