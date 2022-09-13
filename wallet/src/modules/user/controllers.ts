@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { getAccessToken } from '../../utils/getAccessToken'
 import { UserModel } from './models/user'
+import bcrypt from 'bcryptjs';
 
 export const userController = {
   list: async (req: Request, res: Response) => {
@@ -9,7 +10,7 @@ export const userController = {
       const limit = req.query.limit ?? 20
       const offset = Number(limit) * Number(page)
 
-      const users = await UserModel.find().skip(offset).limit(Number(limit))
+      const users = await UserModel.find().select('_id email name').skip(offset).limit(Number(limit))
       const totalCount = await UserModel.countDocuments()
 
       return res.status(200).json({
@@ -26,25 +27,39 @@ export const userController = {
     try {
       const { id } = req.params
 
-      const user = await UserModel.findOne({ _id: id })
-      const token = getAccessToken(user?._id, false)
+      const user = await UserModel.findOne({ _id: id }).select('_id email name')
 
-      return res.status(200).json({ user: user?.serialize(), token }).end()
+      return res.status(200).json(user?.serialize()).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }
   },
   create: async (req: Request, res:Response) => {
     try {
-      const { email, name } = req.body
+      const { email, name, password } = req.body
+      const hashPassword = bcrypt.hashSync(password, 8)
 
       const user = await UserModel.create({
         email,
         name,
+        password: hashPassword,
       })
+
       const token = getAccessToken(user?._id, false)
 
       return res.status(201).json({ user: user?.serialize(), token }).end()
+    } catch (err) {
+      return res.status(400).send((err as any).message)
+    }
+  },
+  login: async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body
+
+      const user = await UserModel.findOne({ email })
+      const token = getAccessToken(user?._id, false)
+
+      return res.status(200).json({ user: user?.serialize(), token }).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }

@@ -30,7 +30,8 @@ export const clearDatabase = async () => {
 export const createFakeUser = async () => {
   return UserModel.create({
     email: faker.internet.email(),
-    name: faker.name.fullName()
+    name: faker.name.fullName(),
+    password: faker.random.words(),
   })
 }
 
