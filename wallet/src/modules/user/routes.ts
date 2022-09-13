@@ -7,4 +7,5 @@ router.route('/')
   .get(userController.list)
   .post(userController.create)
 
+router.route('/:id').get(userController.get)
 export { router as UserRoutes }

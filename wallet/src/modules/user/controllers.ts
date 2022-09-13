@@ -21,6 +21,17 @@ export const userController = {
       return res.status(400).send(err)
     }
   },
+  get: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+
+      const user = await UserModel.findOne({ _id: id })
+
+      return res.status(200).json(user)
+    } catch (err) {
+      return res.status(400).send(err)
+    }
+  },
   create: async (req: Request, res:Response) => {
     try {
       const { email, name } = req.body
