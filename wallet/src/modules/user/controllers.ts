@@ -18,7 +18,7 @@ export const userController = {
         totalCount,
       })
     } catch (err) {
-      return res.status(400).send(err)
+      return res.status(400).send((err as any).message)
     }
   },
   get: async (req: Request, res: Response) => {
@@ -29,7 +29,7 @@ export const userController = {
 
       return res.status(200).json(user)
     } catch (err) {
-      return res.status(400).send(err)
+      return res.status(400).send((err as any).message)
     }
   },
   create: async (req: Request, res:Response) => {
@@ -43,7 +43,7 @@ export const userController = {
 
       return res.status(201).json(user)
     } catch (err) {
-      return res.status(400).send(err)
+      return res.status(400).send((err as any).message)
     }
   }
 }
