@@ -59,7 +59,7 @@ export const userController = {
       const user = await UserModel.findOne({ email })
       const token = getAccessToken(user?._id, false)
 
-      return res.status(201).json({ user: user?.serialize(), token }).end()
+      return res.status(200).json({ user: user?.serialize(), token }).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }

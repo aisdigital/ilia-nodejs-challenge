@@ -51,6 +51,49 @@ describe('User test suite', () => {
     })
   })
 
+  describe('POST /users/login', () => {
+    beforeAll(async () => {
+      clearDatabase()
+      await request(app)
+      .post('/users')
+      .set('Authorization', getAccessToken())
+      .send({
+        email: 'joao@email.com',
+        name: 'joao',
+        password: '123123'
+      })
+    })
+
+    it('should login', async () => {
+      
+      const result = await request(app)
+        .post('/users/login')
+        .send({
+          email: 'joao@email.com',
+          password: '123123'
+        })
+
+        expect(result.statusCode).toEqual(200)
+        expect(result.body).toMatchObject({
+          user: {
+            email: 'joao@email.com',
+            name: 'joao',
+          },
+        })
+    })
+
+    it('should not login when password is wrong', async () => {
+      const result = await request(app)
+        .post('/users/login')
+        .send({
+          email: 'joao@email.com',
+          password: '12344444'
+        })
+
+        expect(result.statusCode).toEqual(500)
+    })
+  })
+
   describe('GET /users', () => {
     let users: User[] = []
 
