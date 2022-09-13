@@ -16,7 +16,7 @@ export const userController = {
         page: Number(page),
         limit: Number(limit),
         totalCount,
-      })
+      }).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }
@@ -27,7 +27,7 @@ export const userController = {
 
       const user = await UserModel.findOne({ _id: id })
 
-      return res.status(200).json(user)
+      return res.status(200).json(user).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }
@@ -41,7 +41,7 @@ export const userController = {
         name,
       })
 
-      return res.status(201).json(user)
+      return res.status(201).json(user).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }
