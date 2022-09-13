@@ -20,5 +20,19 @@ export const userController = {
     } catch (err) {
       return res.status(400).send(err)
     }
+  },
+  create: async (req: Request, res:Response) => {
+    try {
+      const { email, name } = req.body
+
+      const user = await UserModel.create({
+        email,
+        name,
+      })
+
+      return res.status(201).json(user)
+    } catch (err) {
+      return res.status(400).send(err)
+    }
   }
 }
