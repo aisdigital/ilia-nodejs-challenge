@@ -6,7 +6,7 @@ config()
 export const connectDb = (): void => {
   console.log('**********')
 
-  mongoose.connect(String(process.env.DATABASE_URL))
+  mongoose.connect(String(process.env.DATABASE_URL || 'mongodb://localhost:27017'))
 
   mongoose.connection.on('connected', () => {
     console.log(

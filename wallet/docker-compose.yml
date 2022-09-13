@@ -1,0 +1,28 @@
+version: '3.1'
+services:
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nodejs
+    container_name: ilia-wallet
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DATABASE_URL=$DATABASE_URL
+      - JWT_SECRET=$JWT_SECRET
+    ports:
+      - 3001:3001
+    volumes:
+      - .:/usr/app
+    networks:
+      - ilia-network
+  mongo-wallet:
+    image: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - ilia-network
+networks:
+  ilia-network:
+    driver: bridge
