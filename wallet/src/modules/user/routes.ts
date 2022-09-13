@@ -9,7 +9,6 @@ const router = Router()
 router.route('/')
   .get(passport.authenticate('jwt', { session: false }), userController.list)
   .post(
-    passport.authenticate('jwt', { session: false }), 
     validateCreateUser(), 
     validationMiddleware, 
     userController.create

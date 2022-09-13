@@ -9,24 +9,14 @@ describe('User test suite', () => {
   mongoServerInit()
 
   describe('POST /users', () => {
-    it('should return unauthorized when no token is sent', async () => {
-      const result = await request(app)
-        .post('/users')
-        .send({
-          email: 'joao@email.com',
-          name: 'joao'
-        })
-      
-      expect(result.statusCode).toEqual(401)
-    })
-
     it('should create a user', async () => {
       const result = await request(app)
       .post('/users')
       .set('Authorization', getAccessToken())
       .send({
         email: 'joao@email.com',
-        name: 'joao'
+        name: 'joao',
+        password: '123123'
       })
     
       expect(result.statusCode).toEqual(201)
@@ -44,7 +34,8 @@ describe('User test suite', () => {
       .set('Authorization', getAccessToken())
       .send({
         email: 'marcos@email.com',
-        name: 'marcos'
+        name: 'marcos',
+        password: '123123'
       })
 
       const result = await request(app)
@@ -52,7 +43,8 @@ describe('User test suite', () => {
       .set('Authorization', getAccessToken())
       .send({
         email: 'marcos@email.com',
-        name: 'marcos'
+        name: 'marcos',
+        password: '123123'
       })
     
       expect(result.statusCode).toEqual(500)
@@ -113,8 +105,8 @@ describe('User test suite', () => {
       .send()
     
       expect(result.statusCode).toEqual(200)
-      expect(result.body).toMatchObject({ user: { _id: user._id, email: user.email, name: user.name } })
-      expect(result.body).not.toMatchObject({ user: { _id: wrongUser._id, email: wrongUser.email, name: wrongUser.name } })
+      expect(result.body).toMatchObject({ _id: user._id, email: user.email, name: user.name })
+      expect(result.body).not.toMatchObject({ _id: wrongUser._id, email: wrongUser.email, name: wrongUser.name })
     })
   })
 })

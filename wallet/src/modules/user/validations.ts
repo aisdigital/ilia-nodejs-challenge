@@ -15,6 +15,9 @@ export const validateCreateUser = (): ValidationChain[] => [
   check('name')
     .exists()
     .withMessage('Name is required'),
+  check('password')
+    .exists()
+    .withMessage('Password is required')
 ]
 
 export const validateGetUser = (): ValidationChain[] => [
