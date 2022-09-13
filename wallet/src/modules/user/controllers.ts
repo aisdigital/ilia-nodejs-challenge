@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { getAccessToken } from '../../utils/getAccessToken'
 import { UserModel } from './models/user'
 
 export const userController = {
@@ -26,8 +27,9 @@ export const userController = {
       const { id } = req.params
 
       const user = await UserModel.findOne({ _id: id })
+      const token = getAccessToken(user?._id, false)
 
-      return res.status(200).json(user).end()
+      return res.status(200).json({ user: user?.serialize(), token }).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }
@@ -40,8 +42,9 @@ export const userController = {
         email,
         name,
       })
+      const token = getAccessToken(user?._id, false)
 
-      return res.status(201).json(user).end()
+      return res.status(201).json({ user: user?.serialize(), token }).end()
     } catch (err) {
       return res.status(400).send((err as any).message)
     }
