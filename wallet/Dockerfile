@@ -1,7 +1,7 @@
 FROM node:alpine
-WORKDIR /usr/app
+WORKDIR /opt/app
 COPY package*.json ./
 RUN yarn
 COPY . .
 EXPOSE 3001
-CMD ["yarn", "local"]
+CMD ["yarn", "dev"]
