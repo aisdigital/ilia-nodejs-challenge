@@ -1,3 +1,5 @@
+import { TransactionModel } from "./models/transaction";
+
 interface ListCall {
   request: {
     page: number;
@@ -24,9 +26,21 @@ export const transactionRoutes = {
       findOptions = Object.assign(findOptions, { paying_user_id })
     }
 
+    const transactions = await TransactionModel
+      .find(findOptions)
+      .populate({ path: 'receiving_user_id', select: '_id email name' })
+      .populate({ path: 'paying_user_id', select: '_id email name' })
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(Number(limit))
+
+    const totalCount = await TransactionModel.countDocuments(findOptions)
+
     return callback(null, { 
-      results: [{ _id: 'test', price: 123, type: 'debit', paying_user_id: 'test', receiving_user_id: 'test2' }],
-      page: 0, limit: 20, totalCount: 10,
+      results: transactions,
+      page: Number(page),
+      limit: Number(limit),
+      totalCount,
     })
   }
 }
