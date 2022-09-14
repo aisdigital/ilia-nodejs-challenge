@@ -1,4 +1,5 @@
 import { TransactionModel } from "./models/transaction";
+import { TransactionType } from "./types";
 
 interface ListCall {
   request: {
@@ -7,6 +8,15 @@ interface ListCall {
     offset: number;
     receiving_user_id?: string;
     paying_user_id?: string;
+  }
+}
+
+interface CreateCall {
+  request: {
+    price: number;
+    type: TransactionType;
+    receiving_user_id: string;
+    paying_user_id: string;
   }
 }
 
@@ -42,5 +52,17 @@ export const transactionRoutes = {
       limit: Number(limit),
       totalCount,
     })
+  },
+  create: async (call: CreateCall, callback: Callback) => {
+    const { price, type, receiving_user_id, paying_user_id } = call.request
+
+    const transaction = await TransactionModel.create({
+      price,
+      type,
+      receiving_user_id,
+      paying_user_id
+    })
+
+    return callback(null, {transaction: transaction.serialize() })
   }
 }

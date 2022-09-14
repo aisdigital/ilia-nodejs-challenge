@@ -33,7 +33,13 @@ export const validateCreateTransaction = (): ValidationChain[] => [
       if(!exists) return Promise.reject()
       return Promise.resolve()
     })
-    .withMessage('Receiving user does not exist'),
+    .withMessage('Receiving user does not exist')
+    .custom(async (receiving_user_id, { req }) => {
+      const paying_user_id = req.user._id
+      if(paying_user_id === receiving_user_id) return Promise.reject()
+      return Promise.resolve()
+    })
+    .withMessage('You can not make a transaction to yourself'),
   check('price')
     .exists()
     .withMessage('Price is required')

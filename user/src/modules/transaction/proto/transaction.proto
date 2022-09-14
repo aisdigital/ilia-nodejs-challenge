@@ -23,6 +23,18 @@ message ListTransactionResponse {
   int32 totalCount = 4;
 }
 
+message CreateTransactionRequest {
+  float price = 1;
+  string type = 2;
+  string receiving_user_id = 3;
+  string paying_user_id = 4;
+}
+
+message CreateTransactionResponse {
+  Transaction transaction = 1;
+}
+
 service TransactionService {
-  rpc List(ListTransactionRequest) returns (ListTransactionResponse) {}
+  rpc List(ListTransactionRequest) returns (ListTransactionResponse) {};
+  rpc Create(CreateTransactionRequest) returns (CreateTransactionResponse) {};
 }

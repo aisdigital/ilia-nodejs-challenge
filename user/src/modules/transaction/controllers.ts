@@ -27,4 +27,25 @@ export const transactionController = {
       return res.status(400).send((err as any).message)
     }
   },
+  create: async (req: Request, res: Response) => {
+    try {
+      const { price, type, receiving_user_id } = req.body
+      const paying_user_id = (req.user as Token)?._id
+
+      transactionClient.Create(
+        {
+          price,
+          type,
+          receiving_user_id,
+          paying_user_id,
+        },
+        (error: any, response: any) => {
+          if (error) return res.status(400).json(error)
+          return res.status(200).json(response)
+        }
+      )
+    } catch (err) {
+      return res.status(400).send((err as any).message)
+    }
+  }
 }
