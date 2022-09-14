@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+message ListTransactionRequest {
+  optional int32 page = 1;
+  optional int32 limit = 2;
+  optional int32 offset = 3;
+  optional string receiving_user_id = 4;
+  optional string paying_user_id = 5;
+}
+
+message Transaction {
+  string _id = 1;
+  float price = 2;
+  string type = 3;
+  string paying_user_id = 4;
+  string receiving_user_id = 5;
+}
+
+message ListTransactionResponse {
+  repeated Transaction transactions = 1;
+}
+
+service TransactionService {
+  rpc listTransactions(ListTransactionRequest) returns (ListTransactionResponse) {}
+}
