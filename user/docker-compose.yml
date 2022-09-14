@@ -5,22 +5,22 @@ services:
       context: .
       dockerfile: Dockerfile
     image: nodejs
-    container_name: ilia-wallet
+    container_name: ilia-user
     restart: unless-stopped
     env_file: .env
     environment:
       - DATABASE_URL=$DATABASE_URL
       - JWT_SECRET=$JWT_SECRET
     ports:
-      - 3001:3001
+      - 3002:3002
     volumes:
       - .:/opt/app
     networks:
       - ilia-network
-  mongo-wallet:
+  mongo-user:
     image: mongo
     ports:
-      - 27017:27017
+      - 27016:27017
     networks:
       - ilia-network
 networks:

@@ -12,7 +12,7 @@ services:
       - DATABASE_URL=$DATABASE_URL
       - JWT_SECRET=$JWT_SECRET
     ports:
-      - 3001:3001
+      - 3334:3334
     volumes:
       - .:/opt/app
     networks:
