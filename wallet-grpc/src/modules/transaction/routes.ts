@@ -11,6 +11,12 @@ interface ListCall {
   }
 }
 
+interface GetCall {
+  request: {
+    _id: string;
+  }
+}
+
 interface CreateCall {
   request: {
     price: number;
@@ -52,6 +58,13 @@ export const transactionRoutes = {
       limit: Number(limit),
       totalCount,
     })
+  },
+  get: async (call: GetCall, callback: Callback) => {
+    const { _id } = call.request
+
+    const transaction = await TransactionModel.findOne({ _id })
+
+    return callback(null, {transaction: transaction?.serialize() })
   },
   create: async (call: CreateCall, callback: Callback) => {
     const { price, type, receiving_user_id, paying_user_id } = call.request

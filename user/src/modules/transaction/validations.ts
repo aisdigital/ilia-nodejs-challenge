@@ -57,3 +57,11 @@ export const validateCreateTransaction = (): ValidationChain[] => [
     })
     .withMessage('Type must be debit or credit')
 ]
+
+export const validateGetTransaction = (): ValidationChain[] => [
+  param('id')
+    .exists()
+    .withMessage('Transaction id is required')
+    .isString()
+    .withMessage('Transaction id must be string')
+]
