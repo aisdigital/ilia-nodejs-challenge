@@ -58,7 +58,7 @@ export const transactionController = {
         },
         (error: any, response: any) => {
           if (error) return res.status(400).json(error)
-          return res.status(200).json(response)
+          return res.status(201).json(response)
         }
       )
     } catch (err) {
