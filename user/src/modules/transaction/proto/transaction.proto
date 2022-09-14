@@ -1,19 +1,19 @@
 syntax = "proto3";
 
-message ListTransactionRequest {
-  optional int32 page = 1;
-  optional int32 limit = 2;
-  optional int32 offset = 3;
-  optional string receiving_user_id = 4;
-  optional string paying_user_id = 5;
-}
-
 message Transaction {
   string _id = 1;
   float price = 2;
   string type = 3;
   string paying_user_id = 4;
   string receiving_user_id = 5;
+}
+
+message ListTransactionRequest {
+  optional int32 page = 1;
+  optional int32 limit = 2;
+  optional int32 offset = 3;
+  optional string receiving_user_id = 4;
+  optional string paying_user_id = 5;
 }
 
 message ListTransactionResponse {
@@ -23,6 +23,27 @@ message ListTransactionResponse {
   int32 totalCount = 4;
 }
 
+message GetTransactionRequest {
+  string _id = 1;
+}
+
+message GetTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message CreateTransactionRequest {
+  float price = 1;
+  string type = 2;
+  string receiving_user_id = 3;
+  string paying_user_id = 4;
+}
+
+message CreateTransactionResponse {
+  Transaction transaction = 1;
+}
+
 service TransactionService {
-  rpc List(ListTransactionRequest) returns (ListTransactionResponse) {}
+  rpc List(ListTransactionRequest) returns (ListTransactionResponse) {};
+  rpc Get(GetTransactionRequest) returns (GetTransactionResponse) {};
+  rpc Create(CreateTransactionRequest) returns (CreateTransactionResponse) {};
 }
