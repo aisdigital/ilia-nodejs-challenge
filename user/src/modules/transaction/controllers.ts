@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Token } from '../../utils/passport'
-import { transactionClientTransaction } from './client'
+import { transactionClient } from './client'
 
 export const transactionController = {
   list: async (req: Request, res: Response) => {
@@ -9,17 +9,7 @@ export const transactionController = {
       const limit = req.query.limit ?? 20
       const offset = Number(limit) * Number(page)
 
-      let findOptions = {}
-
-      if(req.query.receiving_user_id) {
-        findOptions = Object.assign(findOptions, { receiving_user_id: req.query.receiving_user_id })
-      }
-
-      if(req.query.paying_user_id) {
-        findOptions = Object.assign(findOptions, { paying_user_id: req.query.paying_user_id })
-      }
-
-      transactionClientTransaction.createTransaction(
+      transactionClient.List(
         {
           page,
           limit,
