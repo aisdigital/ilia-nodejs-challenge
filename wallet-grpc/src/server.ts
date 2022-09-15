@@ -10,7 +10,7 @@ if(process.env.NODE_ENV !== 'test') {
 const server = new grpc.Server()
 server.addService(proto.TransactionService, transactionRoutes)
 server.bindAsync(
-  '0.0.0.0:3334',
+  '0.0.0.0:50051',
   grpc.ServerCredentials.createInsecure(),
   () => server.start()
 )
