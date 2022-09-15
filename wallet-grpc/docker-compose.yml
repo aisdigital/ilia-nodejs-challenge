@@ -1,18 +1,18 @@
 version: '3.1'
 services:
-  nodejs:
+  wallet:
     build:
       context: .
       dockerfile: Dockerfile
     image: nodejs
-    container_name: ilia-wallet
+    container_name: ilia-wallet-grpc
     restart: unless-stopped
     env_file: .env
     environment:
       - DATABASE_URL=$DATABASE_URL
       - JWT_SECRET=$JWT_SECRET
     ports:
-      - 3334:3334
+      - 50051:50051
     volumes:
       - .:/opt/app
     networks:
@@ -25,4 +25,5 @@ services:
       - ilia-network
 networks:
   ilia-network:
+    name: ilia-network
     driver: bridge

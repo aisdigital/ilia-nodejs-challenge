@@ -1,6 +1,6 @@
 version: '3.1'
 services:
-  nodejs:
+  user:
     build:
       context: .
       dockerfile: Dockerfile
@@ -16,13 +16,14 @@ services:
     volumes:
       - .:/opt/app
     networks:
-      - ilia-network
+      - default
   mongo-user:
     image: mongo
     ports:
       - 27016:27017
     networks:
-      - ilia-network
+      - default
 networks:
-  ilia-network:
-    driver: bridge
+  default:
+    name: ilia-network
+    external: true

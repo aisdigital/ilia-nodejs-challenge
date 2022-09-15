@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
-import { getAccessToken } from '../../../../wallet/src/utils/getAccessToken'
 import { UserModel } from './models/user'
 import bcrypt from 'bcryptjs';
+import { getAccessToken } from '../../utils/getAccessToken';
 
 export const userController = {
   list: async (req: Request, res: Response) => {
