@@ -1,45 +1,38 @@
 import { Request, Response} from 'express';
-import Transaction from '../database/models/transaction';
+import transaction from '../database/models/transaction';
 
 export default {
-    async userCreate(req: Request, res: Response) {
-        const user = {
-            firstName: 'user',
-            lastName: 'user',
-            email: 'user@user.com'
-        }
-        const responseQuery = await Transaction.userCreate(user);
-        console.log(responseQuery);
-        res.send('ok');
-    },
     
-    async createBalance(req: Request, res: Response) {
-        const transaction = {
-            userId: 1,
-            type: 'DEBIT',
-            amount: 1234
+    async createTransaction(req: Request, res: Response) {
+        const transactionParams = {
+            userId: req.body.userId,
+            type: req.body.type,
+            amount: req.body.amount
         }
-        const responseQuery = await Transaction.CreateBalance(transaction);
-        console.log(responseQuery);
-        res.send(responseQuery);
-    },
-
-    async getBalance(req: Request, res: Response) {
-        const transactionGet = {
-            userId: 1
+        let verify = (req.body.userId && (req.body.type == 'CREDIT' || req.body.type == 'DEBIT') && req.body.amount);
+        console.log(verify)
+        if (!verify) {
+            res.status(400).json('bad request');
         }
-        const responseQuery = await Transaction.getBalance(transactionGet);
-        console.log(responseQuery);
-        res.send(responseQuery);
+            const responseQuery = await transaction.createTransaction(transactionParams);
+            console.log(responseQuery);
+            return res.status(200).json(responseQuery);
     },
 
     async getTransactions(req: Request, res: Response) {
-        const transactionGet = {
-            userId: 1
-        }
-        const responseQuery = await Transaction.getTransactions(transactionGet);
-        console.log(responseQuery);
-        res.send(responseQuery);
-    },
 
-};
+        const transactionGet = {
+            userId: Number(req.params.id)
+        }
+
+        let verify = req.params.id
+
+        if(!verify) {
+            return res.status(400).json('bad request');
+        }
+        const responseQuery = await transaction.getTransactions(transactionGet);
+        console.log(responseQuery);
+        return res.status(200).json(responseQuery);
+    }
+
+}

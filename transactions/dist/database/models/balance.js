@@ -16,40 +16,11 @@ const dbConfig = require('../config/database');
 const mysql2_1 = __importDefault(require("mysql2"));
 let connection = mysql2_1.default.createConnection(dbConfig.database);
 exports.default = {
-    createTransaction(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = `
-        INSERT INTO
-            transactions
-        (
-        amount,
-        type,
-        user_fk_transaction_id
-        )
-            VALUES
-        (`;
-            query += (params.type == 'CREDIT' ? `${params.amount}` : `-${params.amount}`);
-            query += `, '${params.type}',
-        '${params.userId}'
-        )
-        `;
-            console.log(query);
-            connection.query(query, function (err, result, fields) {
-                console.log(result);
-                if (err)
-                    return err;
-                if (result)
-                    return result;
-            });
-        });
-    },
-    getTransactions(params) {
+    getBalance(params) {
         return __awaiter(this, void 0, void 0, function* () {
             let query = `
         SELECT
-            amount AS value,
-            type AS operation,
-            created_at AS date
+            SUM(amount) as balance
         FROM
             transactions
         WHERE

@@ -12,37 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const transaction_1 = __importDefault(require("../database/models/transaction"));
+const users_1 = __importDefault(require("../database/models/users"));
 exports.default = {
-    createTransaction(req, res) {
+    userCreate(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const transactionParams = {
-                userId: req.body.userId,
-                type: req.body.type,
-                amount: req.body.amount
+            const userParams = {
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email
             };
-            let verify = (req.body.userId && (req.body.type == 'CREDIT' || req.body.type == 'DEBIT') && req.body.amount);
-            console.log(verify);
-            if (!verify) {
-                return res.sendStatus(400).json('bad request');
-            }
-            const responseQuery = yield transaction_1.default.createTransaction(transactionParams);
-            console.log(responseQuery);
-            return res.sendStatus(200).json(responseQuery);
-        });
-    },
-    getTransactions(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const transactionGet = {
-                userId: Number(req.params.id)
-            };
-            let verify = req.params;
+            let verify = (userParams.firstName && userParams.lastName && userParams.email);
             if (verify) {
-                const responseQuery = yield transaction_1.default.getTransactions(transactionGet);
+                const responseQuery = yield users_1.default.userCreate(userParams);
                 console.log(responseQuery);
                 return res.sendStatus(200).json(responseQuery);
             }
-            return res.sendStatus(400).json('bad request');
+            return res.send(400).json('bad request');
         });
     }
 };

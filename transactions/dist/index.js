@@ -33,5 +33,5 @@ dotenv.config({ path: __dirname + '/../.env' });
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use('/', routes_1.default);
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3505;
 app.listen(port, () => console.log(`Microsservice transactions running on port ${port}`));

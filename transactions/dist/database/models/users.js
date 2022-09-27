@@ -16,46 +16,25 @@ const dbConfig = require('../config/database');
 const mysql2_1 = __importDefault(require("mysql2"));
 let connection = mysql2_1.default.createConnection(dbConfig.database);
 exports.default = {
-    createTransaction(params) {
+    userCreate(params) {
         return __awaiter(this, void 0, void 0, function* () {
             let query = `
         INSERT INTO
-            transactions
+            users
         (
-        amount,
-        type,
-        user_fk_transaction_id
+        first_name,
+        last_name,
+        email
         )
             VALUES
-        (`;
-            query += (params.type == 'CREDIT' ? `${params.amount}` : `-${params.amount}`);
-            query += `, '${params.type}',
-        '${params.userId}'
+        (
+        '${params.firstName}',
+        '${params.lastName}',
+        '${params.email}'
         )
         `;
-            console.log(query);
             connection.query(query, function (err, result, fields) {
-                console.log(result);
-                if (err)
-                    return err;
-                if (result)
-                    return result;
-            });
-        });
-    },
-    getTransactions(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = `
-        SELECT
-            amount AS value,
-            type AS operation,
-            created_at AS date
-        FROM
-            transactions
-        WHERE
-            user_fk_transaction_id = '${params.userId}'
-        `;
-            connection.query(query, function (err, result, fields) {
+                console.log(err);
                 console.log(result);
                 if (err)
                     return err;
