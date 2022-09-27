@@ -1,0 +1,163 @@
+{
+	"info": {
+		"_postman_id": "d377f7d0-cad0-48a6-881c-d251127c1360",
+		"name": "Ilia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"firstName\": \"username\",\n\"lastName\": \"smith\",\n\"email\": \"teste@myrequest.com\",\n\"password\": \"teste123\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create transaction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-acess-token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBvcnJhQG15cmVxdWVzdC5jb20iLCJpYXQiOjE2NjQyNjA4ODUsImV4cCI6MTY2NDI2Mzg4NX0.x8a3dRbRacf5DT-9tlwB0YpSKlXXV6O2I7LDEZdK35U",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"userId\": 1,\n\"type\": \"DEBIT\",\n\"amount\": 100}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/transaction",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get balance",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-acess-token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBvcnJhQG15cmVxdWVzdC5jb20iLCJpYXQiOjE2NjQyNjA4ODUsImV4cCI6MTY2NDI2Mzg4NX0.x8a3dRbRacf5DT-9tlwB0YpSKlXXV6O2I7LDEZdK35U",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3001/balance/1?x-acess-token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzZGZAbXlyZXF1ZXN0LmNvbSIsImlhdCI6MTY2NDI2MDM0NCwiZXhwIjoxNjY0MjYzMzQ0fQ.sPtJU4bbdBoJRC7mM-tlZ-OjwNf4Nm1qSYCsNTOOR90",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"balance",
+						"1"
+					],
+					"query": [
+						{
+							"key": "x-acess-token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzZGZAbXlyZXF1ZXN0LmNvbSIsImlhdCI6MTY2NDI2MDM0NCwiZXhwIjoxNjY0MjYzMzQ0fQ.sPtJU4bbdBoJRC7mM-tlZ-OjwNf4Nm1qSYCsNTOOR90"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get transactions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-acess-token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBvcnJhQG15cmVxdWVzdC5jb20iLCJpYXQiOjE2NjQyNjA4ODUsImV4cCI6MTY2NDI2Mzg4NX0.x8a3dRbRacf5DT-9tlwB0YpSKlXXV6O2I7LDEZdK35U",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3001/transaction/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"transaction",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"email\": \"teste@myrequest.com\",\n\"password\": \"teste123\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/auth",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

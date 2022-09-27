@@ -7,7 +7,7 @@ dotenv.config({ path: __dirname+'/../../.env' });
 
 var connection = mysql.createPool({
     connectionLimit : 10,
-    host     : process.env.DATABASE_HOST,
+    host     : process.env.DATABASE_HOST_LOCAL,
     user     : process.env.DB_USERNAME,
     password : process.env.DB_PASSWORD,
     database : process.env.DATABASE_NAME,
