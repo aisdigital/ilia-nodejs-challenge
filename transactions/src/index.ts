@@ -10,6 +10,6 @@ app.use(express.json());
 
 app.use('/', routes);
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3505;
 
 app.listen(port, () => console.log(`Microsservice transactions running on port ${port}`));

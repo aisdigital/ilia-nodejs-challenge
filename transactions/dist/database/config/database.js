@@ -22,15 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.database = void 0;
 const dotenv = __importStar(require("dotenv"));
-dotenv.config({ path: __dirname + '/../../.env' });
-module.exports = {
+dotenv.config({ path: __dirname + '/../../../.env' });
+exports.database = {
     connectionLimit: 10,
     host: process.env.DATABASE_HOST,
     user: process.env.DB_USERNAME,
-    username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DATABASE_NAME,
-    port: process.env.DATABASE_PORT,
-    dialect: process.env.DATABASE_TYPE
+    port: process.env.DATABASE_PORT_TRANSACTION
 };

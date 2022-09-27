@@ -12,12 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const transaction_1 = __importDefault(require("../database/repository/transaction"));
+const transaction_1 = __importDefault(require("../database/models/transaction"));
 exports.default = {
     create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const transaction = yield transaction_1.default.create;
-            res.send(transaction);
+            const user = {
+                firstName: 'user',
+                lastName: 'user',
+                email: 'user@user.com'
+            };
+            const transaction = yield transaction_1.default.create(user);
+            console.log(transaction);
+            res.send('ok');
         });
     },
     list(req, res) {

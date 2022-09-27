@@ -3,11 +3,14 @@ import transactionsController from './controllers/transaction';
 
 const router = express.Router();
 
+// user routes
+router.post('/user', transactionsController.userCreate);
+
 // transaction routes
-router.post('/transaction', transactionsController.create);
-router.get('/transaction', transactionsController.list);
+router.post('/transaction', transactionsController.createBalance);
+router.get('/transaction', transactionsController.getTransactions);
 
 // balance routes
-// router.post('/balance', transactionsController);
+router.get('/balance', transactionsController.getBalance);
 
 export default router;

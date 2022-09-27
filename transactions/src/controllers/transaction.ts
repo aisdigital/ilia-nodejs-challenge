@@ -1,18 +1,45 @@
 import { Request, Response} from 'express';
-import Transaction from '../database/repository/transaction';
+import Transaction from '../database/models/transaction';
 
 export default {
-    async create(req: Request, res: Response) {
+    async userCreate(req: Request, res: Response) {
         const user = {
-            username: 'user'
+            firstName: 'user',
+            lastName: 'user',
+            email: 'user@user.com'
         }
-        const transaction = await Transaction.create(user);
-        console.log(transaction);
+        const responseQuery = await Transaction.userCreate(user);
+        console.log(responseQuery);
         res.send('ok');
     },
+    
+    async createBalance(req: Request, res: Response) {
+        const transaction = {
+            userId: 1,
+            type: 'DEBIT',
+            amount: 1234
+        }
+        const responseQuery = await Transaction.CreateBalance(transaction);
+        console.log(responseQuery);
+        res.send(responseQuery);
+    },
 
-    async list(req: Request, res: Response) {
-        
+    async getBalance(req: Request, res: Response) {
+        const transactionGet = {
+            userId: 1
+        }
+        const responseQuery = await Transaction.getBalance(transactionGet);
+        console.log(responseQuery);
+        res.send(responseQuery);
+    },
+
+    async getTransactions(req: Request, res: Response) {
+        const transactionGet = {
+            userId: 1
+        }
+        const responseQuery = await Transaction.getTransactions(transactionGet);
+        console.log(responseQuery);
+        res.send(responseQuery);
     },
 
 };
