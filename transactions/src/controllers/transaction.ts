@@ -12,11 +12,15 @@ export default {
         let verify = (req.body.userId && (req.body.type == 'CREDIT' || req.body.type == 'DEBIT') && req.body.amount);
         console.log(verify)
         if (!verify) {
-            res.status(400).json('bad request');
+            return res.status(400).json('bad request');
         }
-            const responseQuery = await transaction.createTransaction(transactionParams);
-            console.log(responseQuery);
-            return res.status(200).json(responseQuery);
+        const responseQuery = await transaction.createTransaction(transactionParams);
+        console.log(responseQuery);
+        if (responseQuery) {
+            return res.status(200).json('Transação realizada com sucesso');
+        }
+        return res.status(400).json('bad request');
+
     },
 
     async getTransactions(req: Request, res: Response) {
@@ -31,8 +35,10 @@ export default {
             return res.status(400).json('bad request');
         }
         const responseQuery = await transaction.getTransactions(transactionGet);
-        console.log(responseQuery);
-        return res.status(200).json(responseQuery);
+        if (responseQuery) {
+            return res.status(200).json(responseQuery);
+        }
+        return res.status(400).json('bad request');
     }
 
 }

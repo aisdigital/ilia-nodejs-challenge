@@ -24,11 +24,11 @@ exports.default = {
             let verify = (req.body.userId && (req.body.type == 'CREDIT' || req.body.type == 'DEBIT') && req.body.amount);
             console.log(verify);
             if (!verify) {
-                return res.sendStatus(400).json('bad request');
+                res.status(400).json('bad request');
             }
             const responseQuery = yield transaction_1.default.createTransaction(transactionParams);
             console.log(responseQuery);
-            return res.sendStatus(200).json(responseQuery);
+            return res.status(200).json(responseQuery);
         });
     },
     getTransactions(req, res) {
@@ -36,13 +36,13 @@ exports.default = {
             const transactionGet = {
                 userId: Number(req.params.id)
             };
-            let verify = req.params;
-            if (verify) {
-                const responseQuery = yield transaction_1.default.getTransactions(transactionGet);
-                console.log(responseQuery);
-                return res.sendStatus(200).json(responseQuery);
+            let verify = req.params.id;
+            if (!verify) {
+                return res.status(400).json('bad request');
             }
-            return res.sendStatus(400).json('bad request');
+            const responseQuery = yield transaction_1.default.getTransactions(transactionGet);
+            console.log('responsequery', responseQuery);
+            return res.status(200).json(responseQuery);
         });
     }
 };

@@ -17,15 +17,15 @@ exports.default = {
     getBalance(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const transactionGet = {
-                userId: req.body.userId
+                userId: Number(req.params.id)
             };
-            let verify = req.body.userId;
-            if (verify) {
-                const responseQuery = yield balance_1.default.getBalance(transactionGet);
-                console.log(responseQuery);
-                res.send(responseQuery);
+            let verify = req.params.id;
+            if (!verify) {
+                res.send(400).json('bad request');
             }
-            res.send(400).json('bad request');
+            const responseQuery = yield balance_1.default.getBalance(transactionGet);
+            console.log(responseQuery);
+            res.send(responseQuery);
         });
     }
 };

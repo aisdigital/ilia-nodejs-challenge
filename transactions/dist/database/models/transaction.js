@@ -33,9 +33,7 @@ exports.default = {
         '${params.userId}'
         )
         `;
-            console.log(query);
             connection.query(query, function (err, result, fields) {
-                console.log(result);
                 if (err)
                     return err;
                 if (result)
@@ -45,22 +43,25 @@ exports.default = {
     },
     getTransactions(params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let query = `
-        SELECT
-            amount AS value,
-            type AS operation,
-            created_at AS date
-        FROM
-            transactions
-        WHERE
-            user_fk_transaction_id = '${params.userId}'
-        `;
-            connection.query(query, function (err, result, fields) {
-                console.log(result);
-                if (err)
-                    return err;
-                if (result)
-                    return result;
+            return new Promise((resolve, reject) => {
+                let query = `
+            SELECT
+                amount AS value,
+                type AS operation,
+                created_at AS date
+            FROM
+                transactions
+            WHERE
+                user_fk_transaction_id = '${params.userId}'
+            `;
+                connection.query(query, function (err, result, fields) {
+                    console.log('result', result);
+                    console.log('err', err);
+                    if (err)
+                        resolve(err);
+                    if (result)
+                        resolve(result);
+                });
             });
         });
     }

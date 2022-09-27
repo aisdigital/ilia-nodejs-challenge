@@ -34,8 +34,6 @@ exports.default = {
         )
         `;
             connection.query(query, function (err, result, fields) {
-                console.log(err);
-                console.log(result);
                 if (err)
                     return err;
                 if (result)

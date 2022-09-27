@@ -9,10 +9,14 @@ export default {
 
         let verify = req.params.id
         if(!verify) {
-            res.send(400).json('bad request');
+            res.status(400).json('bad request');
         }
-        const responseQuery = await balance.getBalance(transactionGet);
-        console.log(responseQuery);
-        res.send(responseQuery);
+        const responseQuery: any = await balance.getBalance(transactionGet);
+        console.log(responseQuery[0]);
+        let response = {
+            userId: req.params.id,
+            balance: responseQuery[0].balance
+        }
+        res.status(200).json(response);
     }
 };

@@ -16,51 +16,50 @@ interface transactionGet {
 export default {
 
     async createTransaction(params: transaction) {
+        return new Promise((resolve, reject) => {
+            let query = `
+            INSERT INTO
+                transactions
+            (
+            amount,
+            type,
+            user_fk_transaction_id
+            )
+                VALUES
+            (`
 
-        let query = `
-        INSERT INTO
-            transactions
-        (
-        amount,
-        type,
-        user_fk_transaction_id
-        )
-            VALUES
-        (`
+            query+= (params.type == 'CREDIT' ? `${params.amount}` : `-${params.amount}`)
 
-        query+= (params.type == 'CREDIT' ? `${params.amount}` : `-${params.amount}`)
-
-        query += `, '${params.type}',
-        '${params.userId}'
-        )
-        `;
-
-        console.log(query)
-        connection.query(query, function (err, result, fields) {
-            console.log(result);
-            if (err) return err;
-            if (result) return result;
-            
+            query += `, '${params.type}',
+            '${params.userId}'
+            )
+            `;
+            connection.query(query, function (err, result, fields) {
+                if (err) reject(err);
+                if (result) resolve(result);
+                
+            })
         })
     },
 
     async getTransactions(params: transactionGet) {
-        
-        let query = `
-        SELECT
-            amount AS value,
-            type AS operation,
-            created_at AS date
-        FROM
-            transactions
-        WHERE
-            user_fk_transaction_id = '${params.userId}'
-        `;
-        connection.query(query, function (err, result, fields) {
-            console.log(result);
-            if (err) return err;
-            if (result) return result;
-            
+        return new Promise((resolve, reject) => {
+            let query = `
+            SELECT
+                amount AS value,
+                type AS operation,
+                created_at AS date
+            FROM
+                transactions
+            WHERE
+                user_fk_transaction_id = '${params.userId}'
+            `;
+            connection.query(query, function (err, result, fields) {
+                console.log('result',result);
+                console.log('err',err);
+                if (err) reject(err);
+                if (result) resolve(result);
+            }) 
         })
     }
 

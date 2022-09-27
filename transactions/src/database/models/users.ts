@@ -12,28 +12,27 @@ interface user {
 export default {
 
     async userCreate(params: user) {
-
-        let query = `
-        INSERT INTO
-            users
-        (
-        first_name,
-        last_name,
-        email
-        )
-            VALUES
-        (
-        '${params.firstName}',
-        '${params.lastName}',
-        '${params.email}'
-        )
-        `;
-        connection.query(query, function (err, result, fields) {
-            console.log(err);
-            console.log(result);
-            if (err) return err;
-            if (result) return result;
-            
+        return new Promise((resolve, reject) => {
+            let query = `
+            INSERT INTO
+                users
+            (
+            first_name,
+            last_name,
+            email
+            )
+                VALUES
+            (
+            '${params.firstName}',
+            '${params.lastName}',
+            '${params.email}'
+            )
+            `;
+            connection.query(query, function (err, result, fields) {
+                if (err) reject(err);
+                if (result) resolve(result);
+                
+            })
         })
     }
 

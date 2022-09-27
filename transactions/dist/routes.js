@@ -14,5 +14,5 @@ router.post('/user', users_1.default.userCreate);
 router.post('/transaction', transaction_1.default.createTransaction);
 router.get('/transaction/:id', transaction_1.default.getTransactions);
 // balance routes
-router.get('/balance', balance_1.default.getBalance);
+router.get('/balance/:id', balance_1.default.getBalance);
 exports.default = router;

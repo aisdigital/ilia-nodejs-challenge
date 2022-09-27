@@ -22,12 +22,12 @@ exports.default = {
                 email: req.body.email
             };
             let verify = (userParams.firstName && userParams.lastName && userParams.email);
-            if (verify) {
-                const responseQuery = yield users_1.default.userCreate(userParams);
-                console.log(responseQuery);
-                return res.sendStatus(200).json(responseQuery);
+            if (!verify) {
+                return res.send(400).json('bad request');
             }
-            return res.send(400).json('bad request');
+            const responseQuery = yield users_1.default.userCreate(userParams);
+            console.log(responseQuery);
+            return res.sendStatus(200).json(responseQuery);
         });
     }
 };
