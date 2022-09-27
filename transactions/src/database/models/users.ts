@@ -43,6 +43,25 @@ export default {
         })
     },
 
+    async usersGet() {
+        return new Promise((resolve, reject) => {
+            let query = `
+            SELECT
+                id,
+                first_name AS name,
+                last_name AS nickname,
+                email
+            FROM
+                users
+            `;
+            connection.query(query, function (err, result, fields) {
+                if (err) reject(err);
+                if (result) resolve(result);
+                
+            })
+        })
+    },
+
     async findUserByEmail(params: email) {
         return new Promise((resolve, reject) => {
             let query = `

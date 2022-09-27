@@ -11,6 +11,7 @@ router.post('/auth', userController.login);
 
 // user routes
 router.post('/user', userController.userCreate);
+router.get('/user', middlewares.verifyJWT, userController.usersGet);
 
 // transaction routes
 router.post('/transaction', middlewares.verifyJWT, transactionsController.createTransaction);

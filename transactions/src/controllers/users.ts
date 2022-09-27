@@ -42,6 +42,17 @@ export default {
         }
         return res.status(400).json('bad request');
     },
+
+    async usersGet(req: Request, res: Response) {
+        console.log(req.body.password)
+        
+        const responseQuery = await user.usersGet();
+        console.log(responseQuery);
+        if(responseQuery) {
+            return res.status(200).json(responseQuery);
+        }
+        return res.status(400).json('bad request');
+    },
     
     async login(req: Request, res: Response) {
 
