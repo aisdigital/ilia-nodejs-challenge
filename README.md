@@ -24,7 +24,7 @@ Isso irá criar todas as tabelas necessárias no banco de dados e o sistema esta
 
 Para facilitar as consultas, foi disponibilizado um postman_collection com todos os endpoints configurados.
 
-## POST /users
+## POST /user
 
 No endpoint /user, o mesmo espera uma requisição POST com um objeto conforme a seguir no body:
 
@@ -36,7 +36,7 @@ No endpoint /user, o mesmo espera uma requisição POST com um objeto conforme a
 
 Onde o mesmo irá criar um usuário na base de dados, devido a ser um endpoint de cadastro, não é necessária autenticação nesta rota
 
-## GET /users
+## GET /user
 
 No endpoint /user, o mesmo espera uma requisição GET com um JWT gerado a partir de um login válido. O token deve ser adicionado no header com a key ['x-acess-token'], e pode ser gerado através da rota /auth que está descrita no próximo item.
 
