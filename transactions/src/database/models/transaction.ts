@@ -55,8 +55,6 @@ export default {
                 user_fk_transaction_id = '${params.userId}'
             `;
             connection.query(query, function (err, result, fields) {
-                console.log('result',result);
-                console.log('err',err);
                 if (err) reject(err);
                 if (result) resolve(result);
             }) 

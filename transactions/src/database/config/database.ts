@@ -10,3 +10,5 @@ export const database = {
     database : process.env.DATABASE_NAME,
     port     : process.env.DATABASE_PORT_TRANSACTION
 }
+
+console.log(database);

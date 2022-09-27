@@ -3,6 +3,7 @@ version: '3.4'
 services:
   mariadb:
     image: mariadb:10.2
+    container_name: 'mariadb'
     environment:
       MYSQL_ROOT_PASSWORD: 'mypassword'
       MYSQL_DATABASE: 'mydatabasename'
@@ -10,3 +11,10 @@ services:
       MYSQL_PASSWORD: 'mydatabasepassword'
     ports:
       - 3306:3306
+  transactions:
+    container_name: 'transactions'
+    build: ./transactions
+    depends_on:
+      - mariadb
+    ports:
+      - '3001:3001'
