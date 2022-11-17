@@ -1,3 +1,4 @@
+import { EnvService } from '@config/env/env.service';
 import { OnApplicationShutdown } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import {
@@ -9,9 +10,11 @@ import {
 
 @Injectable()
 export class ConsumerService implements OnApplicationShutdown {
+  constructor(private envService: EnvService) {}
+
   private readonly kafka = new Kafka({
     //TODO: passar para env
-    brokers: ['localhost:9092'],
+    brokers: [`${this.envService.kafkaBaseUrl}`],
   });
   private readonly consumers: Consumer[] = [];
 
