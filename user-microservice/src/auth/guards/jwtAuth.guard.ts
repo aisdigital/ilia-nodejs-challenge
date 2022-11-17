@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-
+// Password
 import { AuthGuard } from '@nestjs/passport';
-
+// Decorators
 import { IS_PUBLIC_KEY } from '../decorators/isPublic.decorator';
-
-// import { UnauthorizedError } from '../errors/unauthorized.error';
+// Error Handling
+import { UnauthorizedError } from '../errors/unauthorized.error';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -18,7 +18,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
-  canActivate(context: ExecutionContext) {
+  canActivate(context: ExecutionContext): Promise<boolean> | boolean {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -34,16 +34,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return canActivate;
     }
 
-    return super.canActivate(context);
+    const canActivatePromise = canActivate as Promise<boolean>;
 
-    // const canActivatePromise = canActivate as Promise<boolean>;
+    return canActivatePromise.catch((error) => {
+      if (error instanceof UnauthorizedError) {
+        throw new UnauthorizedException(error.message);
+      }
 
-    // return canActivatePromise.catch((error) => {
-    //   if (error instanceof UnauthorizedError) {
-    //     throw new UnauthorizedException(error.message);
-    //   }
-
-    //   throw new UnauthorizedException();
-    // });
+      throw new UnauthorizedException();
+    });
   }
 }
