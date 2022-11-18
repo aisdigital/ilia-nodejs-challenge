@@ -1,0 +1,9 @@
+node_modules
+.git
+.gitignore
+.editorconfig
+.eslintrc.js
+.prettierrc
+.env.example
+.vscode
+README.md
