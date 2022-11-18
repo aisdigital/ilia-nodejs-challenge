@@ -2,10 +2,10 @@ version: '3.8'
 services:
   postgres:
     image: postgres:13
-    container_name: userMSDB
+    container_name: transactionMSDB
     restart: always
     ports:
-      - 5434:5432
+      - 5433:5432
     env_file:
       - .env
     volumes:
@@ -13,4 +13,4 @@ services:
 
 volumes:
   postgres:
-    name: userdb
+    name: transactiondb
