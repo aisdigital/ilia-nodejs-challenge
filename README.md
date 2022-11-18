@@ -1,94 +1,119 @@
-# ília - Code Challenge NodeJS
-**English**
-##### Before we start ⚠️
-**Please create a fork from this repository**
+# User and Wallet Service
 
-## The Challenge:
-One of the ília Digital verticals is Financial and to level your knowledge we will do a Basic Financial Application and for that we divided this Challenge in 2 Parts.
+## Instalação
 
-The first part is mandatory, which is to create a Wallet microservice to store the users' transactions, the second part is optional (except for Seniors, it's mandatory) which is to create a Users Microservice with integration between the two microservices (Wallet and Users), using internal communications between them, being in gRPC, REST, Kafka, RabbitMQ and this communication must have a different security of the external application (JWT, SSL, ...), **Development in javascript (Node) is required.**
+entre na pasta user-microservice e instale as dependencias do package.json
 
-![diagram](diagram.png)
+```bash
+  cd  user-microservice
 
-### General Instructions:
-## Part 1 - Wallet Microservice
+  yarn
+```
 
-This microservice must be a digital Wallet where the user transactions will be stored 
+levante o banco de dados com o comando
 
-### The Application must have
+```bash
+docker-compose up -d
+```
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.
-    - Have a dedicated database (Postgres, MySQL, Mongo...).
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Configure the Microservice port to 3001. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a team work and not just a commit.
+em seguida rode as migration do banco de dados
 
-## Part 2 - Microservice Users and Wallet Integration
+```bash
+  npx prisma migrate dev
+```
 
-### The Application must have:
+para rodar a aplicaão rode o comando
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.   
-    - Have a dedicated database (Postgres, MySQL, Mongo...).
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Set the Microservice port to 3002. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a teamwork and not just a commit.
-    - Internal Communication Security (JWT, SSL, ...), if it is JWT the PrivateKey must be ILIACHALLENGE_INTERNAL (passed by env var).
-    - Communication between Microservices using gRPC, REST, Kafka, RabbitMQ, (if this communication needs a Docker environment too).
+```bash
+yarn start:dev
+```
 
-#### In the end, a pull request must be created in the Github repo. As soon as you finish, please let us know.
+Para levantar o serviço do transaction-microservice, faça o mesmo processo citado a cima.
 
-#### We are available to answer any questions.
+## Variáveis de Ambiente
 
+Para rodar esse projeto, você vai precisar adicionar as seguintes variáveis de ambiente no seu .env
 
-***
+` PORT=`
 
-**Português**
-##### Antes de começar ⚠️
-**Por favor, crie um fork desse repositório**
+`ILIACHALLENGE_INTERNAL=` para o user-microservice e
 
-## O Desafio:
-Uma das verticais da ília Digital é a Financeira e para nivelar seus conhecimentos iremos fazer uma Aplicação Financeira Básica e para isso dividimos esse Desafio em 2 Partes.
+`ILIACHALLENGE` para o transaction-microservice
 
-Sendo a 1ª Parte obrigatória que é criar um Microserviço de Wallet para guardar as transações de usuários, já a segunda 2ª Parte é opcional (com exceção dos Seniors, é obrigatório) que é criar um Microserviço de Usuários com Integração entre os 2 Microserviços (Wallet e Users), usando comunicações interna entre eles, sendo em gRPC, REST, Kafka, RabbitMQ e essa comunicação deve ter uma segurança diferente da aplicação externa (JWT, SSL, …), **Obrigatório o desenvolvimento em javascript (Node).**
+`DATABASE_URL=`
+`POSTGRES_USER=`
+`POSTGRES_PASSWORD=`
+`POSTGRES_DB=`
 
-![diagram](diagram.png)
+`TRANSACTION_MS_API=` aqui você pode colocar o endereço do transaction microservice
 
-### Instruções gerais:
-## Parte 1 - Microserviço Wallet
+## Documentação da API - user-microservices
 
-Esse Microserviço deve ser uma Carteira digital onde vai guardar as transações de usuários.
+todas as rotas deverão ser requestadas neste serviço
 
-### A Aplicação deve possuir:
+#### Criação do usuário
 
-    - Documentação de setup do projeto (readme.md).
-    - Aplicação e Banco de Dados estarem rodando em container (Docker, …).
-    - Esse Microserviço deve receber Request via HTTP.
-    - Ter um banco de dados dedicado (Postgres, MySQL, Mongo…).
-    - Autenticação JWT em todas as rotas (endpoints) a PrivateKey deve ser ILIACHALLENGE (passada por env var).
-    - Configurar a porta do Microserviço na 3001.
-    - Gitflow aplicado com o Code Review em cada passo, abrir uma feature/branch, criar no mínimo um pull request e fazer o merge com a Main(master deprecated), esse passo é importante para simular um trabalho em equipe e não fazer um "commitão" somente.
+```http
+  POST /user
+```
 
-## Parte 2 - Microserviço Users e Integração com o Wallet
+| Body        | Tipo     | Descrição                     |
+| :---------- | :------- | :---------------------------- |
+| `email`     | `string` | **Obrigatório**               |
+| `fristName` | `string` | **Obrigatório** Primeiro Nome |
+| `lastName`  | `string` | **Obrigatório** Ultimo Nome   |
+| `password`  | `string` | **Obrigatório** Senha         |
 
-### A Aplicação deve possuir:
+#### Autenticação do usuario
 
-    - Documentação de setup do projeto (readme.md).
-    - Aplicação e Banco de Dados estarem rodando em container (Docker, …).
-    - Esse Microserviço deve receber Request via HTTP.
-    - Ter um banco de dados dedicado (Postgres, MySQL, Mongo…).
-    - Autenticação JWT em todas as rotas (endpoints) a PrivateKey deve ser ILIACHALLENGE (passada por env var).
-    - Configurar a porta do Microserviço na 3002.
-    - Gitflow aplicado com o Code Review em cada passo, abrir uma feature/branch, criar no mínimo um pull request e fazer o merge com a Main(master deprecated), esse passo é importante para simular um trabalho em equipe e não fazer um "commitão" somente.
-    - Segurança na Comunicação Interna (JWT, SSL, …), se for JWT a PrivateKey deve ser ILIACHALLENGE_INTERNAL (passada por env var).
-    - Comunicação entre os Microserviços usando gRPC, REST, Kafka, RabbitMQ, (se essa comunicação necessitar de um ambiente que colocar em ambiente em Docker também).
+```http
+  POST /auth
+```
 
+| Body    | Tipo     | Descrição       |
+| :------ | :------- | :-------------- |
+| `email` | `string` | **Obrigatório** |
+| `senha` | `string` | **Obrigatório** |
 
-#### No final, um pull request deve ser criado no repositório do Github. Assim que terminar, por favor nos avise.
+#### Alteração de cadastro do usuário
 
-#### Estamos à disposição, para tirar dúvidas.
+Para realizar esta ação, é necessáio ter o access_token para autenticar na rota, logo necesita-se que faça o login
 
-Happy coding! 🤓
+Rota autenticada por JWT - Bearer Token
+
+```http
+  PATCH /user/{:id}
+```
+
+| Parâmetro      | Tipo     | Descrição                                          |
+| :------------- | :------- | :------------------------------------------------- |
+| `id`           | `string` | **Obrigatório**. O ID do usuario que será alterado |
+| `access_token` | `string` | **Obrigatório**. Token JWT                         |
+
+No Body, coloque o campo que deseja alterar
+
+#### Criar transação
+
+```http
+  POST /transaction
+```
+
+Rota autenticada por JWT - Bearer Token
+
+| Body     | Tipo     | Descrição                                          |
+| :------- | :------- | :------------------------------------------------- |
+| `userId` | `number` | **Obrigatório** userId do usuario                  |
+| `type`   | `string` | **Obrigatório** O campo aceita 'DEBIT' ou 'CREDIT' |
+| `amount` | `number` | **Obrigatório** valor a ser enviado                |
+
+#### Retorna o extrato consolidado por type
+
+```http
+  POST /balance
+```
+
+Rota autenticada por JWT - Bearer Token
+
+## Autores
+
+- [@arturparanayba](https://www.github.com/arturparanayba)

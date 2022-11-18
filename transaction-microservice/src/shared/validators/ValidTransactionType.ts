@@ -7,15 +7,15 @@ import {
 export class ValidTransactionType implements ValidatorConstraintInterface {
   validate(transactionType: string): boolean {
     if (typeof transactionType === 'string') {
-      if (transactionType !== 'DEBIT' && transactionType !== 'CREDIT') {
-        return false;
+      if (transactionType !== 'DEBIT' || 'CREDIT') {
+        return true;
       }
-      return true;
+      return false;
     }
   }
 
   defaultMessage(): string {
-    const message = 'Transaction type must be CREDIT or DEBIT';
+    const message = 'Transaction tYpe must be CREDIT or DEBIT';
     return message;
   }
 }
