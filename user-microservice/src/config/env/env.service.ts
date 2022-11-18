@@ -13,7 +13,7 @@ export class EnvService {
     return this.configService.get<string>('app.jwtSecret');
   }
 
-  get kafkaBaseUrl(): string {
-    return this.configService.get<string>('app.kafka.baseUrl');
+  get transactionMSApi(): string {
+    return this.configService.get<string>('app.transactionMSApi.baseUrl');
   }
 }
