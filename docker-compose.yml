@@ -15,4 +15,17 @@ services:
     ports:
       - '3001:3001'
     command: npm run dev
-    
+  
+  wallet-service-db:
+    image: postgres:10.16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - wallet-service-db:/data/db
+
+volumes:
+  wallet-service-db:
