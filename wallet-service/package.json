@@ -2,11 +2,11 @@
   "name": "wallet-service",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "NODE_PATH=./dist node build/index.js",
+    "start": "NODE_PATH=./dist node build/app.js",
     "build": "rm -rf dist && tsc -p . && cp -R ./src/db/migrations ./dist/db",
-    "dev": "knex migrate:latest && nodemon -L src/index.ts",
+    "dev": "knex migrate:latest && nodemon -L src/app.ts",
     "migrate": "knex migrate:latest"
   },
   "keywords": [],
@@ -17,8 +17,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
     "knex": "^2.3.0",
-    "pg": "^8.8.0",
-    "uuid": "^9.0.0"
+    "pg": "^8.8.0"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",

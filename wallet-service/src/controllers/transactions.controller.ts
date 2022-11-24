@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import knex from "../db/knex";
 
 class TransactionsController {
@@ -15,7 +14,7 @@ class TransactionsController {
     async create(request: Request, response: Response) {
         try {
             await knex('transactions').insert(request.body);
-            const transaction = await knex('transactions').select().where({ id: request.body.id }).first();
+            const transaction = await knex('transactions').select("id", "user_id", "amount", "type").where({ id: request.body.id }).first();
             return response.send(transaction);
         } catch (error) {
             return response.status(500).send();
@@ -29,7 +28,7 @@ class TransactionsController {
         } catch (error) {
             return response.status(500).send();
         }
-    }
+    };
 }
 
 export default TransactionsController;
