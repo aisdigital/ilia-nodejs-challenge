@@ -12,7 +12,17 @@ services:
       - '5432:5432'
     volumes:
       - wallet-service-db:/data/db
-
+  users-service-db:
+    container_name: users-service-db
+    image: postgres:10.16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - '5433:5433'
+    volumes:
+      - users-service-db:/data/db
   wallet-service:
     container_name: wallet-service
     build:
@@ -34,6 +44,28 @@ services:
     depends_on:
       - wallet-service-db
     command: npm run dev
+  users-service:
+    container_name: users-service
+    build:
+      context: ./users-service
+      dockerfile: Dockerfile
+      target: base
+    environment:
+      DB_HOST: users-service-db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: postgres
+    volumes:
+      - ./users-service/src:/home/node/users/src
+      - ./users-service/nodemon.json:/home/node/users/src/nodemon.json
+    expose:
+      - '3002'
+    ports:
+      - '3002:3002'
+    depends_on:
+      - users-service-db
+    command: npm run dev
 
 volumes:
   wallet-service-db:
+  users-service-db:
