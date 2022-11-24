@@ -24,7 +24,8 @@ class TransactionsController {
 
     async balance(request: Request, response: Response) {
         try {
-            return response.send();
+            const amount = 0;
+            return response.send({ amount });
         } catch (error) {
             return response.status(500).send();
         }

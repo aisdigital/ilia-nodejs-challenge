@@ -8,5 +8,6 @@ const authMiddleware = new AuthMiddleware();
 
 transactionsRouter.get('/transactions', authMiddleware.verifyJWT, transactionsController.get)
 transactionsRouter.post('/transactions', authMiddleware.verifyJWT, transactionsController.create)
+transactionsRouter.get('/balance', authMiddleware.verifyJWT, transactionsController.balance)
 
 export default transactionsRouter;
