@@ -34,6 +34,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: password
       DB_DATABASE: postgres
+      JWT_SECRET: ILIACHALLENGE
     volumes:
       - ./wallet-service/src:/home/node/app/src
       - ./wallet-service/nodemon.json:/home/node/app/src/nodemon.json
