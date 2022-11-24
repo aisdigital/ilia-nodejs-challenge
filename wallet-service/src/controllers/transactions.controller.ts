@@ -23,8 +23,8 @@ class TransactionsController {
 
     async balance(request: Request, response: Response) {
         try {
-            const amount = 0;
-            return response.send({ amount });
+            const res = await knex.raw(`SELECT COALESCE((SELECT SUM(amount) FROM transactions WHERE type= 'DEBIT'), 0) - COALESCE((SELECT SUM(amount) FROM transactions WHERE type= 'CREDIT'), 0) AS amount;`);
+            return response.send({ amount: res.rows[0].amount });
         } catch (error) {
             return response.status(500).send();
         }
