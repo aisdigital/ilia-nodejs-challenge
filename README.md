@@ -17,3 +17,13 @@ This will create the following containers:
 To stop the application, run:
 
 ``` make down ```
+
+## REST API
+
+The documentation for the endpoints can be found in the following files (use [Swagger](https://editor-next.swagger.io/) to load the files):
+
+```
+ms-transactions.yaml
+ms-users.yaml
+```
+
