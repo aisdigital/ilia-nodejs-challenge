@@ -55,6 +55,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: password
       DB_DATABASE: postgres
+      JWT_SECRET: ILIACHALLENGE
     volumes:
       - ./users-service/src:/home/node/users/src
       - ./users-service/nodemon.json:/home/node/users/src/nodemon.json
