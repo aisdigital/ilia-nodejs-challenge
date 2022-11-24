@@ -1,22 +1,8 @@
 version: "3.7"
 
 services:
-  wallet-service:
-    build:
-      context: ./wallet-service
-      dockerfile: Dockerfile
-      target: base
-    volumes:
-      - ./wallet-service/src:/home/node/app/src
-      - ./wallet-service/nodemon.json:/home/node/app/src/nodemon.json
-    container_name: wallet-service
-    expose:
-      - '3001'
-    ports:
-      - '3001:3001'
-    command: npm run dev
-  
   wallet-service-db:
+    container_name: wallet-service-db
     image: postgres:10.16
     environment:
       POSTGRES_USER: postgres
@@ -26,6 +12,28 @@ services:
       - '5432:5432'
     volumes:
       - wallet-service-db:/data/db
+
+  wallet-service:
+    container_name: wallet-service
+    build:
+      context: ./wallet-service
+      dockerfile: Dockerfile
+      target: base
+    environment:
+      DB_HOST: wallet-service-db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: postgres
+    volumes:
+      - ./wallet-service/src:/home/node/app/src
+      - ./wallet-service/nodemon.json:/home/node/app/src/nodemon.json
+    expose:
+      - '3001'
+    ports:
+      - '3001:3001'
+    depends_on:
+      - wallet-service-db
+    command: npm run dev
 
 volumes:
   wallet-service-db:

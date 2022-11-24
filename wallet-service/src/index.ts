@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express"
+import knex from "./db/knex";
 
 const app = express();
 

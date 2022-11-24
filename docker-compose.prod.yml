@@ -1,8 +1,0 @@
-version: "3.7"
-
-services:
-  wallet-service:
-    build:
-      target: production
-    command: node dist/index.js
-    
