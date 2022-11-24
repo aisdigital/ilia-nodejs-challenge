@@ -8,6 +8,7 @@ const authMiddleware = new AuthMiddleware();
 
 usersRouter.get('/users', authMiddleware.verifyJWT, usersController.read)
 usersRouter.get('/users/:id', authMiddleware.verifyJWT, usersController.readOne)
+usersRouter.get('/internal/users/:id', authMiddleware.verifyJWTInternal, usersController.readOne)
 usersRouter.post('/users', usersController.create)
 usersRouter.patch('/users/:id', authMiddleware.verifyJWT, usersController.update)
 usersRouter.delete('/users/:id', authMiddleware.verifyJWT, usersController.delete)

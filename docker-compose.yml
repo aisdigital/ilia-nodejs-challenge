@@ -35,6 +35,7 @@ services:
       DB_PASSWORD: password
       DB_DATABASE: postgres
       JWT_SECRET: ILIACHALLENGE
+      JWT_SECRET_INTERNAL: ILIACHALLENGE_INTERNAL
     volumes:
       - ./wallet-service/src:/home/node/app/src
       - ./wallet-service/nodemon.json:/home/node/app/src/nodemon.json
@@ -57,6 +58,7 @@ services:
       DB_PASSWORD: password
       DB_DATABASE: postgres
       JWT_SECRET: ILIACHALLENGE
+      JWT_SECRET_INTERNAL: ILIACHALLENGE_INTERNAL
     volumes:
       - ./users-service/src:/home/node/users/src
       - ./users-service/nodemon.json:/home/node/users/src/nodemon.json
