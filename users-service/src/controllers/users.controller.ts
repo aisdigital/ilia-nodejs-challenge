@@ -3,13 +3,21 @@ import knex from "../db/knex";
 
 class UsersController {
     async read(request: Request, response: Response) {
-        const users = await knex.select('id', 'first_name', 'last_name', 'email').from('users');
-        return response.send(users);
+        try {
+            const users = await knex.select('id', 'first_name', 'last_name', 'email').from('users');
+            return response.send(users);
+        } catch (error) {
+            return response.status(500).send();
+        }
     };
 
     async readOne(request: Request, response: Response) {
-        const users = await knex.select('id', 'first_name', 'last_name', 'email').from('users').where({ id: request.params.id }).first();
-        return response.send(users);
+        try {
+            const users = await knex.select('id', 'first_name', 'last_name', 'email').from('users').where({ id: request.params.id }).first();
+            return response.send(users);
+        } catch (error) {
+            return response.status(500).send();
+        }
     };
 
     async create(request: Request, response: Response) {
@@ -18,7 +26,6 @@ class UsersController {
             const user = await knex('users').select('id', 'first_name', 'last_name', 'email').from('users').where({id: request.body.id }).first();
             return response.send(user);
         } catch (error) {
-            console.log(error);
             return response.status(500).send();
         }
     };
@@ -29,7 +36,6 @@ class UsersController {
             const user = await knex('users').select('id', 'first_name', 'last_name', 'email').from('users').where({id: request.params.id }).first();
             return response.send(user);
         } catch (error) {
-            console.log(error);
             return response.status(500).send();
         }
     };
@@ -39,7 +45,6 @@ class UsersController {
             await knex('users').where({ id: request.params }).del();
             return response.send();
         } catch (error) {
-            console.log(error);
             return response.status(500).send();
         }
     };
