@@ -20,3 +20,14 @@ export const register = async (user: RegisterSchemaType) => {
     },
   });
 };
+
+export const getUsers = async () => {
+  return await userDB.user.findMany({
+    select: {
+      email: true,
+      first_name: true,
+      last_name: true,
+      id: true,
+    },
+  });
+};

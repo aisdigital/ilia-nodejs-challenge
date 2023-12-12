@@ -4,7 +4,7 @@ import { UserController } from './controllers/user';
 
 export const router = Router();
 
-router.post('auth', async (req, res) => {
+router.post('/auth', async (req, res) => {
   const { email, password } = req.body;
   const user = await login({ email, password });
   res.status(200).json(user);

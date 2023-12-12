@@ -3,9 +3,8 @@ import { z } from 'zod';
 export const UserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
-  firstName: z.string(),
-  lastName: z.string(),
-  password: z.string(),
+  first_name: z.string(),
+  last_name: z.string(),
 });
 
 export const AuthenticatedUserSchema = z.object({
