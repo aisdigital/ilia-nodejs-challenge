@@ -14,3 +14,4 @@ export const AuthenticatedUserSchema = z.object({
 });
 
 export type AuthenticatedUser = z.infer<typeof AuthenticatedUserSchema>;
+export type User = z.infer<typeof UserSchema>;

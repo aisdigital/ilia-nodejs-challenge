@@ -31,3 +31,7 @@ const Authenticated: RequestHandler = (req: Request, res, next) => {
       .json(unauthorized('Invalid user authentication'));
   }
 };
+
+export const ensureAuth = {
+  Authenticated,
+};
