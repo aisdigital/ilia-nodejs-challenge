@@ -1,9 +1,9 @@
 import { UserSchema } from '../types/auth';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config';
-import { userRepository } from '../repositories/user.repository';
 import bcrypt from 'bcrypt';
 import { unauthorized } from '@hapi/boom';
+import { userDB } from '../utils/db';
 
 export const getUserFromJwt = (token: string) => {
   const user = jwt.verify(token, JWT_SECRET);
@@ -12,7 +12,9 @@ export const getUserFromJwt = (token: string) => {
 };
 
 export const login = async (user: { email: string; password: string }) => {
-  const getUser = await userRepository.getUserByEmail(user.email);
+  const getUser = await userDB.user.findUniqueOrThrow({
+    where: { email: user.email },
+  });
 
   const decryptedPassword = bcrypt.compareSync(user.password, getUser.password);
 
@@ -23,8 +25,8 @@ export const login = async (user: { email: string; password: string }) => {
   const payload = {
     id: getUser.id,
     email: getUser.email,
-    firstName: getUser.firstName,
-    lastName: getUser.lastName,
+    first_name: getUser.first_name,
+    last_name: getUser.last_name,
   };
 
   const token = jwt.sign(payload, JWT_SECRET);
