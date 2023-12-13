@@ -1,4 +1,7 @@
-import { TransactionSchemaType } from '../types/wallet';
+import {
+  ListTransactionQuerySchemaType,
+  TransactionSchemaType,
+} from '../types/wallet';
 import { walletDB } from '../utils/db';
 
 export const createTransaction = async (transaction: TransactionSchemaType) => {
@@ -13,4 +16,17 @@ export const createTransaction = async (transaction: TransactionSchemaType) => {
   });
 
   return createTransaction;
+};
+
+export const getTransactions = async (
+  params: ListTransactionQuerySchemaType
+) => {
+  const transactions = await walletDB.transaction.findMany({
+    where: {
+      user_id: params.user_id,
+      type: params.type,
+    },
+  });
+
+  return transactions;
 };
