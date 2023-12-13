@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { login } from './services/auth';
 import { UserController } from './controllers/user';
+import { WalletController } from './controllers/wallet';
 
 export const router = Router();
 
@@ -11,3 +12,4 @@ router.post('/auth', async (req, res) => {
 });
 
 router.use('/users', UserController);
+router.use('/', WalletController);
