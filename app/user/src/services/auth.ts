@@ -12,9 +12,11 @@ export const getUserFromJwt = (token: string) => {
 };
 
 export const login = async (user: { email: string; password: string }) => {
-  const getUser = await userDB.user.findUniqueOrThrow({
+  const getUser = await userDB.user.findUnique({
     where: { email: user.email },
   });
+
+  if (!getUser) throw unauthorized('Invalid password/email');
 
   const decryptedPassword = bcrypt.compareSync(user.password, getUser.password);
 
