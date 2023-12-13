@@ -30,3 +30,16 @@ export const getTransactions = async (
 
   return transactions;
 };
+
+export const getBalance = async (user_id: string) => {
+  const balance = await walletDB.transaction.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      user_id,
+    },
+  });
+
+  return balance._sum.amount;
+};

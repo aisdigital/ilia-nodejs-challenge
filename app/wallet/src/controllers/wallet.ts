@@ -1,7 +1,11 @@
 import { Router } from 'express';
 
 import { ensureAuth } from '../middlewares/auth';
-import { createTransaction, getTransactions } from '../services/wallet';
+import {
+  createTransaction,
+  getBalance,
+  getTransactions,
+} from '../services/wallet';
 import { TransactionBodySchema } from '../types/wallet';
 import { badRequest } from '@hapi/boom';
 import { TransactionType } from '@prisma/client';
@@ -43,8 +47,8 @@ WalletController.get(
     return res.status(200).json(transactions);
   }
 );
-WalletController.get(
-  '/balance',
-  ensureAuth.Authenticated,
-  async (req, res) => {}
-);
+WalletController.get('/balance', ensureAuth.Authenticated, async (req, res) => {
+  const balance = await getBalance(req.user!.user.id);
+
+  return res.status(200).send({ amount: balance });
+});
