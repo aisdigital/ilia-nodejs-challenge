@@ -1,6 +1,6 @@
-import { UserSchema } from '../types/auth';
+import { User, UserSchema } from '../types/auth';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config';
+import { JWT_SECRET, JWT_SECRET_INTERNAL } from '../config';
 import bcrypt from 'bcrypt';
 import { unauthorized } from '@hapi/boom';
 import { userDB } from '../utils/db';
@@ -37,4 +37,10 @@ export const login = async (user: { email: string; password: string }) => {
     user: payload,
     accessToken: token,
   };
+};
+
+export const generateInternalToken = (payload: User) => {
+  const token = jwt.sign(payload, JWT_SECRET_INTERNAL);
+
+  return token;
 };

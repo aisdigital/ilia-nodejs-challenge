@@ -19,3 +19,8 @@ export const JWT_SECRET = assertEnvVarPresent(
   process.env.JWT_SECRET,
   'JWT_SECRET'
 );
+
+export const JWT_SECRET_INTERNAL = assertEnvVarPresent(
+  process.env.JWT_SECRET_INTERNAL,
+  'JWT_SECRET_INTERNAL'
+);
