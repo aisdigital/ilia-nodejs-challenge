@@ -7,7 +7,7 @@ import {
   register,
   updateUser,
 } from '../services/user';
-import { badData, badRequest } from '@hapi/boom';
+import { badRequest } from '@hapi/boom';
 import { ensureAuth } from '../middlewares/auth';
 
 export const UserController = Router();
