@@ -22,7 +22,8 @@ export function authenticateUserRequest(req: Request) {
 
 const Authenticated: RequestHandler = (req: Request, res, next) => {
   try {
-    authenticateUserRequest(req);
+    const user = authenticateUserRequest(req);
+    req.user = user;
     next();
   } catch (err) {
     return res

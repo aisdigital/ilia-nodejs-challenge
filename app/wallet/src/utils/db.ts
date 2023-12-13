@@ -1,3 +1,3 @@
 import { PrismaClient } from '@prisma/client';
 
-export const userDB = new PrismaClient();
+export const walletDB = new PrismaClient();
