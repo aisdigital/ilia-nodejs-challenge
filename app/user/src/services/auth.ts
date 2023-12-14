@@ -5,10 +5,18 @@ import bcrypt from 'bcrypt';
 import { unauthorized } from '@hapi/boom';
 import { userDB } from '../utils/db';
 
-export const getUserFromJwt = (token: string) => {
+export const getUserFromJwt = async (token: string) => {
   const user = jwt.verify(token, JWT_SECRET);
 
-  return { user: UserSchema.parse(user), token: token };
+  const parsedUser = UserSchema.parse(user);
+
+  const findedUser = await userDB.user.findUnique({
+    where: { id: parsedUser.id },
+  });
+
+  if (!findedUser) throw unauthorized('Invalid token');
+
+  return { user: parsedUser, token: token };
 };
 
 export const login = async (user: { email: string; password: string }) => {

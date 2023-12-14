@@ -3,7 +3,6 @@ function assertEnvVarPresent(
   envName: string
 ): string {
   if (value == null) {
-    console.log('env:', process.env.NODE_ENV);
     throw new Error(
       `Required environment variable missing on init: ${envName}`
     );

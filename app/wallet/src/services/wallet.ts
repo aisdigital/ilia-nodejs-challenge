@@ -1,3 +1,4 @@
+import { TransactionType } from '@prisma/client';
 import {
   ListTransactionQuerySchemaType,
   TransactionSchemaType,
@@ -21,10 +22,14 @@ export const createTransaction = async (transaction: TransactionSchemaType) => {
 export const getTransactions = async (
   params: ListTransactionQuerySchemaType
 ) => {
+  const typeQueryParam = params.type
+    ? { type: params.type as TransactionType }
+    : {};
+
   const transactions = await walletDB.transaction.findMany({
     where: {
       user_id: params.user_id,
-      type: params.type,
+      ...typeQueryParam,
     },
   });
 

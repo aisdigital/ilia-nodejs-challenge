@@ -71,10 +71,4 @@ export const updateUser = async (
   });
 };
 
-export const deleteUser = async (id: string) => {
-  try {
-    await userDB.user.delete({ where: { id } });
-  } catch (e) {
-    throw badRequest('User not found');
-  }
-};
+export const deleteUser = (id: string) => userDB.user.delete({ where: { id } });

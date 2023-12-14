@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Request, RequestHandler } from 'express';
 import { getUserFromJwt } from '../services/auth';
 
-export function authenticateUserRequest(req: Request) {
+export async function authenticateUserRequest(req: Request) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -17,12 +17,12 @@ export function authenticateUserRequest(req: Request) {
     throw unauthorized('Invalid authorization header');
   }
 
-  return getUserFromJwt(token);
+  return await getUserFromJwt(token);
 }
 
-const Authenticated: RequestHandler = (req: Request, res, next) => {
+const Authenticated: RequestHandler = async (req: Request, res, next) => {
   try {
-    const user = authenticateUserRequest(req);
+    const user = await authenticateUserRequest(req);
     req.user = user;
     next();
   } catch (err) {
