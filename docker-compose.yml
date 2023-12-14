@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  user:
+    build:
+      context: ./app/user
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    depends_on:
+      - user-db
+
+  wallet:
+    build:
+      context: ./app/wallet
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - wallet-db
+
+  wallet-db:
+    container_name: m-wallet-db
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: m-wallet-db
+    ports:
+      - '5432:5432'
+
+  user-db:
+    container_name: m-user-db
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: m-user-db
+    ports:
+      - '5433:5433'
