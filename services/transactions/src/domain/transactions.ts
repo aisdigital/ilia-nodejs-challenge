@@ -13,9 +13,17 @@ export class Transaction {
   public readonly balanceChange: number;
 
   constructor({ type, amount, userId }: TransactionArguments) {
+    this.validateAmount(amount);
+
     this.type = type;
     this.amount = amount;
     this.userId = userId;
     this.balanceChange = type === TransactionType.CREDIT ? amount : -amount;
+  }
+
+  private validateAmount(amount: number): void {
+    if (amount < 0) {
+      throw new Error('Invalid transaction amount');
+    }
   }
 }

@@ -36,4 +36,15 @@ describe('Transaction', () => {
     expect(credit.userId).toBe(userId);
     expect(credit.balanceChange).toBe(-100);
   });
+
+  it('throws an error when amount is less than 0', async () => {
+    expect(
+      () =>
+        new Transaction({
+          type: TransactionType.DEBIT,
+          amount: -100,
+          userId: uuid(),
+        })
+    ).toThrow('Invalid transaction amount');
+  });
 });
