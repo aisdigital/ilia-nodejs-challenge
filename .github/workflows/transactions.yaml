@@ -1,0 +1,91 @@
+name: Test
+run-name: Testing service
+on: push
+jobs:
+  test-transactions-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.10.0'
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+    
+      - name: Restore cached npm dependencies
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-npm
+
+      - name: Restore cached node_modules
+        uses: actions/cache/restore@v3
+        with:
+          path: ./services/transactions/node_modules
+          key: users-service-node-modules
+      
+      - run: npm ci
+        working-directory: './services/transactions'
+
+      - name: Save npm cache
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-npm
+      
+      - name: Save node_modules cache
+        uses: actions/cache/save@v3
+        with:
+          path: ./services/transactions/node_modules
+          key: users-service-node-modules
+
+      - run: npm test
+        working-directory: './services/transactions'
+    
+  test-users-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.10.0'
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+    
+      - name: Restore cached npm dependencies
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-npm
+
+      - name: Restore cached node_modules
+        uses: actions/cache/restore@v3
+        with:
+          path: ./services/users/node_modules
+          key: users-service-node-modules
+      
+      - run: npm ci
+        working-directory: './services/users'
+
+      - name: Save npm cache
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-npm
+      
+      - name: Save node_modules cache
+        uses: actions/cache/save@v3
+        with:
+          path: ./services/users/node_modules
+          key: users-service-node-modules
+
+      - run: npm test
+        working-directory: './services/users'
