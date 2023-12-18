@@ -1,3 +1,4 @@
+import { InvalidAmountError } from './errors/invalid-amount-error.js';
 import { TransactionType } from './transaction-type.enum.js';
 
 interface TransactionArguments {
@@ -23,7 +24,7 @@ export class Transaction {
 
   private validateAmount(amount: number): void {
     if (amount < 0) {
-      throw new Error('Invalid transaction amount');
+      throw new InvalidAmountError();
     }
   }
 }

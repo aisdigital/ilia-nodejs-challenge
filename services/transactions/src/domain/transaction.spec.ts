@@ -3,6 +3,7 @@ import { describe, it, expect } from '@jest/globals';
 
 import { TransactionType } from './transaction-type.enum.js';
 import { Transaction } from './transactions.js';
+import { InvalidAmountError } from './errors/invalid-amount-error.js';
 
 describe('Transaction', () => {
   it('creates a credit transaction', async () => {
@@ -45,6 +46,6 @@ describe('Transaction', () => {
           amount: -100,
           userId: uuid(),
         })
-    ).toThrow('Invalid transaction amount');
+    ).toThrow(InvalidAmountError);
   });
 });
