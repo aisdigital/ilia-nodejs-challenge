@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  transactions:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+    environment:
+      - DATABASE_URL=postgresql://postgres_user:password@postgres:5432/ms-transactions
+    volumes:
+      - .:/transactions
+
+  database:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ms-transactions
+    volumes:
+      - transactions_data:/var/lib/postgresql/data
+
+volumes:
+  transactions_data:
+    driver: local
