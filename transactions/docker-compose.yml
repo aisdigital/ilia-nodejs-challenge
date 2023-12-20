@@ -11,7 +11,7 @@ services:
     depends_on:
       - database
     environment:
-      - DATABASE_URL=postgresql://postgres_user:password@postgres:5432/ms-transactions
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
     volumes:
       - .:/usr/src/app
 
@@ -20,9 +20,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres_user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ms-transactions
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - transactions_data:/var/lib/postgresql/data
 
