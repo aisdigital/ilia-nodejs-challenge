@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -13,20 +14,11 @@ datasource db {
 model Transaction {
   id         Int       @id @default(autoincrement())
   user_id    String
-  txHash     String
-  amount     BigInt
-  created_at DateTime  @default(now())
-  status     Status
+  amount     Int
   type       Operation
 }
 
 enum Operation {
   CREDIT
   DEBIT
-}
-
-enum Status {
-  PENDING
-  DONE
-  FAILED
 }
