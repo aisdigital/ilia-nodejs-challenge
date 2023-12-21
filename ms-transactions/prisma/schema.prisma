@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -13,7 +14,7 @@ datasource db {
 model Transaction {
   id         Int       @id @default(autoincrement())
   user_id    String
-  amount     BigInt
+  amount     Int
   type       Operation
 }
 
