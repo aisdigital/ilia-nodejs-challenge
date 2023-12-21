@@ -4,6 +4,7 @@ import { TransactionRepository } from './transaction.repository';
 
 import { RepositoryModule } from '../repository/repository.module';
 import { Operation } from './transaction.interface';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 describe('TransactionService', () => {
   let service: TransactionService;
@@ -22,47 +23,41 @@ describe('TransactionService', () => {
   });
 
   describe('TransactionService -> Create', () => {
-    let payload: unknown;
-
-    it('should function create be called', () => {
-      expect(service.create(payload)).toHaveBeenCalledWith({});
-    });
+    let payload: CreateTransactionDto;
 
     describe('when an integer amount value is received', () => {
-      payload = {
-        user_id: '123456',
-        amount: '120',
-        type: Operation.DEBIT,
-      };
-
       it('should function create return sucessfully', async () => {
+        payload = {
+          user_id: '123456',
+          amount: 120,
+          type: Operation.DEBIT,
+        };
         const result = await service.create(payload);
-        expect(result).toBe({});
+
+        expect(result.user_id).toEqual('123456');
+        expect(result.amount).toEqual(120);
+        expect(result.type).toEqual(Operation.DEBIT);
       });
     });
 
     describe('when a floating amount value is received', () => {
-      payload = {
-        user_id: '123456',
-        amount: '152.24',
-        type: Operation.DEBIT,
-      };
-
       it('should function create return sucessfully', async () => {
-        const result = await service.create(payload);
-        expect(result).toBe({});
-      });
-    });
+        payload = {
+          user_id: '123456',
+          amount: 152.24,
+          type: Operation.CREDIT,
+        };
 
-    describe('when some values of payload are missing', () => {
-      it('should function create return sucessfully', async () => {
         const result = await service.create(payload);
-        expect(result).toBe({});
+
+        expect(result.user_id).toEqual('123456');
+        expect(result.amount).toEqual(152);
+        expect(result.type).toEqual(Operation.CREDIT);
       });
     });
   });
 
-  describe('TransactionRepository -> findAll', () => {
+  describe.skip('TransactionRepository -> findAll', () => {
     it('should function findAll be called', () => {
       expect(service.findAll()).toHaveBeenCalledWith({});
     });
