@@ -7,25 +7,26 @@ services:
       dockerfile: Dockerfile
     image: ms-transactions:latest
     ports:
-      - "3001:3001"
+      - '3001:3001'
     depends_on:
       - database
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@localhost:5432/${DATABASE_NAME}
     volumes:
       - .:/usr/src/app
+    network_mode: host
 
   database:
     image: postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     volumes:
-      - transactions_data:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
 
 volumes:
-  transactions_data:
+  db:
     driver: local
