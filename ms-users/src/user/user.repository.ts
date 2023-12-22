@@ -11,7 +11,11 @@ export class UserRepository {
   }
 
   async getMany(): Promise<Array<UserEntity>> {
-    return await this.database.user.findMany();
+    return await this.database.user.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
   }
 
   async getOneById(id: number): Promise<UserEntity> {
