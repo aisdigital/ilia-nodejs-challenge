@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  //FIXME Alterar para usar variaveis por ambiente
+  await app.listen(3002);
 }
 bootstrap();
