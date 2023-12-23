@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  app:
+    hostname: app
+    user: '1000'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ms-users:latest
+    ports:
+      - '3002:3002'
+    depends_on:
+      - database
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:${DATABASE_PORT}/${DATABASE_NAME}
+    volumes:
+      - .:/usr/src/app
+
+  database:
+    hostname: postgres
+    image: postgres
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  pgadmin:
+      hostname: pgadmin4
+      image: dpage/pgadmin4
+      ports:
+      - 6003:80
+      environment:
+        PGADMIN_DEFAULT_EMAIL: 'fabio@ebittencourt.dev'
+        PGADMIN_DEFAULT_PASSWORD: 'template@1234'
+      depends_on:
+        - database
+
+volumes:
+  db:
+    driver: local
