@@ -4,13 +4,18 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.repository';
 import { plainToClass } from 'class-transformer';
 import { UserEntity } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDto) {
-    const user = await this.userRepository.insertOne(createUserDto);
+    const data = {
+      ...createUserDto,
+      password: await bcrypt.hash(createUserDto.password, 10),
+    };
+    const user = await this.userRepository.insertOne(data);
     return this.serializer(user);
   }
 
@@ -30,7 +35,8 @@ export class UserService {
   }
 
   async remove(id: number) {
-    return await this.userRepository.delete(id);
+    const deletedUser = await this.userRepository.delete(id);
+    return this.serializer(deletedUser);
   }
 
   serializer(user) {
