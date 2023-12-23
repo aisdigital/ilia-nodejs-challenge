@@ -6,6 +6,7 @@ import { UserEntity } from '../user/entities/user.entity';
 import { UserPayload } from './models/UserPayload';
 import { UserToken } from './models/UserToken';
 import { DatabaseService } from '../repository/database/database.service';
+import { first } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -15,14 +16,16 @@ export class AuthService {
   ) {}
 
   async login(user: UserEntity): Promise<UserToken> {
+    const { id: sub, email, first_name, last_name } = user;
     const payload: UserPayload = {
-      sub: user.id,
-      email: user.email,
-      name: user.first_name,
+      sub,
+      email,
+      first_name,
+      last_name,
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      Bearer: this.jwtService.sign(payload),
     };
   }
 
@@ -32,7 +35,7 @@ export class AuthService {
     });
 
     if (user) {
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = password === user.password;
 
       if (isPasswordValid) {
         return {

@@ -10,12 +10,12 @@ import { RepositoryModule } from '../repository/repository.module';
 
 @Module({
   imports: [
+    RepositoryModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '30d' },
     }),
-    RepositoryModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],

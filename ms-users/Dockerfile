@@ -10,4 +10,5 @@ COPY . .
 
 EXPOSE 3002-3002
 
+CMD ["yarn", "prisma", "generate"]
 CMD ["yarn", "start"]
