@@ -30,7 +30,8 @@ export class UserService {
   }
 
   async remove(id: number) {
-    return await this.userRepository.delete(id);
+    const deletedUser = await this.userRepository.delete(id);
+    return this.serializer(deletedUser);
   }
 
   serializer(user) {

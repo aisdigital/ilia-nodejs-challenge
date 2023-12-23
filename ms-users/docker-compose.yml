@@ -21,13 +21,13 @@ services:
     hostname: postgres
     image: postgres
     ports:
-      - '5433:5432'
+      - '5432:5432'
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
-      - db:/var/lib/postgresql/data
+      - database:/var/lib/postgresql/data
 
   pgadmin:
       hostname: pgadmin4
@@ -41,5 +41,5 @@ services:
         - database
 
 volumes:
-  db:
+  database:
     driver: local

@@ -3,42 +3,43 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UsePipes,
   ValidationPipe,
-  ClassSerializerInterceptor,
-  UseInterceptors,
+  UseGuards,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
+import { IsPublic } from '../auth/decorators/is-public.decorator';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseInterceptors(ClassSerializerInterceptor)
+  @IsPublic()
   @Post()
   @UsePipes(new ValidationPipe())
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const response = await this.userService.create(createUserDto);
+    return response;
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(LocalAuthGuard)
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UsePipes(new ValidationPipe())
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
