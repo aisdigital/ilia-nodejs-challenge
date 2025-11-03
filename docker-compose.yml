@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  postgres-users:
+    image: postgres:16-alpine
+    container_name: postgres-users
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERS_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_USERS_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_USERS_DB:-users_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-users-data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-wallet:
+    image: postgres:16-alpine
+    container_name: postgres-wallet
+    environment:
+      POSTGRES_USER: ${POSTGRES_WALLET_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_WALLET_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_WALLET_DB:-wallet_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-wallet-data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - ilia-network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres-users-data:
+  postgres-wallet-data:
+  kafka-data:
+
+networks:
+  ilia-network:
+    driver: bridge
