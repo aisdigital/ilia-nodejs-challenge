@@ -1,0 +1,23 @@
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+RUN npm install -g @nestjs/cli
+
+COPY . .
+RUN npm run build 
+
+FROM node:20-alpine AS production
+
+ENV PORT=3001
+EXPOSE ${PORT}
+
+WORKDIR /app
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY package.json .
+
+CMD ["npm", "run", "start:prod"]

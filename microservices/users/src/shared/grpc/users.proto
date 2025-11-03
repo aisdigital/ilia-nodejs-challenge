@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package users_internal;
+
+service UsersInternalService {
+  rpc CheckUserExists (CheckUserExistsRequest) returns (CheckUserExistsResponse);
+}
+
+message CheckUserExistsRequest {
+  string user_id = 1;
+}
+
+message CheckUserExistsResponse {
+  bool exists = 1;
+}
