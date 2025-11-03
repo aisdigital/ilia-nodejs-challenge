@@ -1,4 +1,3 @@
-
 import { Transaction, TransactionType } from '../entities/Transaction';
 
 export interface BalanceResult {
@@ -7,7 +6,7 @@ export interface BalanceResult {
 
 export interface IWalletRepository {
   save(transaction: Transaction): Promise<void>;
-  
+
   findTransactionsByUserId(
     userId: string,
     type?: TransactionType,
