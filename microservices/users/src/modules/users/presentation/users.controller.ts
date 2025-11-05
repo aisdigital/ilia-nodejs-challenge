@@ -76,15 +76,10 @@ export class UsersController {
     }
   }
 
-  // ----------------------------------------------------
-  // ROTAS DE USUÁRIO (Protegidas)
-  // ----------------------------------------------------
-
-  // GET /users/me (Exemplo de rota protegida)
   @Get('users/me')
   @UseGuards(JwtAuthGuard)
   async getMe(@Req() req: any): Promise<UserResponseDto> {
-    const userId = req.user.userId; // ID do usuário extraído do JWT
+    const userId = req.user.userId;
 
     const user = await this.userRepository.findById(userId);
 

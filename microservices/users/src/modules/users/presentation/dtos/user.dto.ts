@@ -20,9 +20,6 @@ export class RegisterUserDto {
   password: string;
 }
 
-// ----------------------
-// 2. DTO de Requisição para Login (AuthRequest)
-// ----------------------
 export class LoginUserDto {
   @IsNotEmpty()
   @IsEmail()
@@ -33,9 +30,6 @@ export class LoginUserDto {
   password: string;
 }
 
-// ----------------------
-// 3. DTO de Resposta (UsersResponse e AuthResponse)
-// ----------------------
 export class UserResponseDto {
   id: string;
   firstName: string;
