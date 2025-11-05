@@ -1,98 +1,93 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🏦 Ília Digital Challenge - Basic Financial Application (Wallet & Users)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project implements a modular backend solution consisting of two Microservices (Wallet and Users), developed in **TypeScript/NestJS**. The architecture strictly adheres to the principles of **Domain-Driven Design (DDD)**, **Clean Architecture**, and **Ports & Adapters**, with internal communication via **gRPC** and security handled by **JWT**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 1. Project Setup and Initialization
 
-## Description
+### Prerequisites
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Node.js** (v20+)
+- **Docker** & **Docker Compose** (Required to run the DB environment and Microservices).
 
-## Project setup
+### Initialization Steps
 
-```bash
-$ npm install
-```
+1.  **Configure Environment:** The file `.env.development` must be renamed to **`.env`** at the project root. This file contains all required secret keys (`ILIACHALLENGE`, `ILIACHALLENGE_INTERNAL`) and DB configurations.
 
-## Compile and run the project
+2.  **Install Dependencies:** Install dependencies separately within each microservice.
 
-```bash
-# development
-$ npm run start
+    ```bash
+    # From the /ilia-financial-challenge root
+    npm install --prefix microservices/wallet
+    npm install --prefix microservices/users
+    ```
 
-# watch mode
-$ npm run start:dev
+3.  **Build and Start:** Execute the command to build the code and start all containers.
 
-# production mode
-$ npm run start:prod
-```
+    ```bash
+    # Use --build the first time to compile and create images
+    docker-compose up --build
+    ```
 
-## Run tests
+    _Expected Result:_ Four containers will start: **`wallet_db`**, **`users_db`**, **`wallet_app`** (Port 3001), and **`users_app`** (Port 3002).
 
-```bash
-# unit tests
-$ npm run test
+---
 
-# e2e tests
-$ npm run test:e2e
+## 2. Architecture and Design Patterns
 
-# test coverage
-$ npm run test:cov
-```
+The project adopts the **Modular Monolith** concept in its code design but is deployed as separate **Microservices**.
 
-## Deployment
+### A. Core Architecture and Patterns
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Pattern               | Application                                                                                                                                  |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Architecture**      | **DDD** and **Ports & Adapters (Hexagonal)**. Domain/Application logic is isolated from Infrastructure (HTTP, DB).                           |
+| **Error Management**  | Use of the **`Either<L, R>`** Pattern in the Application Layer (Use Cases) for explicit failure handling (e.g., `InsufficientBalanceError`). |
+| **Response Wrapping** | A **Global Interceptor** (`ApiWrapperInterceptor`) standardizes all successful HTTP responses (2xx) by wrapping the data with `metadata`.    |
+| **Authentication**    | **Global JWT Guard** (`ILIACHALLENGE`) protects all necessary routes in both services.                                                       |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### B. Microservices and Communication
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+| Service             | HTTP Port | Primary Database | Internal Communication |
+| :------------------ | :-------- | :--------------- | :--------------------- |
+| **Wallet (Part 1)** | `3001`    | **PostgreSQL**   | Client **gRPC**        |
+| **Users (Part 2)**  | `3002`    | **PostgreSQL**   | Server **gRPC**        |
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+#### Internal Communication Details
 
-## Resources
+- The communication channel is established via **gRPC** on the internal port `50051`.
+- **Security:** The channel is protected by a dedicated internal JWT (key `ILIACHALLENGE_INTERNAL`).
+- **Function:** The Wallet App calls the Users App via gRPC to **validate the user's existence** before executing transactions.
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 🌐 3. Endpoints and Testing Flow
 
-## Support
+To test the flow, you must obtain a JWT from the Users Microservice and use it for Wallet access.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Step 1: Authentication (Users Microservice - Port 3002)
 
-## Stay in touch
+| Method | Route    | Description                                                         |
+| :----- | :------- | :------------------------------------------------------------------ |
+| `POST` | `/users` | **Registration** of a new user. Returns the initial `access_token`. |
+| `POST` | `/auth`  | **Login** (Issues a new valid JWT).                                 |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Step 2: Financial Operations (Wallet Microservice - Port 3001)
 
-## License
+| Method | Route                  | Requirement                                                          |
+| :----- | :--------------------- | :------------------------------------------------------------------- |
+| `POST` | `/wallet/transactions` | Creates Credit/Debit. **(Requires `Authorization: Bearer <JWT>`)**   |
+| `GET`  | `/wallet/balance`      | Returns the consolidated balance (via SQL query). **(Requires JWT)** |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 4. 🧑‍💻 Workflow (Gitflow and Code Review)
+
+The project history demonstrates the required **Gitflow** process to simulate a team environment, including **Code Review** at each major implementation step.
+
+### Process Applied
+
+1.  Development was segmented into descriptive **`feature/`** branches (e.g., `feature/wallet-transactions`).
+2.  Each feature was submitted and merged into the **`main`** branch via a **Pull Request (PR)**, fulfilling the mandatory code review requirement.
+3.  To simplify the process, only one branch was left in draft mode for the main branch.
+
+**The complete commit and merge history confirms the application of the mandatory workflow.**
