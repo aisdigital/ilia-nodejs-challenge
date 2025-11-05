@@ -4,13 +4,13 @@ export interface BalanceResult {
   amount: number;
 }
 
-export interface IWalletRepository {
-  save(transaction: Transaction): Promise<void>;
+export abstract class IWalletRepository {
+  abstract save(transaction: Transaction): Promise<void>;
 
-  findTransactionsByUserId(
+  abstract findTransactionsByUserId(
     userId: string,
     type?: TransactionType,
   ): Promise<Transaction[]>;
 
-  getBalanceByUserId(userId: string): Promise<BalanceResult>;
+  abstract getBalanceByUserId(userId: string): Promise<BalanceResult>;
 }

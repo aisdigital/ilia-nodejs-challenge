@@ -5,17 +5,18 @@ import { CreateTransactionUseCase } from './application/use-cases/create-transac
 import { UsersModule } from '../users/users.module';
 import { WalletRepositoryAdapter } from './infra/typeorm/repositoreis/WalletRepository.adapter';
 import { WalletController } from './presentations/wallet.controller';
+import { IWalletRepository } from './domain/repositories/IWalletRepository'; //'../../../domain/repositories/IWalletRepository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TransactionEntity]), UsersModule],
   providers: [
     {
-      provide: 'IWalletRepository',
+      provide: IWalletRepository,
       useClass: WalletRepositoryAdapter,
     },
     CreateTransactionUseCase,
   ],
   controllers: [WalletController],
-  exports: ['IWalletRepository', CreateTransactionUseCase],
+  exports: [IWalletRepository, CreateTransactionUseCase],
 })
 export class WalletModule {}
