@@ -1,47 +1,127 @@
 # ília - Code Challenge NodeJS
-**English**
-##### Before we start ⚠️
-**Please create a fork from this repository**
 
-## The Challenge:
-One of the ília Digital verticals is Financial and to level your knowledge we will do a Basic Financial Application and for that we divided this Challenge in 2 Parts.
+Implementation of the ília Code Challenge in Node.js over Nest.js framework.
 
-The first part is mandatory, which is to create a Wallet microservice to store the users' transactions, the second part is optional (*for Seniors, it's mandatory*) which is to create a Users Microservice with integration between the two microservices (Wallet and Users), using internal communications between them, that can be done in any of the following strategies: gRPC, REST, Kafka or via Messaging Queues and this communication must have a different security of the external application (JWT, SSL, ...), **Development in javascript (Node) is required.**
+## Before starting
 
-![diagram](diagram.png)
+#### .env files
 
-### General Instructions:
-## Part 1 - Wallet Microservice
+Create the following .env files in each project root folder.
 
-This microservice must be a digital Wallet where the user transactions will be stored 
+For the `Users` service:
+```
+SERVICE_NAME=users
+USER_JWT_SECRET_KEY=ILIACHALLENGE
+USER_JWT_TTL_IN_SECONDS=600
+USER_PASSWORD_SALT=mycoolsalt
+INTERNAL_JWT_SECRET_KEY=ILIACHALLENGE_INTERNAL
+WALLET_SERVICE_URL=http://localhost:3001
+DATABASE_URL=file:./dev.db
+```
 
-### The Application must have
+For the `Wallet` service:
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.
-    - Have a dedicated database (Postgres, MySQL, Mongo, DynamoDB, ...).
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Configure the Microservice port to 3001. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a team work and not just a commit.
+```
+SERVICE_NAME=wallet
+INTERNAL_JWT_SECRET_KEY=ILIACHALLENGE_INTERNAL
+USERS_SERVICE_URL=http://localhost:3002
+ALLOWED_SERVICES=users.ilia-nodejs-challenge
+DATABASE_URL=file:./dev.db
+```
+#### Build the database
 
-## Part 2 - Microservice Users and Wallet Integration
+Run the following commands to init and build the database:
 
-### The Application must have:
+```bash
+$ cd users
+$ npm install
+$ npx prisma migrate dev --name init
+$ npx prisma generate
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.   
-    - Have a dedicated database(Postgres, MySQL, Mongo, DynamoDB...), you may use an Auth service like AWS Cognito.
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Set the Microservice port to 3002. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a teamwork and not just a commit.
-    - Internal Communication Security (JWT, SSL, ...), if it is JWT the PrivateKey must be ILIACHALLENGE_INTERNAL (passed by env var).
-    - Communication between Microservices using any of the following: gRPC, REST, Kafka or via Messaging Queues (update your readme with the instructions to run if using a Docker/Container environment).
+$ cd ../wallet
+$ npm install
+$ npx prisma migrate dev --name init
+$ npx prisma generate
+```
 
-#### In the end, send us your fork repo updated. As soon as you finish, please let us know.
+## Running services
 
-#### We are available to answer any questions.
+To run the services, execute the following command in a dedicated terminal opened in the project's folder:
+
+```bash
+# development
+$ npm run start
+# watch mode
+$ npm run start:dev
+# production mode
+$ npm run start:prod
+```
+
+Remember to run each service in a different port.
 
 
-Happy coding! 🤓
+## REST APIs
+
+#### Create user
+```http
+POST http://localhost:3002/user HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "johndoe@test.com",
+    "password": "mycoolpassword"
+}
+```
+
+#### Generate JWT for the user:
+
+```http
+POST http://localhost:3002/token HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "johndoe@example.com",
+    "password": "mycoolpassword"
+}
+```
+
+#### Operate stocks
+
+```http
+POST http://localhost:3002/wallet/buy HTTP/1.1
+Authorization: Bearer mycooltoken
+Content-Type: application/json
+
+{
+    "stock": "AAPL",
+    "quantity": 10
+}
+```
+
+```http
+POST http://localhost:3002/wallet/sell HTTP/1.1
+Authorization: Bearer mycooltoken
+Content-Type: application/json
+
+{
+    "stock": "NKE",
+    "quantity": 2
+}
+```
+
+#### Get wallet
+
+```http
+GET http://localhost:3002/wallet HTTP/1.1
+Authorization: Bearer mycooltoken
+```
+
+#### Delete current user
+
+> Deleting the current user will also delete any associated wallet and stocks
+
+```http
+DELETE http://localhost:3002/user HTTP/1.1
+Authorization: Bearer mycooltoken
+```
