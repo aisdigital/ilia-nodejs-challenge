@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # Banco de dados para o serviço de usuários
+  users-db:
+    image: postgres:15-alpine
+    container_name: users-db
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5434:5432"
+    volumes:
+      - users_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d users_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
+  # Banco de dados para o serviço de carteiras
+  wallet-db:
+    image: postgres:15-alpine
+    container_name: wallet-db
+    environment:
+      POSTGRES_DB: wallet_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5433:5432"
+    volumes:
+      - wallet_data:/var/lib/postgresql/data
+      - ./init-wallet-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d wallet_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
+  # Serviço de usuários
+  users-service:
+    build:
+      context: ./users-service
+      dockerfile: Dockerfile
+    container_name: users-service
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DB_HOST: users-db
+      DB_PORT: 5432
+      DB_NAME: users_db
+      DB_USER: admin
+      DB_PASSWORD: admin123
+      JWT_SECRET: ILIACHALLENGE
+      JWT_SECRET_INTERNAL: ILIACHALLENGE_INTERNAL
+      PRIVATE_KEY: ILIACHALLENGE
+      PRIVATE_KEY_INTERNAL: ILIACHALLENGE_INTERNAL
+      WALLET_SERVICE_URL: http://wallet-service:3001/api
+    depends_on:
+      users-db:
+        condition: service_healthy
+      wallet-service:
+        condition: service_started
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Serviço de carteiras
+  wallet-service:
+    build:
+      context: ./wallet-service
+      dockerfile: Dockerfile
+    container_name: wallet-service
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: wallet-db
+      DB_PORT: 5432
+      DB_NAME: wallet_db
+      DB_USER: admin
+      DB_PASSWORD: admin123
+      JWT_SECRET: ILIACHALLENGE
+      JWT_SECRET_INTERNAL: ILIACHALLENGE_INTERNAL
+      PRIVATE_KEY: ILIACHALLENGE
+      PRIVATE_KEY_INTERNAL: ILIACHALLENGE_INTERNAL
+    depends_on:
+      wallet-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  users_data:
+  wallet_data:
+
+networks:
+  app-network:
+    driver: bridge

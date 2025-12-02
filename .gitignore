@@ -1,0 +1,8 @@
+node_modules/
+wallet-service/node_modules/
+users-service/node_modules/
+
+wallet-service/node_modules/.env
+users-service/node_modules/.env
+
+.qodo/
