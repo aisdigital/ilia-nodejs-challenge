@@ -1,186 +1,178 @@
+const { body, query, param, validationResult } = require('express-validator');
+
 /**
- * Validation middleware for user creation
+ * Middleware to handle validation errors
  */
-const validateCreateUser = (req, res, next) => {
-  const { first_name, last_name, email, password } = req.body;
-  const errors = [];
-
-  if (!first_name) {
-    errors.push('first_name is required');
-  } else if (typeof first_name !== 'string' || first_name.trim() === '') {
-    errors.push('first_name must be a non-empty string');
-  }
-
-  if (!last_name) {
-    errors.push('last_name is required');
-  } else if (typeof last_name !== 'string' || last_name.trim() === '') {
-    errors.push('last_name must be a non-empty string');
-  }
-
-  if (!email) {
-    errors.push('email is required');
-  } else if (typeof email !== 'string' || email.trim() === '') {
-    errors.push('email must be a non-empty string');
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.push('email must be a valid email address');
-  }
-
-  if (!password) {
-    errors.push('password is required');
-  } else if (typeof password !== 'string' || password.length < 6) {
-    errors.push('password must be a string with at least 6 characters');
-  }
-
-  if (errors.length > 0) {
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const errorMessages = errors.array().map(err => err.msg);
     return res.status(400).json({ 
-      error: errors.length === 1 ? errors[0] : errors.join(', ') 
+      error: errorMessages.length === 1 ? errorMessages[0] : errorMessages.join(', ') 
     });
   }
-
   next();
 };
 
 /**
- * Validation middleware for user update
+ * Validation rules for user creation
  */
-const validateUpdateUser = (req, res, next) => {
-  const { first_name, last_name, email, password } = req.body;
-  const errors = [];
-
-  if (first_name !== undefined) {
-    if (typeof first_name !== 'string' || first_name.trim() === '') {
-      errors.push('first_name must be a non-empty string');
-    }
-  }
-
-  if (last_name !== undefined) {
-    if (typeof last_name !== 'string' || last_name.trim() === '') {
-      errors.push('last_name must be a non-empty string');
-    }
-  }
-
-  if (email !== undefined) {
-    if (typeof email !== 'string' || email.trim() === '') {
-      errors.push('email must be a non-empty string');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.push('email must be a valid email address');
-    }
-  }
-
-  if (password !== undefined) {
-    if (typeof password !== 'string' || password.length < 6) {
-      errors.push('password must be a string with at least 6 characters');
-    }
-  }
-
-  if (errors.length > 0) {
-    return res.status(400).json({ 
-      error: errors.length === 1 ? errors[0] : errors.join(', ') 
-    });
-  }
-
-  next();
-};
+const validateCreateUser = [
+  body('first_name')
+    .notEmpty()
+    .withMessage('first_name is required')
+    .isString()
+    .withMessage('first_name must be a string')
+    .trim()
+    .notEmpty()
+    .withMessage('first_name must be a non-empty string'),
+  
+  body('last_name')
+    .notEmpty()
+    .withMessage('last_name is required')
+    .isString()
+    .withMessage('last_name must be a string')
+    .trim()
+    .notEmpty()
+    .withMessage('last_name must be a non-empty string'),
+  
+  body('email')
+    .notEmpty()
+    .withMessage('email is required')
+    .isEmail()
+    .withMessage('email must be a valid email address')
+    .normalizeEmail(),
+  
+  body('password')
+    .notEmpty()
+    .withMessage('password is required')
+    .isString()
+    .withMessage('password must be a string')
+    .isLength({ min: 6 })
+    .withMessage('password must be a string with at least 6 characters'),
+  
+  handleValidationErrors,
+];
 
 /**
- * Validation middleware for authentication
+ * Validation rules for user update
  */
-const validateAuth = (req, res, next) => {
-  const { email, password } = req.body;
-  const errors = [];
-
-  if (!email) {
-    errors.push('email is required');
-  } else if (typeof email !== 'string' || email.trim() === '') {
-    errors.push('email must be a non-empty string');
-  }
-
-  if (!password) {
-    errors.push('password is required');
-  } else if (typeof password !== 'string') {
-    errors.push('password must be a string');
-  }
-
-  if (errors.length > 0) {
-    return res.status(400).json({ 
-      error: errors.length === 1 ? errors[0] : errors.join(', ') 
-    });
-  }
-
-  next();
-};
+const validateUpdateUser = [
+  body('first_name')
+    .optional()
+    .isString()
+    .withMessage('first_name must be a string')
+    .trim()
+    .notEmpty()
+    .withMessage('first_name must be a non-empty string'),
+  
+  body('last_name')
+    .optional()
+    .isString()
+    .withMessage('last_name must be a string')
+    .trim()
+    .notEmpty()
+    .withMessage('last_name must be a non-empty string'),
+  
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('email must be a valid email address')
+    .normalizeEmail(),
+  
+  body('password')
+    .optional()
+    .isString()
+    .withMessage('password must be a string')
+    .isLength({ min: 6 })
+    .withMessage('password must be a string with at least 6 characters'),
+  
+  handleValidationErrors,
+];
 
 /**
- * Validation middleware for user ID
+ * Validation rules for authentication
  */
-const validateUserId = (req, res, next) => {
-  const { id } = req.params;
-
-  if (!id) {
-    return res.status(400).json({ error: 'User ID is required' });
-  }
-
-  // Validate basic UUID format
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(id)) {
-    return res.status(400).json({ error: 'Invalid user ID format' });
-  }
-
-  next();
-};
+const validateAuth = [
+  body('email')
+    .notEmpty()
+    .withMessage('email is required')
+    .isEmail()
+    .withMessage('email must be a valid email address')
+    .normalizeEmail(),
+  
+  body('password')
+    .notEmpty()
+    .withMessage('password is required')
+    .isString()
+    .withMessage('password must be a string'),
+  
+  handleValidationErrors,
+];
 
 /**
- * Validation middleware for transaction creation
+ * Validation rules for user ID parameter
  */
-const validateCreateTransaction = (req, res, next) => {
-  const { amount, type, description } = req.body;
-  const errors = [];
-
-  if (amount === undefined || amount === null) {
-    errors.push('amount is required');
-  } else if (typeof amount !== 'number') {
-    errors.push('amount must be a number');
-  } else if (amount <= 0) {
-    errors.push('amount must be a positive number');
-  }
-
-  if (!type) {
-    errors.push('type is required');
-  } else if (typeof type !== 'string') {
-    errors.push('type must be a string');
-  } else if (type.toLowerCase() !== 'credit' && type.toLowerCase() !== 'debit') {
-    errors.push('type must be "credit" or "debit"');
-  }
-
-  if (description !== undefined && typeof description !== 'string') {
-    errors.push('description must be a string');
-  }
-
-  if (errors.length > 0) {
-    return res.status(400).json({ 
-      error: errors.length === 1 ? errors[0] : errors.join(', ') 
-    });
-  }
-
-  next();
-};
+const validateUserId = [
+  param('id')
+    .notEmpty()
+    .withMessage('User ID is required')
+    .custom((value) => {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(value)) {
+        throw new Error('Invalid user ID format');
+      }
+      return true;
+    }),
+  
+  handleValidationErrors,
+];
 
 /**
- * Validation middleware for transaction listing query params
- * Validates type parameter if provided
+ * Validation rules for transaction creation
  */
-const validateGetTransactions = (req, res, next) => {
-  const { type } = req.query;
+const validateCreateTransaction = [
+  body('amount')
+    .notEmpty()
+    .withMessage('amount is required')
+    .custom((value) => {
+      const num = typeof value === 'string' ? parseFloat(value) : value;
+      if (isNaN(num) || typeof num !== 'number') {
+        throw new Error('amount must be a number');
+      }
+      if (num <= 0) {
+        throw new Error('amount must be a positive number');
+      }
+      return true;
+    }),
+  
+  body('type')
+    .notEmpty()
+    .withMessage('type is required')
+    .isString()
+    .withMessage('type must be a string')
+    .isIn(['credit', 'debit'])
+    .withMessage('type must be "credit" or "debit"'),
+  
+  body('description')
+    .optional()
+    .isString()
+    .withMessage('description must be a string'),
+  
+  handleValidationErrors,
+];
 
-  // Validate type if provided
-  if (type && type.toLowerCase() !== 'credit' && type.toLowerCase() !== 'debit') {
-    return res.status(400).json({ 
-      error: 'type must be "credit" or "debit"' 
-    });
-  }
-
-  next();
-};
+/**
+ * Validation rules for transaction listing query params
+ */
+const validateGetTransactions = [
+  query('type')
+    .optional()
+    .isIn(['credit', 'debit'])
+    .withMessage('type must be "credit" or "debit"'),
+  
+  handleValidationErrors,
+];
 
 module.exports = {
   validateCreateUser,
@@ -190,4 +182,3 @@ module.exports = {
   validateCreateTransaction,
   validateGetTransactions,
 };
-

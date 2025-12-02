@@ -16,7 +16,7 @@ const transactionController = require('../controllers/TransactionController');
 // Authentication routes (no JWT authentication required)
 router.post(
   '/auth',
-  validateAuth,
+  ...validateAuth,
   authController.authenticate.bind(authController)
 );
 
@@ -24,7 +24,7 @@ router.post(
 // POST /users does not require authentication (public registration)
 router.post(
   '/users',
-  validateCreateUser,
+  ...validateCreateUser,
   userController.createUser.bind(userController)
 );
 
@@ -39,22 +39,22 @@ router.get(
 router.get(
   '/users/:id',
   authenticateToken,
-  validateUserId,
+  ...validateUserId,
   userController.getUserById.bind(userController)
 );
 
 router.patch(
   '/users/:id',
   authenticateToken,
-  validateUserId,
-  validateUpdateUser,
+  ...validateUserId,
+  ...validateUpdateUser,
   userController.updateUser.bind(userController)
 );
 
 router.delete(
   '/users/:id',
   authenticateToken,
-  validateUserId,
+  ...validateUserId,
   userController.deleteUser.bind(userController)
 );
 
@@ -62,14 +62,14 @@ router.delete(
 router.post(
   '/transactions',
   authExternal,
-  validateCreateTransaction,
+  ...validateCreateTransaction,
   transactionController.createTransaction.bind(transactionController)
 );
 
 router.get(
   '/transactions',
   authExternal,
-  validateGetTransactions,
+  ...validateGetTransactions,
   transactionController.getTransactions.bind(transactionController)
 );
 
