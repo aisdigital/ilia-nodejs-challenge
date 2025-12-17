@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "D:\\ilia-nodejs-challenge\\ms-wallet\\logs\\.efebcaedee1c8638a4382fd43eb6025d7122c4a2-audit.json",
+    "files": [
+        {
+            "date": 1765942790263,
+            "name": "D:\\ilia-nodejs-challenge\\ms-wallet\\logs\\wallet-error-2025-12-17.log",
+            "hash": "320065006dcd912b4d681d18ee9889aa416f52ca568e783e498fe3637dcd1126"
+        }
+    ],
+    "hashType": "sha256"
+}
