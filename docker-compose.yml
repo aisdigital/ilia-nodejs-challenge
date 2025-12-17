@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for Wallet Service
+  wallet-db:
+    image: postgres:15-alpine
+    container_name: wallet-db
+    environment:
+      POSTGRES_DB: wallet_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - wallet_db_data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+
+  # PostgreSQL for Users Service  
+  users-db:
+    image: postgres:15-alpine
+    container_name: users-db
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+
+  # Wallet Microservice
+  ms-wallet:
+    build: 
+      context: ./ms-wallet
+      dockerfile: Dockerfile
+    container_name: ms-wallet
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      JWT_SECRET: ILIACHALLENGE
+      JWT_INTERNAL_SECRET: ILIACHALLENGE_INTERNAL
+      JWT_EXPIRES_IN: 24h
+      DB_HOST: wallet-db
+      DB_PORT: 5432
+      DB_NAME: wallet_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - wallet-db
+    networks:
+      - ilia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Users Microservice
+  ms-users:
+    build:
+      context: ./ms-users
+      dockerfile: Dockerfile
+    container_name: ms-users
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      JWT_SECRET: ILIACHALLENGE
+      JWT_INTERNAL_SECRET: ILIACHALLENGE_INTERNAL
+      JWT_EXPIRES_IN: 24h
+      DB_HOST: users-db
+      DB_PORT: 5432
+      DB_NAME: users_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      WALLET_SERVICE_URL: http://ms-wallet:3001
+    depends_on:
+      - users-db
+      - ms-wallet
+    networks:
+      - ilia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  ilia-network:
+    driver: bridge
+
+volumes:
+  wallet_db_data:
+  users_db_data:
