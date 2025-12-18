@@ -19,7 +19,7 @@ import { AuthController } from './presentation/controllers/AuthController';
 import { UserRoutes } from './presentation/routes/UserRoutes';
 import { AuthMiddleware } from './infrastructure/middleware/AuthMiddleware';
 import { LoggingMiddleware } from './infrastructure/middleware/LoggingMiddleware';
-import { logger } from './infrastructure/logging/Logger';
+import { Logger } from './infrastructure/logging/Logger';
 import { WalletService } from './infrastructure/services/WalletService';
 import { healthRoutes } from './presentation/routes/healthRoutes';
 
@@ -120,7 +120,7 @@ export class App {
 
     // 404 handler
     this.express.use('*', (req, res) => {
-      logger.warn('Route not found', {
+      Logger.getInstance().warn('Route not found', {
         correlationId: (req as any).correlationId,
         method: req.method,
         url: req.originalUrl,
@@ -133,16 +133,16 @@ export class App {
 
   public async start(): Promise<void> {
     try {
-      logger.info('Starting MS-Users application', {
+      Logger.getInstance().info('Starting MS-Users application', {
         port: this.port,
         environment: process.env.NODE_ENV || 'development'
       });
 
       await this.database.initialize();
-      logger.info('Database initialized successfully');
+      Logger.getInstance().info('Database initialized successfully');
       
       this.express.listen(this.port, () => {
-        logger.info('MS-Users server started successfully', {
+        Logger.getInstance().info('MS-Users server started successfully', {
           port: this.port,
           serverUrl: `http://localhost:${this.port}`,
           swaggerUrl: `http://localhost:${this.port}/api-docs`,
@@ -159,7 +159,7 @@ export class App {
         console.log('🚀 ===============================================');
       });
     } catch (error) {
-      logger.error('Failed to start MS-Users server', error instanceof Error ? error : new Error('Unknown startup error'));
+      Logger.getInstance().error('Failed to start MS-Users server', error instanceof Error ? error : new Error('Unknown startup error'));
       console.error('Failed to start server:', error);
       process.exit(1);
     }

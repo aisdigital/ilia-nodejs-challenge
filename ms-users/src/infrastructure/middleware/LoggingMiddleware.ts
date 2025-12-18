@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { logger } from '../logging/Logger';
+import { Logger } from '../logging/Logger';
 
 // Extensão da interface Request para incluir correlationId
 declare global {
@@ -40,14 +40,14 @@ export class LoggingMiddleware {
       };
 
       // Log específico de entrada da request com destaque
-      logger.info(`🔄 REQUEST INCOMING: ${req.method} ${req.originalUrl}`, {
+      Logger.getInstance().info(`🔄 REQUEST INCOMING: ${req.method} ${req.originalUrl}`, {
         ...requestContext,
         requestId: req.correlationId,
         category: 'request_entry'
       });
 
       // Log da requisição (mantém compatibilidade)
-      logger.request(req.method, req.originalUrl, requestContext);
+      Logger.getInstance().request(req.method, req.originalUrl, requestContext);
 
       // Interceptar o response para fazer log
       const originalJson = res.json;
@@ -82,7 +82,7 @@ export class LoggingMiddleware {
         requestBody: LoggingMiddleware.sanitizeRequestBody(req.body)
       };
 
-      logger.audit(action, auditContext);
+      Logger.getInstance().audit(action, auditContext);
       next();
     };
   }
@@ -104,7 +104,7 @@ export class LoggingMiddleware {
         name: error.name
       };
 
-      logger.error(`Unhandled error in ${req.method} ${req.originalUrl}`, errorContext);
+      Logger.getInstance().error(`Unhandled error in ${req.method} ${req.originalUrl}`, errorContext);
       
       // Passar o erro adiante
       next(error);
@@ -128,18 +128,18 @@ export class LoggingMiddleware {
 
     // Log de performance para requests lentos
     if (duration > 1000) {
-      logger.performance(`Slow request detected: ${req.method} ${req.originalUrl}`, {
+      Logger.getInstance().performance(`Slow request detected: ${req.method} ${req.originalUrl}`, {
         ...responseContext,
         threshold: '1000ms'
       });
     }
 
     // Log de response
-    logger.response(req.method, req.originalUrl, res.statusCode, duration, responseContext);
+    Logger.getInstance().response(req.method, req.originalUrl, res.statusCode, duration, responseContext);
 
     // Log de segurança para tentativas de acesso não autorizado
     if (res.statusCode === 401 || res.statusCode === 403) {
-      logger.security(`Unauthorized access attempt: ${req.method} ${req.originalUrl}`, responseContext);
+      Logger.getInstance().security(`Unauthorized access attempt: ${req.method} ${req.originalUrl}`, responseContext);
     }
   }
 
