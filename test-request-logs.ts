@@ -1,78 +1,80 @@
-import { Logger } from './src/infrastructure/logging/Logger';
+// Teste simples de log em arquivo de texto
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import path from 'path';
 
-// Simular o log de entrada de request
-function simulateIncomingRequest() {
-  const logger = Logger.getInstance();
+// Logger simples apenas para arquivos de texto
+function createSimpleLogger() {
+  const textFormat = winston.format.combine(
+    winston.format.timestamp({
+      format: 'YYYY-MM-DD HH:mm:ss'
+    }),
+    winston.format.printf((info) => {
+      const { timestamp, level, message, correlationId, userId, method, url, ip } = info;
+      
+      let logLine = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+      
+      if (correlationId) logLine += ` | ID: ${correlationId}`;
+      if (userId) logLine += ` | User: ${userId}`;
+      if (method && url) logLine += ` | ${method} ${url}`;
+      if (ip) logLine += ` | IP: ${ip}`;
+      
+      return logLine;
+    })
+  );
+
+  const logger = winston.createLogger({
+    level: 'info',
+    transports: [
+      // Console 
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.colorize(),
+          winston.format.simple()
+        )
+      }),
+      // Arquivo simples
+      new DailyRotateFile({
+        filename: path.join(process.cwd(), 'logs', 'simple-requests-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        format: textFormat,
+        maxFiles: '7d',
+        maxSize: '5m'
+      })
+    ]
+  });
+
+  return logger;
+}
+
+// Simular requests simples
+function simulateSimpleRequests() {
+  const logger = createSimpleLogger();
   
-  console.log('=== Simulação de Request Incoming ===\n');
+  console.log('=== Teste de Logs Simples em Arquivo ===\n');
 
-  // Simular diferentes tipos de requests
   const requests = [
-    {
-      method: 'GET',
-      url: '/health',
-      correlationId: 'req-health-001',
-      ip: '192.168.1.100',
-      userAgent: 'curl/7.68.0'
-    },
-    {
-      method: 'POST', 
-      url: '/api/transactions',
-      correlationId: 'req-tx-002',
-      ip: '192.168.1.101',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      userId: 'user-456'
-    },
-    {
-      method: 'GET',
-      url: '/api/transactions?type=CREDIT',
-      correlationId: 'req-query-003',
-      ip: '192.168.1.102', 
-      userAgent: 'PostmanRuntime/7.32.2',
-      userId: 'user-789'
-    },
-    {
-      method: 'POST',
-      url: '/api/auth',
-      correlationId: 'req-auth-004',
-      ip: '10.0.0.50',
-      userAgent: 'axios/1.6.0'
-    }
+    { method: 'GET', url: '/health', correlationId: 'req-001', ip: '192.168.1.100' },
+    { method: 'POST', url: '/transactions', correlationId: 'req-002', ip: '192.168.1.101', userId: 'user-456' },
+    { method: 'GET', url: '/balance', correlationId: 'req-003', ip: '192.168.1.102', userId: 'user-456' },
+    { method: 'POST', url: '/users', correlationId: 'req-004', ip: '10.0.0.50' },
+    { method: 'POST', url: '/auth', correlationId: 'req-005', ip: '172.16.0.10' }
   ];
 
   requests.forEach((req, index) => {
     setTimeout(() => {
-      logger.info(`🔄 REQUEST INCOMING: ${req.method} ${req.url}`, {
+      logger.info(`REQUEST INCOMING: ${req.method} ${req.url}`, {
         correlationId: req.correlationId,
-        requestId: req.correlationId,
         method: req.method,
         url: req.url,
         ip: req.ip,
-        userAgent: req.userAgent,
-        userId: req.userId,
-        timestamp: new Date().toISOString(),
-        category: 'request_entry'
+        userId: req.userId
       });
-    }, index * 500); // Delay para simular requests em momentos diferentes
+    }, index * 200);
   });
 
-  // Simular um request com dados detalhados
-  setTimeout(() => {
-    logger.info('🔄 REQUEST INCOMING: POST /api/users', {
-      correlationId: 'req-user-005',
-      requestId: 'req-user-005',
-      method: 'POST',
-      url: '/api/users',
-      ip: '172.16.0.10',
-      userAgent: 'MyApp/1.0.0 (iOS 17.0)',
-      contentLength: '256',
-      referer: 'https://myapp.com/signup',
-      timestamp: new Date().toISOString(),
-      category: 'request_entry'
-    });
-  }, 2500);
-
-  console.log('\n=== Aguarde os logs de entrada... ===');
+  console.log('Logs sendo gravados em: logs/simple-requests-YYYY-MM-DD.log');
+  console.log('Aguarde os logs...\n');
 }
 
-simulateIncomingRequest();
+simulateSimpleRequests();
