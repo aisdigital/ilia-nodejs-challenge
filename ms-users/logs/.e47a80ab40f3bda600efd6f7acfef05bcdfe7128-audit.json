@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "D:\\ilia-nodejs-challenge\\ms-users\\logs\\.e47a80ab40f3bda600efd6f7acfef05bcdfe7128-audit.json",
+    "files": [
+        {
+            "date": 1765950329820,
+            "name": "D:\\ilia-nodejs-challenge\\ms-users\\logs\\users-2025-12-17.log",
+            "hash": "55205187face503dcf1f1681b9117e86104a72f46c6cf3c4891461151722d5c9"
+        }
+    ],
+    "hashType": "sha256"
+}
