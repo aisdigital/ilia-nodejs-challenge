@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
-import { CreateTransactionUseCase } from '../../domain/use-cases/CreateTransactionUseCase';
-import { GetTransactionsUseCase } from '../../domain/use-cases/GetTransactionsUseCase';
-import { GetBalanceUseCase } from '../../domain/use-cases/GetBalanceUseCase';
+import { CreateTransactionUseCase } from '../../domain/usecases/CreateTransactionUseCase';
+import { GetTransactionsUseCase } from '../../domain/usecases/GetTransactionsUseCase';
+import { GetBalanceUseCase } from '../../domain/usecases/GetBalanceUseCase';
 import { TransactionType } from '../../domain/entities/Transaction';
-import { AuthenticatedRequest } from '../../infrastructure/middleware/AuthMiddleware';
-import { logger } from '../../infrastructure/logging/Logger';
-import Joi from 'joi';
+import { Logger } from '../../infrastructure/logging/Logger';
 
 export class TransactionController {
   constructor(
@@ -14,134 +12,96 @@ export class TransactionController {
     private getBalanceUseCase: GetBalanceUseCase
   ) {}
 
-  private validateCreateTransaction = Joi.object({
-    user_id: Joi.string().required(),
-    amount: Joi.number().integer().min(1).required(),
-    type: Joi.string().valid('CREDIT', 'DEBIT').required()
-  });
-
-  public createTransaction = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    const logContext = {
-      correlationId: req.correlationId,
-      userId: req.user?.userId,
-      action: 'create_transaction'
-    };
-
+  async createTransaction(req: Request, res: Response): Promise<void> {
     try {
-      logger.info('Starting transaction creation', logContext);
-      
-      const { error, value } = this.validateCreateTransaction.validate(req.body);
-      
-      if (error) {
-        logger.warn('Transaction validation failed', {
-          ...logContext,
-          validationError: error.details[0].message,
-          requestData: value
-        });
-        res.status(400).json({ error: error.details[0].message });
+      const logContext = {
+        correlationId: req.correlationId || 'unknown',
+        userId: (req as any).user?.id
+      };
+
+      Logger.getInstance().info('Creating transaction', logContext);
+
+      const { user_id, amount, type } = req.body;
+
+      // Validação simples
+      if (!user_id || !amount || !type) {
+        Logger.getInstance().warn('Missing required fields', { ...logContext, body: req.body });
+        res.status(400).json({ error: 'Missing required fields' });
         return;
       }
 
-      logger.debug('Transaction validation passed', {
-        ...logContext,
-        transactionData: {
-          userId: value.user_id,
-          amount: value.amount,
-          type: value.type
-        }
-      });
+      if (!['CREDIT', 'DEBIT'].includes(type)) {
+        res.status(400).json({ error: 'Invalid transaction type' });
+        return;
+      }
 
       const transaction = await this.createTransactionUseCase.execute({
-        userId: value.user_id,
-        amount: value.amount,
-        type: value.type as TransactionType
+        user_id,
+        amount,
+        type: type as TransactionType
       });
 
-      logger.transaction('Transaction created successfully', {
+      Logger.getInstance().info('Transaction created successfully', {
         ...logContext,
         transactionId: transaction.id,
-        amount: transaction.amount,
-        type: transaction.type,
-        targetUserId: value.user_id
+        amount,
+        type
       });
 
-      res.status(200).json(transaction.toJSON());
+      res.status(201).json(transaction);
     } catch (error) {
-      logger.error('Failed to create transaction', {
-        ...logContext,
-        error: error instanceof Error ? error : new Error('Unknown error')
-      });
-      res.status(500).json({ error: 'Internal server error' });
+      Logger.getInstance().error('Failed to create transaction', error instanceof Error ? error : new Error('Unknown error'));
+      res.status(500).json({ error: 'Failed to create transaction' });
     }
-  };
+  }
 
-  public getTransactions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    const logContext = {
-      correlationId: req.correlationId,
-      userId: req.user?.userId,
-      action: 'get_transactions'
-    };
-
+  async getTransactions(req: Request, res: Response): Promise<void> {
     try {
-      logger.info('Retrieving transactions', logContext);
-      
-      const userId = req.user!.userId;
+      const userId = (req as any).user?.id;
       const type = req.query.type as TransactionType | undefined;
 
-      logger.debug('Transaction query parameters', {
-        ...logContext,
-        queryUserId: userId,
-        filterType: type
-      });
-
-      const transactions = await this.getTransactionsUseCase.execute({
+      Logger.getInstance().info('Retrieving transactions', {
+        correlationId: req.correlationId,
         userId,
         type
       });
 
-      logger.info('Transactions retrieved successfully', {
-        ...logContext,
-        transactionCount: transactions.length,
-        filterType: type
+      const transactions = await this.getTransactionsUseCase.execute(userId, type);
+
+      Logger.getInstance().info('Transactions retrieved successfully', {
+        correlationId: req.correlationId,
+        userId,
+        count: transactions.length
       });
 
-      const response = transactions.map(transaction => transaction.toJSON());
-      res.status(200).json(response);
+      res.json(transactions);
     } catch (error) {
-      logger.error('Failed to retrieve transactions', {
-        ...logContext,
-        error: error instanceof Error ? error : new Error('Unknown error')
-      });
-      res.status(500).json({ error: 'Internal server error' });
+      Logger.getInstance().error('Failed to retrieve transactions', error instanceof Error ? error : new Error('Unknown error'));
+      res.status(500).json({ error: 'Failed to retrieve transactions' });
     }
-  };
+  }
 
-  public getBalance = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    const logContext = {
-      correlationId: req.correlationId,
-      userId: req.user?.userId,
-      action: 'get_balance'
-    };
-
+  async getBalance(req: Request, res: Response): Promise<void> {
     try {
-      logger.info('Retrieving user balance', logContext);
-      
-      const userId = req.user!.userId;
+      const userId = (req as any).user?.id;
 
-      const balance = await this.getBalanceUseCase.execute({ userId });
-
-      logger.info('Balance retrieved successfully', {
-        ...logContext,
-        balance: balance.amount
+      Logger.getInstance().info('Retrieving balance', {
+        correlationId: req.correlationId,
+        userId
       });
 
-      res.status(200).json(balance);
+      const balance = await this.getBalanceUseCase.execute(userId);
+
+      Logger.getInstance().info('Balance retrieved successfully', {
+        correlationId: req.correlationId,
+        userId,
+        balance
+      });
+
+      res.json({ amount: balance });
     } catch (error) {
-      logger.error('Failed to retrieve balance', {
-        ...logContext,
-        error: error instanceof Error ? error : new Error('Unknown error')
-      });
-      res.status(500).json({ error: 'Internal server error' });
+      Logger.getInstance().error('Failed to retrieve balance', error instanceof Error ? error : new Error('Unknown error'));
+      res.status(500).json({ error: 'Failed to retrieve balance' });
     }
-  };
+  }
 }

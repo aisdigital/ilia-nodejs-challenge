@@ -14,8 +14,8 @@ import { GetBalanceUseCase } from './domain/use-cases/GetBalanceUseCase';
 import { TransactionController } from './presentation/controllers/TransactionController';
 import { TransactionRoutes } from './presentation/routes/TransactionRoutes';
 import { AuthMiddleware } from './infrastructure/middleware/AuthMiddleware';
-import { LoggingMiddleware } from './infrastructure/middleware/LoggingMiddleware';
-import { logger } from './infrastructure/logging/Logger';
+import { requestLoggingMiddleware, responseLoggingMiddleware } from './infrastructure/middleware/LoggingMiddleware';
+import { Logger } from './infrastructure/logging/Logger';
 import { healthRoutes } from './presentation/routes/healthRoutes';
 
 dotenv.config();
@@ -36,7 +36,8 @@ export class App {
 
   private setupMiddlewares(): void {
     // Logging middleware (deve ser o primeiro para capturar todos os requests)
-    this.express.use(LoggingMiddleware.requestLogger());
+    this.express.use(requestLoggingMiddleware);
+    this.express.use(responseLoggingMiddleware);
 
     // Security middlewares
     this.express.use(helmet());
@@ -91,11 +92,11 @@ export class App {
     this.express.use('/health', healthRoutes);
 
     // Error handling middleware (deve ser o último)
-    this.express.use(LoggingMiddleware.errorLogger());
+    // Error logging handled in error handler
 
     // 404 handler
     this.express.use('*', (req, res) => {
-      logger.warn('Route not found', {
+      Logger.getInstance().warn('Route not found', {
         correlationId: (req as any).correlationId,
         method: req.method,
         url: req.originalUrl,
@@ -108,16 +109,16 @@ export class App {
 
   public async start(): Promise<void> {
     try {
-      logger.info('Starting MS-Wallet application', {
+      Logger.getInstance().info('Starting MS-Wallet application', {
         port: this.port,
         environment: process.env.NODE_ENV || 'development'
       });
 
       await this.database.initialize();
-      logger.info('Database initialized successfully');
+      Logger.getInstance().info('Database initialized successfully');
       
       this.express.listen(this.port, () => {
-        logger.info('MS-Wallet server started successfully', {
+        Logger.getInstance().info('MS-Wallet server started successfully', {
           port: this.port,
           serverUrl: `http://localhost:${this.port}`,
           swaggerUrl: `http://localhost:${this.port}/api-docs`,
@@ -134,7 +135,7 @@ export class App {
         console.log('🚀 ===============================================');
       });
     } catch (error) {
-      logger.error('Failed to start MS-Wallet server', error instanceof Error ? error : new Error('Unknown startup error'));
+      Logger.getInstance().error('Failed to start MS-Wallet server', error instanceof Error ? error : new Error('Unknown startup error'));
       console.error('Failed to start server:', error);
       process.exit(1);
     }
