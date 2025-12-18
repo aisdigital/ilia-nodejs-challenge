@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthenticateUserUseCase } from '../../domain/use-cases/AuthenticateUserUseCase';
-import { logger } from '../../infrastructure/logging/Logger';
+import { Logger } from '../../infrastructure/logging/Logger';
 import Joi from 'joi';
 
 export class AuthController {
@@ -23,20 +23,33 @@ export class AuthController {
     };
 
     try {
-      logger.info('Starting user authentication', logContext);
+      Logger.getInstance().info('Starting user authentication', {
+        ...logContext,
+        attemptedEmail: req.body?.user?.email,
+        requestStructure: {
+          hasUser: !!req.body?.user,
+          hasEmail: !!req.body?.user?.email,
+          hasPassword: !!req.body?.user?.password
+        }
+      });
       
       const { error, value } = this.validateAuth.validate(req.body);
       
       if (error) {
-        logger.warn('Authentication validation failed', {
+        Logger.getInstance().warn('Authentication validation failed', {
           ...logContext,
-          validationError: error.details[0].message
+          validationError: error.details[0].message,
+          validationPath: error.details[0].path,
+          attemptedEmail: req.body?.user?.email
         });
-        res.status(400).json({ error: error.details[0].message });
+        res.status(400).json({ 
+          error: error.details[0].message,
+          code: 'VALIDATION_ERROR'
+        });
         return;
       }
 
-      logger.debug('Authentication validation passed', {
+      Logger.getInstance().debug('Authentication validation passed', {
         ...logContext,
         email: value.user.email
       });
@@ -46,10 +59,15 @@ export class AuthController {
         password: value.user.password
       });
 
-      logger.auth('User authenticated successfully', {
+      Logger.getInstance().auth('✅ User authenticated successfully', {
         ...logContext,
         userId: result.user.id,
-        loginTime: new Date().toISOString()
+        userEmail: result.user.email,
+        userFirstName: result.user.firstName,
+        userLastName: result.user.lastName,
+        loginTime: new Date().toISOString(),
+        tokenGenerated: !!result.accessToken,
+        processingTime: Date.now() - (req as any).startTime
       });
 
       res.status(200).json({
@@ -57,19 +75,51 @@ export class AuthController {
         access_token: result.accessToken
       });
     } catch (error: any) {
+      const errorDetails = {
+        ...logContext,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorStack: error instanceof Error ? error.stack : undefined,
+        attemptedEmail: req.body?.user?.email,
+        timestamp: new Date().toISOString()
+      };
+      
       if (error.message === 'Invalid email or password') {
-        logger.security('Authentication failed - invalid credentials', {
-          ...logContext,
-          attemptedEmail: req.body?.user?.email,
-          reason: 'invalid_credentials'
+        Logger.getInstance().security('Authentication failed - invalid credentials', {
+          ...errorDetails,
+          reason: 'invalid_credentials',
+          errorType: 'INVALID_CREDENTIALS'
         });
-        res.status(401).json({ error: error.message });
+        res.status(401).json({ 
+          error: error.message,
+          code: 'INVALID_CREDENTIALS'
+        });
+      } else if (error.message?.includes('database') || error.message?.includes('connection')) {
+        Logger.getInstance().error('Authentication failed - database error', {
+          ...errorDetails,
+          errorType: 'DATABASE_ERROR'
+        });
+        res.status(503).json({ 
+          error: 'Service temporarily unavailable',
+          code: 'DATABASE_ERROR'
+        });
+      } else if (error.message?.includes('jwt') || error.message?.includes('token')) {
+        Logger.getInstance().error('Authentication failed - token generation error', {
+          ...errorDetails,
+          errorType: 'TOKEN_ERROR'
+        });
+        res.status(500).json({ 
+          error: 'Authentication token generation failed',
+          code: 'TOKEN_ERROR'
+        });
       } else {
-        logger.error('Authentication system error', {
-          ...logContext,
-          error: error instanceof Error ? error : new Error('Unknown error')
+        Logger.getInstance().error('Authentication failed - unexpected error', {
+          ...errorDetails,
+          errorType: 'UNEXPECTED_ERROR'
         });
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ 
+          error: 'Internal server error during authentication',
+          code: 'UNEXPECTED_ERROR'
+        });
       }
     }
   };

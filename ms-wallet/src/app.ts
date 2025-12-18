@@ -96,14 +96,32 @@ export class App {
 
     // 404 handler
     this.express.use('*', (req, res) => {
-      Logger.getInstance().warn('Route not found', {
+      Logger.getInstance().warn('⚠️ Route not found - 404 Error', {
         correlationId: (req as any).correlationId,
         method: req.method,
         url: req.originalUrl,
         ip: req.ip || req.connection.remoteAddress,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent'),
+        headers: req.headers,
+        availableRoutes: [
+          'POST /transactions',
+          'GET /transactions',  
+          'GET /balance',
+          'GET /health'
+        ],
+        errorType: 'ROUTE_NOT_FOUND'
       });
-      res.status(404).json({ error: 'Route not found' });
+      res.status(404).json({ 
+        error: 'Route not found',
+        method: req.method,
+        path: req.originalUrl,
+        availableRoutes: [
+          'POST /transactions - Create transaction',
+          'GET /transactions - Get user transactions',  
+          'GET /balance - Get user balance',
+          'GET /health - Health check'
+        ]
+      });
     });
   }
 

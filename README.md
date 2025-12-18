@@ -92,6 +92,28 @@ docker-compose down
 docker-compose down -v
 ```
 
+## 🔗 Git Hooks (Qualidade de Código)
+
+Este projeto utiliza **Husky** para automatizar verificações de qualidade:
+
+### 📋 Hooks Configurados
+- **Pre-commit**: ESLint + Prettier nos arquivos modificados  
+- **Pre-push**: Lint + Build + Tests em todo o projeto
+
+### 🚀 Setup dos Hooks
+```bash
+# Instalar dependências (inclui husky)
+npm install
+
+# Os hooks são ativados automaticamente após npm install
+```
+
+### 💡 Como Funciona
+- **Commit**: Corrige automaticamente problemas de lint/formato
+- **Push**: Bloqueia push se houver erros de build ou testes falhando
+
+📖 **Documentação completa**: [GIT-HOOKS.md](./GIT-HOOKS.md)
+
 ### 3. Desenvolvimento Local
 
 #### MS-Wallet:
