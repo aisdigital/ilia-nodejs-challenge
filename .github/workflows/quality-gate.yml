@@ -31,7 +31,7 @@ jobs:
     
     - name: Run ESLint
       working-directory: ${{ matrix.service }}
-      run: npm run lint
+      run: npm run lint:check
     
     - name: Run TypeScript compilation
       working-directory: ${{ matrix.service }}
