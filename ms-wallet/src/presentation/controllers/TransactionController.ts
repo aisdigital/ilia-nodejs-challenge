@@ -14,16 +14,17 @@ export class TransactionController {
 
   async createTransaction(req: Request, res: Response): Promise<void> {
     const logContext = {
-      correlationId: req.correlationId || 'unknown',
-      userId: (req as any).user?.id
+      correlationId: req.correlationId || 'unknown'
     };
     
     try {
+      const userId = (req as any).user?.userId || (req as any).user?.id;
+      const { amount, type } = req.body;
 
       Logger.getInstance().info('Creating transaction', {
         ...logContext,
+        userId,
         requestBody: {
-          user_id: req.body.user_id,
           amount: req.body.amount,
           type: req.body.type
         },
@@ -31,17 +32,26 @@ export class TransactionController {
         userAgent: req.get('User-Agent')
       });
 
-      const { user_id, amount, type } = req.body;
+      if (!userId) {
+        Logger.getInstance().warn('User ID not found in token', {
+          ...logContext,
+          userObject: (req as any).user
+        });
+        res.status(400).json({ 
+          error: 'User ID not found in token',
+          code: 'INVALID_USER_TOKEN'
+        });
+        return;
+      }
 
-      // Validação detalhada
       const missingFields = [];
-      if (!user_id) missingFields.push('user_id');
       if (!amount) missingFields.push('amount');
       if (!type) missingFields.push('type');
       
       if (missingFields.length > 0) {
         Logger.getInstance().warn('Transaction validation failed - missing required fields', { 
           ...logContext, 
+          userId,
           missingFields,
           providedFields: Object.keys(req.body),
           body: req.body
@@ -49,7 +59,7 @@ export class TransactionController {
         res.status(400).json({ 
           error: 'Missing required fields', 
           missingFields,
-          requiredFields: ['user_id', 'amount', 'type']
+          requiredFields: ['amount', 'type']
         });
         return;
       }
@@ -70,12 +80,60 @@ export class TransactionController {
       }
 
       if (!['CREDIT', 'DEBIT'].includes(type)) {
-        res.status(400).json({ error: 'Invalid transaction type' });
+        Logger.getInstance().warn('Transaction validation failed - invalid type', {
+          ...logContext,
+          userId,
+          invalidType: type
+        });
+        res.status(400).json({ 
+          error: 'Invalid transaction type. Must be CREDIT or DEBIT',
+          provided: type
+        });
         return;
       }
 
+      if (type === 'DEBIT') {
+        Logger.getInstance().info('Checking balance for DEBIT transaction', {
+          ...logContext,
+          userId,
+          debitAmount: amount
+        });
+        
+        const currentBalance = await this.getBalanceUseCase.execute({ userId });
+        
+        if (currentBalance.amount < amount) {
+          Logger.getInstance().warn('DEBIT transaction rejected - insufficient funds', {
+            ...logContext,
+            userId,
+            currentBalance: currentBalance.amount,
+            requestedDebit: amount,
+            shortfall: amount - currentBalance.amount
+          });
+          res.status(400).json({ 
+            error: 'Insufficient funds for this transaction',
+            code: 'INSUFFICIENT_FUNDS',
+            currentBalance: currentBalance.amount,
+            requestedAmount: amount
+          });
+          return;
+        }
+        
+        Logger.getInstance().info('Balance check passed for DEBIT transaction', {
+          ...logContext,
+          userId,
+          currentBalance: currentBalance.amount,
+          debitAmount: amount,
+          remainingBalance: currentBalance.amount - amount
+        });
+      }
+
+      Logger.getInstance().info('About to execute transaction creation', {
+        ...logContext,
+        requestData: { userId, amount, type, amountType: typeof amount }
+      });
+
       const transaction = await this.createTransactionUseCase.execute({
-        userId: user_id,
+        userId,
         amount,
         type: type as TransactionType
       });
@@ -83,7 +141,7 @@ export class TransactionController {
       Logger.getInstance().info('✅ Transaction created successfully', {
         ...logContext,
         transactionId: transaction.id,
-        userId: user_id,
+        userId,
         amount,
         type,
         transactionData: {
@@ -106,7 +164,6 @@ export class TransactionController {
         timestamp: new Date().toISOString()
       };
       
-      // Log específico baseado no tipo de erro
       if (error instanceof Error) {
         if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
           Logger.getInstance().error('Transaction creation failed - duplicate transaction detected', {
@@ -147,7 +204,10 @@ export class TransactionController {
         } else {
           Logger.getInstance().error('Transaction creation failed - unexpected error', {
             ...errorDetails,
-            errorType: 'UNEXPECTED_ERROR'
+            errorType: 'UNEXPECTED_ERROR',
+            fullError: error,
+            errorToString: String(error),
+            errorJSON: JSON.stringify(error, Object.getOwnPropertyNames(error))
           });
           res.status(500).json({ 
             error: 'Internal server error during transaction creation',
@@ -169,14 +229,32 @@ export class TransactionController {
 
   async getTransactions(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).user?.userId || (req as any).user?.id;
       const type = req.query.type as TransactionType | undefined;
 
       Logger.getInstance().info('Retrieving transactions', {
         correlationId: req.correlationId,
         userId,
-        type
+        type,
+        userObject: (req as any).user
       });
+
+      if (!userId) {
+        res.status(400).json({ 
+          error: 'User ID not found in token',
+          code: 'INVALID_USER_TOKEN'
+        });
+        return;
+      }
+
+      // Validar tipo se fornecido
+      if (type && !['CREDIT', 'DEBIT'].includes(type)) {
+        res.status(400).json({ 
+          error: 'Invalid transaction type. Must be CREDIT or DEBIT',
+          code: 'INVALID_TYPE_FILTER'
+        });
+        return;
+      }
 
       const transactions = await this.getTransactionsUseCase.execute({ userId, type });
 
@@ -184,27 +262,17 @@ export class TransactionController {
         correlationId: req.correlationId,
         userId,
         count: transactions.length,
-        filters: { type },
-        resultSummary: {
-          total: transactions.length,
-          types: [...new Set(transactions.map(t => t.type))],
-          dateRange: transactions.length > 0 ? {
-            oldest: Math.min(...transactions.map(t => new Date(t.createdAt).getTime())),
-            newest: Math.max(...transactions.map(t => new Date(t.createdAt).getTime()))
-          } : null
-        },
-        processingTime: Date.now() - (req as any).startTime
+        filters: { type: type || 'ALL' }
       });
 
       res.json(transactions);
     } catch (error) {
       const errorDetails = {
         correlationId: req.correlationId,
-        userId: (req as any).user?.id,
+        userId: (req as any).user?.userId || (req as any).user?.id,
         queryParams: req.query,
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        errorStack: error instanceof Error ? error.stack : undefined,
-        timestamp: new Date().toISOString()
+        errorStack: error instanceof Error ? error.stack : undefined
       };
       
       if (error instanceof Error) {
@@ -251,14 +319,23 @@ export class TransactionController {
 
   async getBalance(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).user?.userId || (req as any).user?.id;
 
       Logger.getInstance().info('Retrieving balance', {
         correlationId: req.correlationId,
-        userId
+        userId,
+        userObject: (req as any).user
       });
 
-      const balance = await this.getBalanceUseCase.execute(userId);
+      if (!userId) {
+        res.status(400).json({ 
+          error: 'User ID not found in token',
+          code: 'INVALID_USER_TOKEN'
+        });
+        return;
+      }
+
+      const balance = await this.getBalanceUseCase.execute({ userId });
 
       Logger.getInstance().info('✅ Balance retrieved successfully', {
         correlationId: req.correlationId,
@@ -272,7 +349,7 @@ export class TransactionController {
     } catch (error) {
       const errorDetails = {
         correlationId: req.correlationId,
-        userId: (req as any).user?.id,
+        userId: (req as any).user?.userId || (req as any).user?.id,
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
         errorStack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date().toISOString()
