@@ -30,13 +30,8 @@ const options = {
       schemas: {
         Transaction: {
           type: 'object',
-          required: ['user_id', 'amount', 'type'],
+          required: ['amount', 'type'],
           properties: {
-            user_id: {
-              type: 'string',
-              format: 'uuid',
-              description: 'ID do usuário'
-            },
             amount: {
               type: 'integer',
               minimum: 1,
@@ -49,7 +44,6 @@ const options = {
             }
           },
           example: {
-            user_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
             amount: 10000,
             type: 'CREDIT'
           }
@@ -97,11 +91,31 @@ const options = {
         },
         Error: {
           type: 'object',
+          required: ['error', 'code'],
           properties: {
             error: {
               type: 'string',
-              description: 'Mensagem de erro'
+              description: 'Mensagem de erro descritiva'
+            },
+            code: {
+              type: 'string',
+              description: 'Código de erro específico',
+              enum: ['MISSING_TOKEN', 'INVALID_TOKEN', 'TOKEN_EXPIRED', 'INVALID_USER_TOKEN', 'INSUFFICIENT_FUNDS', 'INVALID_TYPE_FILTER', 'DUPLICATE_TRANSACTION', 'USER_NOT_FOUND', 'DATABASE_ERROR', 'UNEXPECTED_ERROR']
+            },
+            currentBalance: {
+              type: 'integer',
+              description: 'Saldo atual (apenas para erros de INSUFFICIENT_FUNDS)'
+            },
+            requestedAmount: {
+              type: 'integer',
+              description: 'Valor solicitado (apenas para erros de INSUFFICIENT_FUNDS)'
             }
+          },
+          example: {
+            error: 'Insufficient funds for this transaction',
+            code: 'INSUFFICIENT_FUNDS',
+            currentBalance: 500,
+            requestedAmount: 1000
           }
         }
       }
