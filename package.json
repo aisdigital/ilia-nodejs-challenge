@@ -39,7 +39,7 @@
     "start:wallet": "cd ms-wallet && npm start",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:build": "docker-compose build",
+    "docker:build": "docker-compose build"
   },
   "devDependencies": {
     "husky": "^8.0.3",
