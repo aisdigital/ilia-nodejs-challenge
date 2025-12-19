@@ -52,5 +52,4 @@ temp/
 .pnp.*
 
 # Lock files (keep only one)
-package-lock.json
 yarn.lock
