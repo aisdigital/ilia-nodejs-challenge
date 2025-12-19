@@ -24,10 +24,9 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: ${{ matrix.service }}/package-lock.json
+        cache-dependency-path: package-lock.json
     
     - name: Install dependencies
-      working-directory: ${{ matrix.service }}
       run: npm ci
     
     - name: Run ESLint
@@ -54,7 +53,6 @@ jobs:
         echo "✅ Coverage above 80%: $COVERAGE%"
     
     - name: Security audit
-      working-directory: ${{ matrix.service }}
       run: npm audit --audit-level=moderate
     
     - name: Check for TODO/FIXME comments
