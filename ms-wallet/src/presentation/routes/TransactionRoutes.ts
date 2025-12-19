@@ -19,7 +19,7 @@ export class TransactionRoutes {
      * /transactions:
      *   post:
      *     summary: Criar nova transação
-     *     description: Cria uma nova transação de CRÉDITO ou DÉBITO na carteira do usuário
+     *     description: Cria uma nova transação de CRÉDITO ou DÉBITO na carteira do usuário autenticado. O ID do usuário é extraído automaticamente do token JWT. Para transações DEBIT, o sistema verifica se o usuário possui saldo suficiente.
      *     tags: [Transactions]
      *     security:
      *       - bearerAuth: []
@@ -30,14 +30,14 @@ export class TransactionRoutes {
      *           schema:
      *             $ref: '#/components/schemas/Transaction'
      *     responses:
-     *       200:
+     *       201:
      *         description: Transação criada com sucesso
      *         content:
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/TransactionResponse'
      *       400:
-     *         description: Dados inválidos
+     *         description: Dados inválidos ou saldo insuficiente
      *         content:
      *           application/json:
      *             schema:
@@ -54,7 +54,7 @@ export class TransactionRoutes {
     this.router.post(
       '/transactions',
       this.authMiddleware.authenticate,
-      this.transactionController.createTransaction
+      this.transactionController.createTransaction.bind(this.transactionController)
     );
 
     /**
@@ -62,7 +62,7 @@ export class TransactionRoutes {
      * /transactions:
      *   get:
      *     summary: Listar transações do usuário
-     *     description: Retorna todas as transações do usuário autenticado, com filtro opcional por tipo
+     *     description: Retorna todas as transações do usuário autenticado. O ID do usuário é extraído automaticamente do token JWT. Permite filtro opcional por tipo de transação.
      *     tags: [Transactions]
      *     security:
      *       - bearerAuth: []
@@ -94,7 +94,7 @@ export class TransactionRoutes {
     this.router.get(
       '/transactions',
       this.authMiddleware.authenticate,
-      this.transactionController.getTransactions
+      this.transactionController.getTransactions.bind(this.transactionController)
     );
 
     /**
@@ -102,7 +102,7 @@ export class TransactionRoutes {
      * /balance:
      *   get:
      *     summary: Consultar saldo da carteira
-     *     description: Retorna o saldo consolidado da carteira do usuário (CRÉDITOS - DÉBITOS)
+     *     description: Retorna o saldo consolidado da carteira do usuário (CRÉDITOS - DÉBITOS). O ID do usuário é extraído automaticamente do token JWT.
      *     tags: [Balance]
      *     security:
      *       - bearerAuth: []
@@ -125,7 +125,7 @@ export class TransactionRoutes {
     this.router.get(
       '/balance',
       this.authMiddleware.authenticate,
-      this.transactionController.getBalance
+      this.transactionController.getBalance.bind(this.transactionController)
     );
   }
 }
