@@ -148,7 +148,7 @@ export class UserController {
       const users = await this.getAllUsersUseCase.execute();
       const response = users.map(user => user.toJSON());
       res.status(200).json(response);
-    } catch (error) {
+    } catch (_) {
       res.status(500).json({ error: 'Internal server error' });
     }
   };

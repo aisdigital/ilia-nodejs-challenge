@@ -13,7 +13,7 @@ export class HealthController {
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
       });
-    } catch (error) {
+    } catch (_) {
       res.status(503).json({
         status: 'ERROR',
         service: 'ms-wallet',

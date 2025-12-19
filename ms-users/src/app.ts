@@ -20,7 +20,6 @@ import { UserRoutes } from './presentation/routes/UserRoutes';
 import { AuthMiddleware } from './infrastructure/middleware/AuthMiddleware';
 import { LoggingMiddleware } from './infrastructure/middleware/LoggingMiddleware';
 import { Logger } from './infrastructure/logging/Logger';
-import { WalletService } from './infrastructure/services/WalletService';
 import { healthRoutes } from './presentation/routes/healthRoutes';
 
 dotenv.config();
@@ -40,26 +39,21 @@ export class App {
   }
 
   private setupMiddlewares(): void {
-    // Logging middleware (deve ser o primeiro para capturar todos os requests)
     this.express.use(LoggingMiddleware.requestLogger());
 
-    // Security middlewares
     this.express.use(helmet());
     this.express.use(cors());
 
-    // Rate limiting
     const limiter = rateLimit({
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 100, // limit each IP to 100 requests per windowMs
+      windowMs: 15 * 60 * 1000, 
+      max: 100, 
       message: 'Too many requests from this IP'
     });
     this.express.use(limiter);
 
-    // Body parsing
     this.express.use(express.json({ limit: '10mb' }));
     this.express.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-    // Swagger Documentation
     this.express.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
       customCss: '.swagger-ui .topbar { display: none }',
       customSiteTitle: 'Users API Documentation'
@@ -86,10 +80,8 @@ export class App {
       throw new Error('JWT_INTERNAL_SECRET environment variable is required');
     }
 
-    // Setup dependencies
     const pool = this.database.getPool();
     const userRepository = new PostgresUserRepository(pool);
-    const walletService = new WalletService(walletServiceUrl, internalJwtSecret);
     
     const createUserUseCase = new CreateUserUseCase(userRepository);
     const authenticateUserUseCase = new AuthenticateUserUseCase(userRepository, jwtSecret, jwtExpiresIn);
@@ -111,14 +103,11 @@ export class App {
     const authMiddleware = new AuthMiddleware(jwtSecret);
     const userRoutes = new UserRoutes(userController, authController, authMiddleware);
 
-    // Register routes (conforme especificação do desafio)
     this.express.use('/', userRoutes.router);
     this.express.use('/health', healthRoutes);
 
-    // Error handling middleware (deve ser o último)
     this.express.use(LoggingMiddleware.errorLogger());
 
-    // 404 handler
     this.express.use('*', (req, res) => {
       Logger.getInstance().warn('Route not found', {
         correlationId: (req as any).correlationId,
@@ -149,7 +138,6 @@ export class App {
           healthUrl: `http://localhost:${this.port}/health`
         });
 
-        // Console logs para desenvolvimento
         console.log('🚀 ===============================================');
         console.log('👥 MS-Users (Microservice Usuários)');
         console.log('🚀 ===============================================');

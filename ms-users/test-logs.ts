@@ -1,4 +1,6 @@
-import { logger } from './src/infrastructure/logging/Logger';
+import { Logger } from './src/infrastructure/logging/Logger';
+
+const logger = Logger.getInstance();
 
 // Exemplo de teste dos logs estruturados para MS-Users
 async function testLogs() {

@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Logger } from '../logging/Logger';
 
-// Extensão da interface Request para incluir correlationId
 declare global {
   namespace Express {
     interface Request {
@@ -13,20 +12,14 @@ declare global {
 }
 
 export class LoggingMiddleware {
-  
-  /**
-   * Middleware para adicionar correlation ID e fazer log de requests/responses
-   */
+
   public static requestLogger() {
     return (req: Request, res: Response, next: NextFunction): void => {
-      // Gerar ou usar correlation ID existente
       req.correlationId = req.get('X-Correlation-ID') || uuidv4();
       req.startTime = Date.now();
 
-      // Adicionar correlation ID ao response header
       res.setHeader('X-Correlation-ID', req.correlationId);
 
-      // Extrair informações da requisição
       const requestContext = {
         correlationId: req.correlationId,
         method: req.method,
@@ -39,17 +32,14 @@ export class LoggingMiddleware {
         timestamp: new Date().toISOString()
       };
 
-      // Log específico de entrada da request com destaque
       Logger.getInstance().info(`🔄 REQUEST INCOMING: ${req.method} ${req.originalUrl}`, {
         ...requestContext,
         requestId: req.correlationId,
         category: 'request_entry'
       });
 
-      // Log da requisição (mantém compatibilidade)
       Logger.getInstance().request(req.method, req.originalUrl, requestContext);
 
-      // Interceptar o response para fazer log
       const originalJson = res.json;
       const originalSend = res.send;
       
@@ -67,9 +57,6 @@ export class LoggingMiddleware {
     };
   }
 
-  /**
-   * Middleware específico para operações de auditoria
-   */
   public static auditLogger(action: string) {
     return (req: Request, res: Response, next: NextFunction): void => {
       const auditContext = {
@@ -86,10 +73,6 @@ export class LoggingMiddleware {
       next();
     };
   }
-
-  /**
-   * Middleware para capturar erros não tratados
-   */
   public static errorLogger() {
     return (error: Error, req: Request, res: Response, next: NextFunction): void => {
       const errorContext = {
@@ -106,14 +89,10 @@ export class LoggingMiddleware {
 
       Logger.getInstance().error(`Unhandled error in ${req.method} ${req.originalUrl}`, errorContext);
       
-      // Passar o erro adiante
       next(error);
     };
   }
 
-  /**
-   * Log do response
-   */
   private static logResponse(req: Request, res: Response, body?: any): void {
     if (!req.startTime) return;
 
@@ -126,7 +105,6 @@ export class LoggingMiddleware {
       contentLength: res.get('Content-Length') || JSON.stringify(body || '').length
     };
 
-    // Log de performance para requests lentos
     if (duration > 1000) {
       Logger.getInstance().performance(`Slow request detected: ${req.method} ${req.originalUrl}`, {
         ...responseContext,
@@ -134,18 +112,13 @@ export class LoggingMiddleware {
       });
     }
 
-    // Log de response
     Logger.getInstance().response(req.method, req.originalUrl, res.statusCode, duration, responseContext);
 
-    // Log de segurança para tentativas de acesso não autorizado
     if (res.statusCode === 401 || res.statusCode === 403) {
       Logger.getInstance().security(`Unauthorized access attempt: ${req.method} ${req.originalUrl}`, responseContext);
     }
   }
 
-  /**
-   * Extrai o ID do usuário do token JWT se disponível
-   */
   private static extractUserId(req: Request): string | undefined {
     try {
       const authHeader = req.get('Authorization');
@@ -154,10 +127,9 @@ export class LoggingMiddleware {
       }
 
       const token = authHeader.substring(7);
-      // Decodificar JWT sem verificar (só para extrair userId para logs)
       const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
       return payload.userId || payload.sub || payload.id;
-    } catch (error) {
+    } catch (_) {
       return undefined;
     }
   }

@@ -111,4 +111,42 @@ export class Logger {
   public debug(message: string, context?: LogContext): void {
     this.logger.debug(message, context || {});
   }
+
+  // Métodos customizados para diferentes tipos de log
+  public user(message: string, context?: LogContext): void {
+    this.logger.info(message, { ...context, category: 'user' });
+  }
+
+  public auth(message: string, context?: LogContext): void {
+    this.logger.info(message, { ...context, category: 'auth' });
+  }
+
+  public security(message: string, context?: LogContext): void {
+    this.logger.warn(message, { ...context, category: 'security' });
+  }
+
+  public audit(message: string, context?: LogContext): void {
+    this.logger.info(message, { ...context, category: 'audit' });
+  }
+
+  public performance(message: string, context?: LogContext): void {
+    this.logger.warn(message, { ...context, category: 'performance' });
+  }
+
+  public request(method: string, url: string, context?: LogContext): void {
+    this.logger.info(`${method} ${url}`, { ...context, category: 'request' });
+  }
+
+  public response(method: string, url: string, status: number, duration: number, context?: LogContext): void {
+    this.logger.info(`${method} ${url} - ${status} (${duration}ms)`, { 
+      ...context, 
+      category: 'response',
+      status,
+      duration
+    });
+  }
+
+  public transaction(message: string, context?: LogContext): void {
+    this.logger.info(message, { ...context, category: 'transaction' });
+  }
 }
