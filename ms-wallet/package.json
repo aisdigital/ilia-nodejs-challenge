@@ -1,8 +1,7 @@
 {
   "name": "ms-wallet",
   "version": "1.0.0",
-  "description": "Microservico de carteira digital para transacoes financeiras",
-  "main": "dist/app.js",
+  "description": "Microservico de carteira digital para transacoes financeiras",  "type": "module",  "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
