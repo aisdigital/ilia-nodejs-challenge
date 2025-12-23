@@ -113,6 +113,16 @@ export function buildApp(): FastifyInstance {
 				{ name: "auth", description: "Authentication" },
 				{ name: "users", description: "User profile" },
 			],
+			components: {
+				securitySchemes: {
+					bearerAuth: {
+						type: "http",
+						scheme: "bearer",
+						bearerFormat: "JWT",
+					},
+				},
+			},
+			security: [{ bearerAuth: [] }],
 		},
 	});
 

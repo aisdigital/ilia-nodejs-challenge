@@ -111,6 +111,16 @@ export function buildApp(): FastifyInstance {
 			},
 			servers: [{ url: `http://localhost:${config.port}` }],
 			tags: [{ name: "wallet", description: "Balance and transactions" }],
+			components: {
+				securitySchemes: {
+					bearerAuth: {
+						type: "http",
+						scheme: "bearer",
+						bearerFormat: "JWT",
+					},
+				},
+			},
+			security: [{ bearerAuth: [] }],
 		},
 	});
 
