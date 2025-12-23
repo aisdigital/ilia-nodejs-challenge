@@ -77,6 +77,10 @@ export function buildApp(): FastifyInstance {
 		logger: {
 			level: config.logLevel,
 			base: { service: config.serviceName },
+			redact: {
+				paths: ["req.headers.authorization", "req.headers.cookie"],
+				remove: true,
+			},
 		},
 		genReqId: (req) => {
 			const header = req.headers["x-request-id"];

@@ -27,3 +27,4 @@ All notable changes to this project will be documented in this file.
 - Users outbox publisher worker for reliable event emission.
 - Added initial unit tests for wallet rules and messaging helpers.
 - Implemented wallet transaction endpoints with balance computation and debit checks.
+- Added auth hardening for JWT `sub` presence and redacted auth headers in logs.

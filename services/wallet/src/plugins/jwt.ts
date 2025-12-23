@@ -25,6 +25,11 @@ export default fp(async (app) => {
 	app.decorate("authenticate", async (req, reply) => {
 		try {
 			await req.jwtVerify();
+			if (!req.user?.sub) {
+				return reply
+					.code(401)
+					.send({ code: "UNAUTHORIZED", message: "Unauthorized" });
+			}
 		} catch (error) {
 			req.log.warn({ err: error }, "jwt verification failed");
 			return reply
