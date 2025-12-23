@@ -6,3 +6,14 @@ All notable changes to this project will be documented in this file.
 ### Documentation
 - Added ADR D010 for rate limiting.
 - Aligned executive plan decisions to ADR-lite record (D001–D010).
+
+### Infrastructure
+- Added `docker-compose.yml` for RabbitMQ + per-service Postgres.
+
+### Build/CI
+- Added GitHub Actions workflow running lint/typecheck/test.
+- Bootstrapped Bun workspaces and shared TypeScript config.
+
+### Scaffolding
+- Added initial Users/Wallet service skeletons.
+- Moved OpenAPI specs to `docs/api/`.
