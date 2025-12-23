@@ -44,3 +44,6 @@ All notable changes to this project will be documented in this file.
 - Added consumer retry ladder and x-death handling tests.
 - Added consumer DLQ integration test (guarded) for invalid payloads.
 - Proposed admin role + consolidated docs ADR (D011); added Hoppscotch optional note.
+- Migrates now run inside Docker network via compose-run migrate services.
+- Added one-command `up` and `up:docs` scripts for full stack (with optional consolidated Swagger UI).
+- Consolidated Swagger UI is now part of the default compose `up` flow.

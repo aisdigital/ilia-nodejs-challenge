@@ -6,7 +6,7 @@
 		"dev": "bun --watch src/server.ts",
 		"start": "bun src/server.ts",
 		"worker:publisher": "bun src/worker.ts",
-		"migrate": "bun src/migrate.ts",
+		"migrate": "sh ./src/migrate.sh",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"test": "bun test"
 	},

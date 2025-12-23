@@ -109,7 +109,7 @@ services:
       [
         "sh",
         "-c",
-        "until (echo >/dev/tcp/users-db/5432) >/dev/null 2>&1; do sleep 1; done; bun src/migrate.ts",
+        "until (echo >/dev/tcp/users-db/5432) >/dev/null 2>&1; do sleep 1; done; sh ./src/migrate.sh",
       ]
     environment:
       USERS_DATABASE_URL: "${USERS_DATABASE_URL:-postgres://postgres:postgres@users-db:5432/users}"
@@ -125,13 +125,25 @@ services:
       [
         "sh",
         "-c",
-        "until (echo >/dev/tcp/wallet-db/5432) >/dev/null 2>&1; do sleep 1; done; bun src/migrate.ts",
+        "until (echo >/dev/tcp/wallet-db/5432) >/dev/null 2>&1; do sleep 1; done; sh ./src/migrate.sh",
       ]
     environment:
       WALLET_DATABASE_URL: "${WALLET_DATABASE_URL:-postgres://postgres:postgres@wallet-db:5432/wallet}"
     depends_on:
       - wallet-db
     restart: "no"
+
+  docs:
+    image: swaggerapi/swagger-ui:v5.17.14
+    environment:
+      - URLS=[{"name":"users","url":"http://users:3002/openapi.json"},{"name":"wallet","url":"http://wallet:3001/openapi.json"}]
+    ports:
+      - "8080:8080"
+    depends_on:
+      users:
+        condition: service_started
+      wallet:
+        condition: service_started
 
 volumes:
   users-db-data:

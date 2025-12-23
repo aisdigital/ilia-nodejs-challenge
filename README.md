@@ -16,29 +16,14 @@
 ```
 cp .env.example .env
 ```
-2) Start infrastructure:
+2) One command (services + workers + migrations + consolidated Swagger UI):
 ```
-docker compose up -d rabbitmq users-db wallet-db
+docker compose up --build users-migrate wallet-migrate users wallet users-worker wallet-worker rabbitmq users-db wallet-db docs
 ```
-3) Apply migrations:
+3) Stop/clean:
 ```
-bun run migrate
+docker compose down --remove-orphans
 ```
-4) Start apps + workers:
-```
-bun install
-bun run dev:users
-bun run dev:wallet
-bun --filter @app/users run worker:publisher
-bun --filter @app/wallet run worker:consumer
-```
-
-Or start everything via compose (services + workers):
-```
-docker compose up --build
-```
-
-See also: [One-command Docker run](#one-command-docker-all-services--workers--migrations).
 
 ## Local (no Docker)
 
@@ -51,9 +36,16 @@ JWT_PRIVATE_KEY=ILIACHALLENGE
 ```
 2) Apply migrations:
 ```
-bun run migrate
+docker compose run --rm users-migrate
+docker compose run --rm wallet-migrate
 ```
-3) Start apps + workers (same as Docker step 4).
+3) Start apps + workers:
+```
+bun run dev:users
+bun run dev:wallet
+bun --filter @app/users run worker:publisher
+bun --filter @app/wallet run worker:consumer
+```
 
 ## One-command Docker (all services + workers + migrations)
 
@@ -67,7 +59,7 @@ docker compose up --build users-migrate wallet-migrate users wallet users-worker
 - Users OpenAPI/Swagger UI: `http://localhost:3002/docs` (spec at `/openapi.json`)
 - Wallet OpenAPI/Swagger UI: `http://localhost:3001/docs` (spec at `/openapi.json`)
 - Hoppscotch: import the OpenAPI URL for each service (e.g., `http://localhost:3002/openapi.json`)
-- Consolidated Swagger UI (requires `docker-compose.override.yml`): `http://localhost:8080` (preloaded with Users + Wallet specs)
+- Consolidated Swagger UI (default in compose): `http://localhost:8080` (preloaded with Users + Wallet specs)
 - Hoppscotch (optional): configure an environment with `{{users}}` and `{{wallet}}` pointing to the two OpenAPI URLs for quick testing.
 
 ## Releases
