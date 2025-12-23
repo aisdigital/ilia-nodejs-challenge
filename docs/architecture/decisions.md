@@ -202,3 +202,23 @@ This file captures the key technical decisions for the Users (3002) + Wallet (30
 **Consequences / follow-ups:**
 - In-memory limits won’t be shared across instances; document Redis/gateway approach for production.
 - Allow disabling or relaxing limits in tests/dev via env.
+
+---
+
+## D011 — Optional admin role & consolidated API docs portal
+
+**Status:** Proposed
+
+**Context:** Current API is self-only. An admin capability and a single docs entry point were requested.
+
+**Options considered:**
+- Keep self-only; per-service Swagger only.
+- Add admin role (JWT claim) + admin-only endpoints; add a unified docs portal.
+
+**Choice (if adopted):** Introduce an `admin` role and admin-only endpoints (list/get users; optional wallet inspection), and expose a consolidated Swagger UI that lists both services’ OpenAPI documents.
+
+**Rationale:** Enables support/operations use cases and simplifies discovery via a single docs portal.
+
+**Consequences / follow-ups:**
+- Requires role column and authZ middleware; more tests and seeds.
+- Consolidated docs container added (Swagger UI pointing to both OpenAPI URLs).

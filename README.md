@@ -68,6 +68,7 @@ docker compose up --build users-migrate wallet-migrate users wallet users-worker
 - Wallet OpenAPI/Swagger UI: `http://localhost:3001/docs` (spec at `/openapi.json`)
 - Hoppscotch: import the OpenAPI URL for each service (e.g., `http://localhost:3002/openapi.json`)
 - Consolidated Swagger UI (requires `docker-compose.override.yml`): `http://localhost:8080` (preloaded with Users + Wallet specs)
+- Hoppscotch (optional): configure an environment with `{{users}}` and `{{wallet}}` pointing to the two OpenAPI URLs for quick testing.
 
 ## Releases
 

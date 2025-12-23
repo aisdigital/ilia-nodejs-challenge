@@ -43,3 +43,4 @@ All notable changes to this project will be documented in this file.
 - Added outbox publisher helper tests for routing key and request-id propagation.
 - Added consumer retry ladder and x-death handling tests.
 - Added consumer DLQ integration test (guarded) for invalid payloads.
+- Proposed admin role + consolidated docs ADR (D011); added Hoppscotch optional note.
