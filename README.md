@@ -38,6 +38,8 @@ Or start everything via compose (services + workers):
 docker compose up --build
 ```
 
+See also: [One-command Docker run](#one-command-docker-all-services--workers--migrations).
+
 ## Local (no Docker)
 
 1) Start Postgres and RabbitMQ locally, then set:
@@ -52,3 +54,10 @@ JWT_PRIVATE_KEY=ILIACHALLENGE
 bun run migrate
 ```
 3) Start apps + workers (same as Docker step 4).
+
+## One-command Docker (all services + workers + migrations)
+
+This starts DBs, RabbitMQ, runs migrations, and brings up services + workers:
+```
+docker compose up --build users-migrate wallet-migrate users wallet users-worker wallet-worker rabbitmq users-db wallet-db
+```

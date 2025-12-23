@@ -39,6 +39,8 @@ services:
     ports:
       - "3002:3002"
     depends_on:
+      users-migrate:
+        condition: service_completed_successfully
       - users-db
       - rabbitmq
 
@@ -54,6 +56,8 @@ services:
     ports:
       - "3001:3001"
     depends_on:
+      wallet-migrate:
+        condition: service_completed_successfully
       - wallet-db
       - rabbitmq
 
@@ -68,6 +72,8 @@ services:
       USERS_DATABASE_URL: "${USERS_DATABASE_URL:-postgres://postgres:postgres@users-db:5432/users}"
       RABBITMQ_URL: "${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}"
     depends_on:
+      users-migrate:
+        condition: service_completed_successfully
       - users-db
       - rabbitmq
 
@@ -82,8 +88,42 @@ services:
       WALLET_DATABASE_URL: "${WALLET_DATABASE_URL:-postgres://postgres:postgres@wallet-db:5432/wallet}"
       RABBITMQ_URL: "${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}"
     depends_on:
+      wallet-migrate:
+        condition: service_completed_successfully
       - wallet-db
       - rabbitmq
+
+  users-migrate:
+    build:
+      context: .
+      dockerfile: services/users/Dockerfile
+    command:
+      [
+        "sh",
+        "-c",
+        "until (echo >/dev/tcp/users-db/5432) >/dev/null 2>&1; do sleep 1; done; bun src/migrate.ts",
+      ]
+    environment:
+      USERS_DATABASE_URL: "${USERS_DATABASE_URL:-postgres://postgres:postgres@users-db:5432/users}"
+    depends_on:
+      - users-db
+    restart: "no"
+
+  wallet-migrate:
+    build:
+      context: .
+      dockerfile: services/wallet/Dockerfile
+    command:
+      [
+        "sh",
+        "-c",
+        "until (echo >/dev/tcp/wallet-db/5432) >/dev/null 2>&1; do sleep 1; done; bun src/migrate.ts",
+      ]
+    environment:
+      WALLET_DATABASE_URL: "${WALLET_DATABASE_URL:-postgres://postgres:postgres@wallet-db:5432/wallet}"
+    depends_on:
+      - wallet-db
+    restart: "no"
 
 volumes:
   users-db-data:

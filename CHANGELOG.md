@@ -30,3 +30,5 @@ All notable changes to this project will be documented in this file.
 - Added auth hardening for JWT `sub` presence and redacted auth headers in logs.
 - Added run instructions and service README summaries.
 - Added migration scripts and compose worker services.
+- Compose can now run migrations and workers automatically; added Docker one-command run.
+- README quickstart links to the one-command Docker section.
