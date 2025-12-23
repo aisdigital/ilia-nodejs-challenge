@@ -11,6 +11,15 @@ export default async function balanceRoutes(app: FastifyInstance) {
 		"/balance",
 		{
 			preHandler: [app.authenticate, app.walletReady],
+			schema: {
+				tags: ["wallet"],
+				response: {
+					200: {
+						type: "object",
+						properties: { balanceMinor: { type: "integer" } },
+					},
+				},
+			},
 		},
 		async (req) => {
 			const userId = req.user.sub;

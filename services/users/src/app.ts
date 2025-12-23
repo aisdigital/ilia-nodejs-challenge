@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import * as net from "node:net";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import Fastify, { type FastifyInstance } from "fastify";
 import { getConfig } from "./config";
 import dbPlugin from "./plugins/db";
@@ -93,6 +95,28 @@ export function buildApp(): FastifyInstance {
 	app.addHook("onRequest", (req, reply, done) => {
 		reply.header("x-request-id", req.id);
 		done();
+	});
+
+	app.register(swagger, {
+		openapi: {
+			info: {
+				title: "Users Service",
+				version: "1.0.0",
+			},
+			servers: [{ url: `http://localhost:${config.port}` }],
+			tags: [
+				{ name: "auth", description: "Authentication" },
+				{ name: "users", description: "User profile" },
+			],
+		},
+	});
+
+	app.register(swaggerUi, {
+		routePrefix: "/docs",
+		uiConfig: {
+			docExpansion: "list",
+			deepLinking: true,
+		},
 	});
 
 	app.register(rateLimitPlugin);

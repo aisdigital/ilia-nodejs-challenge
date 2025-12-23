@@ -39,6 +39,7 @@ export default async function authRoutes(app: FastifyInstance) {
 		{
 			config: { rateLimit: rateLimitConfig.register },
 			schema: {
+				tags: ["auth"],
 				body: {
 					type: "object",
 					required: ["name", "email", "password"],
@@ -107,6 +108,7 @@ export default async function authRoutes(app: FastifyInstance) {
 		{
 			config: { rateLimit: rateLimitConfig.login },
 			schema: {
+				tags: ["auth"],
 				body: {
 					type: "object",
 					required: ["email", "password"],

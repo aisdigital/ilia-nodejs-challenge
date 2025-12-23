@@ -32,3 +32,5 @@ All notable changes to this project will be documented in this file.
 - Added migration scripts and compose worker services.
 - Compose can now run migrations and workers automatically; added Docker one-command run.
 - README quickstart links to the one-command Docker section.
+- Served OpenAPI/Swagger UI for Users and Wallet; documented API docs and Hoppscotch import.
+- TODO noted for a consolidated Swagger UI container.

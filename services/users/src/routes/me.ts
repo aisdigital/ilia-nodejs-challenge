@@ -21,6 +21,9 @@ export default async function meRoutes(app: FastifyInstance) {
 		"/me",
 		{
 			preHandler: app.authenticate,
+			schema: {
+				tags: ["users"],
+			},
 		},
 		async (req, reply) => {
 			const userId = req.user.sub;

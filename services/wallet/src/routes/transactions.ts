@@ -27,6 +27,7 @@ export default async function transactionRoutes(app: FastifyInstance) {
 		{
 			preHandler: [app.authenticate, app.walletReady],
 			schema: {
+				tags: ["wallet"],
 				querystring: {
 					type: "object",
 					properties: {
@@ -76,6 +77,7 @@ export default async function transactionRoutes(app: FastifyInstance) {
 			preHandler: [app.authenticate, app.walletReady],
 			config: { rateLimit: rateLimitConfig.transactions },
 			schema: {
+				tags: ["wallet"],
 				body: {
 					type: "object",
 					required: ["amountMinor"],
@@ -107,6 +109,7 @@ export default async function transactionRoutes(app: FastifyInstance) {
 			preHandler: [app.authenticate, app.walletReady],
 			config: { rateLimit: rateLimitConfig.transactions },
 			schema: {
+				tags: ["wallet"],
 				body: {
 					type: "object",
 					required: ["amountMinor"],
