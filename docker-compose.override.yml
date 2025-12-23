@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  docs:
+    image: swaggerapi/swagger-ui:v5.17.14
+    environment:
+      - SWAGGER_JSON_URL=http://users:3002/openapi.json
+      - URLS=[{"name":"users","url":"http://users:3002/openapi.json"},{"name":"wallet","url":"http://wallet:3001/openapi.json"}]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - users
+      - wallet

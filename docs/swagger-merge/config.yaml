@@ -1,0 +1,9 @@
+docs:
+  - name: users
+    url: http://users:3002/openapi.json
+  - name: wallet
+    url: http://wallet:3001/openapi.json
+
+title: "API Docs"
+description: "Users + Wallet OpenAPI"
+version: "1.0.0"

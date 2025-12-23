@@ -37,3 +37,4 @@ All notable changes to this project will be documented in this file.
 - Added guarded integration test (register → wallet provisioning) runnable with `RUN_INTEGRATION=true`.
 - Integration tests cover both happy path and 401 without JWT.
 - Added `standard-version` release tooling and Conventional Commits note.
+- Added optional consolidated Swagger UI via `docker-compose.override.yml`.
