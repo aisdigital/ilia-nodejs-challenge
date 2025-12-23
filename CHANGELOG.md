@@ -17,3 +17,7 @@ All notable changes to this project will be documented in this file.
 ### Scaffolding
 - Added initial Users/Wallet service skeletons.
 - Moved OpenAPI specs to `docs/api/`.
+
+### Features
+- Users service: register/login/me endpoints with JWT auth.
+- Added users DB plugin, schema migration, and rate limiting for auth routes.
