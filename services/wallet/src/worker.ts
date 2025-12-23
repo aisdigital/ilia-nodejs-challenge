@@ -87,9 +87,15 @@ async function start() {
 			}
 			const payload = parsePayload(message);
 			if (!payload) {
+				console.warn("[consumer] invalid payload, sending to DLQ");
 				channel.nack(message, false, false);
 				return;
 			}
+			const requestIdHeader = message.properties.headers?.["x-request-id"];
+			const requestId =
+				typeof requestIdHeader === "string" && requestIdHeader.trim() !== ""
+					? requestIdHeader
+					: undefined;
 
 			try {
 				await pool.query(
@@ -97,6 +103,11 @@ async function start() {
            VALUES ($1, $2)
            ON CONFLICT (user_id) DO NOTHING`,
 					[randomUUID(), payload.userId],
+				);
+				console.log(
+					`[consumer] provisioned wallet for user ${payload.userId}${
+						requestId ? ` req=${requestId}` : ""
+					}`,
 				);
 				channel.ack(message);
 			} catch (error) {
@@ -106,9 +117,20 @@ async function start() {
 					channel.sendToQueue(retryQueue, message.content, {
 						contentType: "application/json",
 						persistent: true,
+						headers: message.properties.headers,
 					});
+					console.warn(
+						`[consumer] retry ${attempts + 1} for user ${payload.userId}${
+							requestId ? ` req=${requestId}` : ""
+						} -> ${retryQueue}`,
+					);
 					channel.ack(message);
 				} else {
+					console.error(
+						`[consumer] giving up for user ${payload.userId}${
+							requestId ? ` req=${requestId}` : ""
+						}; to DLQ`,
+					);
 					channel.nack(message, false, false);
 				}
 			}

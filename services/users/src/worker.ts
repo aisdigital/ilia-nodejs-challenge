@@ -46,6 +46,12 @@ async function publishBatch(pool: Pool, channel: amqplib.ConfirmChannel) {
 				continue;
 			}
 
+			const requestId =
+				typeof (row.payload_json as { requestId?: unknown }).requestId ===
+				"string"
+					? (row.payload_json as { requestId: string }).requestId
+					: undefined;
+
 			channel.publish(
 				EXCHANGE,
 				routingKey,
@@ -53,6 +59,8 @@ async function publishBatch(pool: Pool, channel: amqplib.ConfirmChannel) {
 				{
 					persistent: true,
 					contentType: "application/json",
+					messageId: row.id,
+					headers: requestId ? { "x-request-id": requestId } : undefined,
 				},
 			);
 
@@ -109,9 +117,15 @@ async function start() {
 	process.on("SIGTERM", () => void shutdown().finally(() => process.exit(0)));
 
 	setInterval(() => {
-		publishBatch(pool, channel).catch((error) => {
-			console.error("outbox publish failed", error);
-		});
+		publishBatch(pool, channel)
+			.then((count) => {
+				if (count > 0) {
+					console.log(`[outbox] published ${count} message(s)`);
+				}
+			})
+			.catch((error) => {
+				console.error("[outbox] publish failed", error);
+			});
 	}, interval);
 }
 

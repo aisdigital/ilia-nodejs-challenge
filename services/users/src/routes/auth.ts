@@ -60,15 +60,19 @@ export default async function authRoutes(app: FastifyInstance) {
 				await client.query("BEGIN");
 				const result = await client.query<UserRow>(
 					`INSERT INTO users (id, name, email, password_hash)
-           VALUES ($1, $2, $3, $4)
-           RETURNING id, name, email, password_hash, created_at`,
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, name, email, password_hash, created_at`,
 					[id, name, email, passwordHash],
 				);
 				const user = result.rows[0];
 				await client.query(
 					`INSERT INTO outbox (id, type, payload_json)
            VALUES ($1, $2, $3)`,
-					[randomUUID(), "UserRegistered", { userId: user.id }],
+					[
+						randomUUID(),
+						"UserRegistered",
+						{ userId: user.id, requestId: req.id },
+					],
 				);
 				await client.query("COMMIT");
 
