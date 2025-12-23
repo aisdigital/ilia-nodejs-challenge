@@ -41,8 +41,10 @@ services:
     depends_on:
       users-migrate:
         condition: service_completed_successfully
-      - users-db
-      - rabbitmq
+      users-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   wallet:
     build:
@@ -58,8 +60,10 @@ services:
     depends_on:
       wallet-migrate:
         condition: service_completed_successfully
-      - wallet-db
-      - rabbitmq
+      wallet-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   users-worker:
     build:
@@ -74,8 +78,10 @@ services:
     depends_on:
       users-migrate:
         condition: service_completed_successfully
-      - users-db
-      - rabbitmq
+      users-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   wallet-worker:
     build:
@@ -90,8 +96,10 @@ services:
     depends_on:
       wallet-migrate:
         condition: service_completed_successfully
-      - wallet-db
-      - rabbitmq
+      wallet-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   users-migrate:
     build:
