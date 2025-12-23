@@ -16,6 +16,7 @@ export default async function balanceRoutes(app: FastifyInstance) {
 				response: {
 					200: { $ref: "BalanceResponse#" },
 					401: { $ref: "ErrorResponse#" },
+					503: { $ref: "ErrorResponse#" },
 				},
 			},
 		},

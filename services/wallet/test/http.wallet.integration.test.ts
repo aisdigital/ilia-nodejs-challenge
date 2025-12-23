@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { randomUUID } from "node:crypto";
 
 const RUN = process.env.RUN_INTEGRATION === "true";
 const USERS_BASE = process.env.USERS_BASE_URL ?? "http://localhost:3002";
@@ -70,21 +71,41 @@ if (!RUN) {
 			);
 
 			// credit 500
+			const creditKey = randomUUID();
 			const creditRes = await fetch(`${WALLET_BASE}/v1/transactions/credit`, {
 				method: "POST",
 				headers: {
 					"content-type": "application/json",
+					"idempotency-key": creditKey,
 					...authHeader,
 				},
 				body: JSON.stringify({ amountMinor: 500 }),
 			});
 			expect(creditRes.status).toBe(201);
+			const creditBody = await creditRes.json();
+			expect(typeof creditBody.id).toBe("string");
+
+			// idempotent retry should return the same transaction
+			const creditRetry = await fetch(`${WALLET_BASE}/v1/transactions/credit`, {
+				method: "POST",
+				headers: {
+					"content-type": "application/json",
+					"idempotency-key": creditKey,
+					...authHeader,
+				},
+				body: JSON.stringify({ amountMinor: 500 }),
+			});
+			expect(creditRetry.status).toBe(200);
+			const creditRetryBody = await creditRetry.json();
+			expect(creditRetryBody.id).toBe(creditBody.id);
 
 			// debit 200
+			const debitKey = randomUUID();
 			const debitRes = await fetch(`${WALLET_BASE}/v1/transactions/debit`, {
 				method: "POST",
 				headers: {
 					"content-type": "application/json",
+					"idempotency-key": debitKey,
 					...authHeader,
 				},
 				body: JSON.stringify({ amountMinor: 200 }),
@@ -92,10 +113,12 @@ if (!RUN) {
 			expect(debitRes.status).toBe(201);
 
 			// insufficient funds
+			const overdraftKey = randomUUID();
 			const overdraftRes = await fetch(`${WALLET_BASE}/v1/transactions/debit`, {
 				method: "POST",
 				headers: {
 					"content-type": "application/json",
+					"idempotency-key": overdraftKey,
 					...authHeader,
 				},
 				body: JSON.stringify({ amountMinor: 1000 }),
