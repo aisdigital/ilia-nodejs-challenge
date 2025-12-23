@@ -2,6 +2,12 @@ import { randomUUID } from "node:crypto";
 import * as net from "node:net";
 import Fastify, { type FastifyInstance } from "fastify";
 import { getConfig } from "./config";
+import dbPlugin from "./plugins/db";
+import jwtPlugin from "./plugins/jwt";
+import rateLimitPlugin from "./plugins/rateLimit";
+import walletReadyPlugin from "./plugins/walletReady";
+import balanceRoutes from "./routes/balance";
+import transactionRoutes from "./routes/transactions";
 
 type HealthCheck = {
   name: string;
@@ -80,6 +86,14 @@ export function buildApp(): FastifyInstance {
     reply.header("x-request-id", req.id);
     done();
   });
+
+  app.register(rateLimitPlugin);
+  app.register(dbPlugin);
+  app.register(jwtPlugin);
+  app.register(walletReadyPlugin);
+
+  app.register(balanceRoutes, { prefix: "/v1" });
+  app.register(transactionRoutes, { prefix: "/v1" });
 
   app.setNotFoundHandler((req, reply) => {
     reply.code(404).send({ code: "NOT_FOUND", message: "Route not found" });

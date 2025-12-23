@@ -21,3 +21,5 @@ All notable changes to this project will be documented in this file.
 ### Features
 - Users service: register/login/me endpoints with JWT auth.
 - Added users DB plugin, schema migration, and rate limiting for auth routes.
+- Wallet service: readiness gating middleware returning `503` + `Retry-After`.
+- Added wallet DB plugin and base wallet/transactions schema.
