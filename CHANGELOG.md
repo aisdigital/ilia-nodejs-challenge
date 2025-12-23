@@ -34,3 +34,5 @@ All notable changes to this project will be documented in this file.
 - README quickstart links to the one-command Docker section.
 - Served OpenAPI/Swagger UI for Users and Wallet; documented API docs and Hoppscotch import.
 - TODO noted for a consolidated Swagger UI container.
+- Added guarded integration test (register → wallet provisioning) runnable with `RUN_INTEGRATION=true`.
+- Integration tests cover both happy path and 401 without JWT.
