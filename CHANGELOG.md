@@ -47,4 +47,5 @@ All notable changes to this project will be documented in this file.
 - Migrates now run inside Docker network via compose-run migrate services.
 - Added one-command `up` and `up:docs` scripts for full stack (with optional consolidated Swagger UI).
 - Consolidated Swagger UI is now part of the default compose `up` flow.
+- Updated OpenAPI specs to match implemented APIs; preserved originals as `*.original.yaml`.
 - Removed obsolete override compose file (docs now default in main compose).

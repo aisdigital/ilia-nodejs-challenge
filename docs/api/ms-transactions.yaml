@@ -1,123 +1,158 @@
 openapi: 3.0.0
 info:
-  title: Microservice Wallet
+  title: Wallet Service
   version: 1.0.0
-  
 servers:
   - url: http://localhost:3001
-    description: Local
-  
-  
 tags:
-  - name: Transactions
-
+  - name: wallet
 paths:
-  # Transactions
-  /transactions:
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Transactions'
-      tags:
-        - Transactions
+  /v1/balance:
+    get:
+      tags: [wallet]
+      security:
+        - bearerAuth: []
       responses:
-        '200':
+        "200":
+          description: Current balance
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionsModel'
-          description: Response
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-      security: 
-        - bearerAuth: []
+                $ref: "#/components/schemas/BalanceResponse"
+        "401":
+          description: Unauthorized
+        "503":
+          description: Wallet not provisioned
+  /v1/transactions:
     get:
-      tags:
-        - Transactions
-      security: 
+      tags: [wallet]
+      security:
         - bearerAuth: []
       parameters:
         - in: query
-          name: type
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: cursor
           schema:
             type: string
       responses:
-        200:
-          description: OK
+        "200":
+          description: Transactions list
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TransactionsModel'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  # Transactions
-  /balance:
-    get:
-      description: Esse endpoint deve retornar um consolidado das transações de CREDITO e DEBITO, fazendo o calculo do valor, de prefência que seja uma query fazendo o calculo
-      tags:
-        - Transactions
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BalanceResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-      security: 
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Transaction"
+                  nextCursor:
+                    type: string
+                    nullable: true
+        "401":
+          description: Unauthorized
+        "503":
+          description: Wallet not provisioned
+  /v1/transactions/credit:
+    post:
+      tags: [wallet]
+      security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionCreated"
+        "401":
+          description: Unauthorized
+        "400":
+          description: Validation error
+        "503":
+          description: Wallet not provisioned
+  /v1/transactions/debit:
+    post:
+      tags: [wallet]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionCreated"
+        "401":
+          description: Unauthorized
+        "400":
+          description: Validation error
+        "409":
+          description: Insufficient funds
+        "503":
+          description: Wallet not provisioned
 components:
   schemas:
-    Transactions:
+    TransactionCreate:
       type: object
-      required:
-      - user_id
-      - type
-      - amount
+      required: [amountMinor]
       properties:
-        user_id:
-          type: string
-        amount:
+        amountMinor:
           type: integer
+          minimum: 1
+        description:
+          type: string
+    TransactionCreated:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          example: recorded
+    Transaction:
+      type: object
+      required: [id, type, amountMinor, createdAt]
+      properties:
+        id:
+          type: string
         type:
           type: string
-          enum:
-          - CREDIT
-          - DEBIT
-    TransactionsModel:
-      type: object
-      required:
-      - user_id
-      - type
-      - amount
-      properties:
-        id: 
-          type: string
-        user_id:
-          type: string
-        amount:
+          enum: [credit, debit]
+        amountMinor:
           type: integer
-        type:
+        description:
           type: string
-          enum:
-          - CREDIT
-          - DEBIT
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
     BalanceResponse:
       type: object
       properties:
-        amount:
+        balanceMinor:
           type: integer
-        
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  responses:
-    UnauthorizedError:
-      description: Access token is missing or invalid    
