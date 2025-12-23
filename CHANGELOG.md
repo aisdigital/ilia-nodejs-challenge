@@ -41,3 +41,4 @@ All notable changes to this project will be documented in this file.
 - Added users HTTP tests for register/login validations.
 - Added wallet HTTP integration tests (guarded) covering gating, credit/debit/list, and 401.
 - Added outbox publisher helper tests for routing key and request-id propagation.
+- Added consumer retry ladder and x-death handling tests.
