@@ -57,6 +57,34 @@ services:
       - wallet-db
       - rabbitmq
 
+  users-worker:
+    build:
+      context: .
+      dockerfile: services/users/Dockerfile
+    command: ["bun", "src/worker.ts"]
+    environment:
+      USERS_PORT: "${USERS_PORT:-3002}"
+      JWT_PRIVATE_KEY: "${JWT_PRIVATE_KEY:-ILIACHALLENGE}"
+      USERS_DATABASE_URL: "${USERS_DATABASE_URL:-postgres://postgres:postgres@users-db:5432/users}"
+      RABBITMQ_URL: "${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}"
+    depends_on:
+      - users-db
+      - rabbitmq
+
+  wallet-worker:
+    build:
+      context: .
+      dockerfile: services/wallet/Dockerfile
+    command: ["bun", "src/worker.ts"]
+    environment:
+      WALLET_PORT: "${WALLET_PORT:-3001}"
+      JWT_PRIVATE_KEY: "${JWT_PRIVATE_KEY:-ILIACHALLENGE}"
+      WALLET_DATABASE_URL: "${WALLET_DATABASE_URL:-postgres://postgres:postgres@wallet-db:5432/wallet}"
+      RABBITMQ_URL: "${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}"
+    depends_on:
+      - wallet-db
+      - rabbitmq
+
 volumes:
   users-db-data:
   wallet-db-data:

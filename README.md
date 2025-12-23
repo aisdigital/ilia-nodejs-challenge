@@ -20,11 +20,9 @@ cp .env.example .env
 ```
 docker compose up -d rabbitmq users-db wallet-db
 ```
-3) Apply migrations (SQL):
+3) Apply migrations:
 ```
-docker exec -i $(docker ps -qf "name=users-db") psql -U postgres -d users < services/users/migrations/001_create_users.sql
-docker exec -i $(docker ps -qf "name=users-db") psql -U postgres -d users < services/users/migrations/002_create_outbox.sql
-docker exec -i $(docker ps -qf "name=wallet-db") psql -U postgres -d wallet < services/wallet/migrations/001_create_wallets.sql
+bun run migrate
 ```
 4) Start apps + workers:
 ```
@@ -33,6 +31,11 @@ bun run dev:users
 bun run dev:wallet
 bun --filter @app/users run worker:publisher
 bun --filter @app/wallet run worker:consumer
+```
+
+Or start everything via compose (services + workers):
+```
+docker compose up --build
 ```
 
 ## Local (no Docker)
@@ -46,8 +49,6 @@ JWT_PRIVATE_KEY=ILIACHALLENGE
 ```
 2) Apply migrations:
 ```
-psql $USERS_DATABASE_URL -f services/users/migrations/001_create_users.sql
-psql $USERS_DATABASE_URL -f services/users/migrations/002_create_outbox.sql
-psql $WALLET_DATABASE_URL -f services/wallet/migrations/001_create_wallets.sql
+bun run migrate
 ```
 3) Start apps + workers (same as Docker step 4).

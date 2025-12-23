@@ -29,3 +29,4 @@ All notable changes to this project will be documented in this file.
 - Implemented wallet transaction endpoints with balance computation and debit checks.
 - Added auth hardening for JWT `sub` presence and redacted auth headers in logs.
 - Added run instructions and service README summaries.
+- Added migration scripts and compose worker services.

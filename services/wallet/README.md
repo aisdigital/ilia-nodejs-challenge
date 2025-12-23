@@ -13,4 +13,5 @@
 
 ### Migrations
 
+- Run: `bun --filter @app/wallet run migrate`
 - `services/wallet/migrations/001_create_wallets.sql`
