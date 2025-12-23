@@ -21,11 +21,13 @@ type TxSumRow = {
 	amount_minor: number;
 };
 
-function resolveIdempotencyKey(
-	value: string | string[] | undefined,
-): string | undefined {
-	if (!value) return undefined;
-	return Array.isArray(value) ? value[0] : value;
+function resolveIdempotencyKey(value: unknown): string | undefined {
+	if (typeof value === "string") return value;
+	if (Array.isArray(value)) {
+		const first = value[0];
+		return typeof first === "string" ? first : undefined;
+	}
+	return undefined;
 }
 
 export default async function transactionRoutes(app: FastifyInstance) {
@@ -118,7 +120,7 @@ export default async function transactionRoutes(app: FastifyInstance) {
 			const userId = req.user.sub;
 			const { amountMinor, description } = req.body;
 			const idempotencyKey = resolveIdempotencyKey(
-				req.headers["idempotency-key"],
+				req.headers["idempotency-key"] ?? req.raw.headers["idempotency-key"],
 			);
 			if (!idempotencyKey) {
 				reply.code(400).send({
@@ -226,7 +228,7 @@ export default async function transactionRoutes(app: FastifyInstance) {
 			const userId = req.user.sub;
 			const { amountMinor, description } = req.body;
 			const idempotencyKey = resolveIdempotencyKey(
-				req.headers["idempotency-key"],
+				req.headers["idempotency-key"] ?? req.raw.headers["idempotency-key"],
 			);
 			if (!idempotencyKey) {
 				reply.code(400).send({
