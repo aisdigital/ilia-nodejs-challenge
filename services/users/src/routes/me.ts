@@ -2,7 +2,8 @@ import type { FastifyInstance } from "fastify";
 
 type UserRow = {
 	id: string;
-	name: string;
+	first_name: string;
+	last_name: string;
 	email: string;
 	created_at: Date;
 };
@@ -10,7 +11,8 @@ type UserRow = {
 function mapUser(row: UserRow) {
 	return {
 		id: row.id,
-		name: row.name,
+		firstName: row.first_name,
+		lastName: row.last_name,
 		email: row.email,
 		createdAt: row.created_at.toISOString(),
 	};
@@ -38,7 +40,7 @@ export default async function meRoutes(app: FastifyInstance) {
 		async (req, reply) => {
 			const userId = req.user.sub;
 			const result = await app.db.query<UserRow>(
-				"SELECT id, name, email, created_at FROM users WHERE id = $1",
+				"SELECT id, first_name, last_name, email, created_at FROM users WHERE id = $1",
 				[userId],
 			);
 			const user = result.rows[0];

@@ -102,10 +102,11 @@ export function buildApp(): FastifyInstance {
 	app.addSchema({
 		$id: "User",
 		type: "object",
-		required: ["id", "name", "email", "createdAt"],
+		required: ["id", "firstName", "lastName", "email", "createdAt"],
 		properties: {
 			id: { type: "string", format: "uuid" },
-			name: { type: "string" },
+			firstName: { type: "string" },
+			lastName: { type: "string" },
 			email: { type: "string", format: "email" },
 			createdAt: { type: "string", format: "date-time" },
 		},

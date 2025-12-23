@@ -10,7 +10,8 @@ describe("auth routes", () => {
 			method: "POST",
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify({
-				name: "Tester",
+				firstName: "Test",
+				lastName: "User",
 				email,
 				password,
 			}),
@@ -36,7 +37,7 @@ describe("auth routes", () => {
 	it("rejects duplicate email", async () => {
 		const email = `dup-${Date.now()}@example.com`;
 		const password = "password123";
-		const body = { name: "Dup", email, password };
+		const body = { firstName: "Dup", lastName: "User", email, password };
 
 		const first = await fetch(`${base}/v1/auth/register`, {
 			method: "POST",
@@ -58,7 +59,8 @@ describe("auth routes", () => {
 			method: "POST",
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify({
-				name: "BadPass",
+				firstName: "Bad",
+				lastName: "Pass",
 				email: `bad-${Date.now()}@example.com`,
 				password: "short",
 			}),

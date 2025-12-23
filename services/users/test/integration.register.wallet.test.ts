@@ -37,7 +37,8 @@ if (!RUN) {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify({
-					name: "Integration User",
+					firstName: "Integration",
+					lastName: "User",
 					email: `int-${Date.now()}@test.dev`,
 					password: "password123",
 				}),

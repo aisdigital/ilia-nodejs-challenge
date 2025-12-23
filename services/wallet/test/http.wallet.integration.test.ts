@@ -41,7 +41,12 @@ if (!RUN) {
 			const registerRes = await fetch(`${USERS_BASE}/v1/auth/register`, {
 				method: "POST",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ name: "Wallet User", email, password }),
+				body: JSON.stringify({
+					firstName: "Wallet",
+					lastName: "User",
+					email,
+					password,
+				}),
 			});
 			expect(registerRes.status).toBe(201);
 			const registerBody = await registerRes.json();
