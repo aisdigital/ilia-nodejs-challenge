@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import * as net from "node:net";
+import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify, { type FastifyInstance } from "fastify";
@@ -98,6 +99,10 @@ export function buildApp(): FastifyInstance {
 		done();
 	});
 
+	app.register(cors, {
+		origin: ["http://localhost:8080", "http://127.0.0.1:8080"],
+	});
+
 	app.register(swagger, {
 		openapi: {
 			info: {
@@ -108,6 +113,8 @@ export function buildApp(): FastifyInstance {
 			tags: [{ name: "wallet", description: "Balance and transactions" }],
 		},
 	});
+
+	app.get("/openapi.json", async () => app.swagger());
 
 	app.register(swaggerUi, {
 		routePrefix: "/docs",

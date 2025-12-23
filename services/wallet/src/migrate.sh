@@ -1,5 +1,5 @@
 #!/bin/sh
-set -euo pipefail
+set -eu
 
 DB_URL="${WALLET_DATABASE_URL:-postgres://postgres:postgres@wallet-db:5432/wallet}"
 

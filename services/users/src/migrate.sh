@@ -1,5 +1,5 @@
 #!/bin/sh
-set -euo pipefail
+set -eu
 
 DB_URL="${USERS_DATABASE_URL:-postgres://postgres:postgres@users-db:5432/users}"
 
