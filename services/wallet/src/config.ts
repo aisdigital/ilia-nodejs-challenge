@@ -7,6 +7,7 @@ export type WalletConfig = {
   databaseUrl?: string;
   rabbitUrl?: string;
   logLevel: string;
+  retryTtlMs: [number, number, number];
 };
 
 export function getConfig(): WalletConfig {
@@ -21,5 +22,10 @@ export function getConfig(): WalletConfig {
     databaseUrl: process.env.WALLET_DATABASE_URL,
     rabbitUrl: process.env.RABBITMQ_URL,
     logLevel: process.env.LOG_LEVEL ?? "info",
+    retryTtlMs: [
+      Number.parseInt(process.env.RETRY_TTL_1_MS ?? "10000", 10),
+      Number.parseInt(process.env.RETRY_TTL_2_MS ?? "30000", 10),
+      Number.parseInt(process.env.RETRY_TTL_3_MS ?? "120000", 10),
+    ],
   };
 }
