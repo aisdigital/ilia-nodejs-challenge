@@ -23,6 +23,16 @@ export default async function meRoutes(app: FastifyInstance) {
 			preHandler: app.authenticate,
 			schema: {
 				tags: ["users"],
+				response: {
+					200: {
+						type: "object",
+						properties: {
+							user: { $ref: "User#" },
+						},
+					},
+					401: { $ref: "ErrorResponse#" },
+					404: { $ref: "ErrorResponse#" },
+				},
 			},
 		},
 		async (req, reply) => {

@@ -14,10 +14,8 @@ export default async function balanceRoutes(app: FastifyInstance) {
 			schema: {
 				tags: ["wallet"],
 				response: {
-					200: {
-						type: "object",
-						properties: { balanceMinor: { type: "integer" } },
-					},
+					200: { $ref: "BalanceResponse#" },
+					401: { $ref: "ErrorResponse#" },
 				},
 			},
 		},

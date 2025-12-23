@@ -49,6 +49,18 @@ export default async function authRoutes(app: FastifyInstance) {
 						password: { type: "string", minLength: 8 },
 					},
 				},
+				response: {
+					201: {
+						type: "object",
+						required: ["user", "accessToken", "expiresIn"],
+						properties: {
+							user: { $ref: "User#" },
+							accessToken: { type: "string" },
+							expiresIn: { type: "string" },
+						},
+					},
+					409: { $ref: "ErrorResponse#" },
+				},
 			},
 		},
 		async (req, reply) => {
@@ -116,6 +128,10 @@ export default async function authRoutes(app: FastifyInstance) {
 						email: { type: "string", format: "email" },
 						password: { type: "string", minLength: 8 },
 					},
+				},
+				response: {
+					200: { $ref: "AuthSuccess#" },
+					401: { $ref: "ErrorResponse#" },
 				},
 			},
 		},

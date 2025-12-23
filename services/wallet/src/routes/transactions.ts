@@ -35,6 +35,10 @@ export default async function transactionRoutes(app: FastifyInstance) {
 						cursor: { type: "string" },
 					},
 				},
+				response: {
+					200: { $ref: "TransactionsPage#" },
+					401: { $ref: "ErrorResponse#" },
+				},
 			},
 		},
 		async (req) => {
@@ -86,6 +90,10 @@ export default async function transactionRoutes(app: FastifyInstance) {
 						description: { type: "string" },
 					},
 				},
+				response: {
+					201: { $ref: "CreateTransactionResponse#" },
+					401: { $ref: "ErrorResponse#" },
+				},
 			},
 		},
 		async (req, reply) => {
@@ -117,6 +125,11 @@ export default async function transactionRoutes(app: FastifyInstance) {
 						amountMinor: { type: "integer", minimum: 1 },
 						description: { type: "string" },
 					},
+				},
+				response: {
+					201: { $ref: "CreateTransactionResponse#" },
+					401: { $ref: "ErrorResponse#" },
+					409: { $ref: "ErrorResponse#" },
 				},
 			},
 		},

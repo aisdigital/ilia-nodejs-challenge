@@ -98,6 +98,39 @@ export function buildApp(): FastifyInstance {
 		done();
 	});
 
+	// Shared schemas for Swagger / validation
+	app.addSchema({
+		$id: "User",
+		type: "object",
+		required: ["id", "name", "email", "createdAt"],
+		properties: {
+			id: { type: "string", format: "uuid" },
+			name: { type: "string" },
+			email: { type: "string", format: "email" },
+			createdAt: { type: "string", format: "date-time" },
+		},
+	});
+
+	app.addSchema({
+		$id: "AuthSuccess",
+		type: "object",
+		required: ["accessToken", "expiresIn"],
+		properties: {
+			accessToken: { type: "string" },
+			expiresIn: { type: "string" },
+		},
+	});
+
+	app.addSchema({
+		$id: "ErrorResponse",
+		type: "object",
+		required: ["code", "message"],
+		properties: {
+			code: { type: "string" },
+			message: { type: "string" },
+		},
+	});
+
 	app.register(cors, {
 		origin: ["http://localhost:8080", "http://127.0.0.1:8080"],
 	});

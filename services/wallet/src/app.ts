@@ -99,6 +99,59 @@ export function buildApp(): FastifyInstance {
 		done();
 	});
 
+	// Shared schemas for Swagger / validation
+	app.addSchema({
+		$id: "Transaction",
+		type: "object",
+		required: ["id", "type", "amountMinor", "createdAt"],
+		properties: {
+			id: { type: "string", format: "uuid" },
+			type: { type: "string", enum: ["credit", "debit"] },
+			amountMinor: { type: "integer", minimum: 0 },
+			description: { type: "string", nullable: true },
+			createdAt: { type: "string", format: "date-time" },
+		},
+	});
+
+	app.addSchema({
+		$id: "TransactionsPage",
+		type: "object",
+		required: ["items"],
+		properties: {
+			items: { type: "array", items: { $ref: "Transaction#" } },
+			nextCursor: { type: "string", nullable: true },
+		},
+	});
+
+	app.addSchema({
+		$id: "CreateTransactionResponse",
+		type: "object",
+		required: ["id", "status"],
+		properties: {
+			id: { type: "string", format: "uuid" },
+			status: { type: "string" },
+		},
+	});
+
+	app.addSchema({
+		$id: "BalanceResponse",
+		type: "object",
+		required: ["balanceMinor"],
+		properties: {
+			balanceMinor: { type: "integer" },
+		},
+	});
+
+	app.addSchema({
+		$id: "ErrorResponse",
+		type: "object",
+		required: ["code", "message"],
+		properties: {
+			code: { type: "string" },
+			message: { type: "string" },
+		},
+	});
+
 	app.register(cors, {
 		origin: ["http://localhost:8080", "http://127.0.0.1:8080"],
 	});
