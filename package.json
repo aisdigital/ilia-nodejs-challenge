@@ -8,7 +8,7 @@
 		"dev:wallet": "bun --filter @app/wallet dev",
 		"dev": "bun --filter @app/users dev & bun --filter @app/wallet dev",
 		"migrate": "docker compose run --rm users-migrate && docker compose run --rm wallet-migrate",
-		"up": "docker compose up --build users-migrate wallet-migrate users wallet users-worker wallet-worker rabbitmq users-db wallet-db docs",
+    "up": "docker compose up -d --build users-migrate wallet-migrate users wallet users-worker wallet-worker rabbitmq users-db wallet-db docs",
 		"up:docs": "npm run up",
 		"down": "docker compose down --remove-orphans",
 		"test": "bun --filter './services/*' test",
