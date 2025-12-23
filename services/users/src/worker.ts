@@ -1,6 +1,7 @@
 import amqplib from "amqplib";
 import { Pool } from "pg";
 import { getConfig } from "./config";
+import { buildHeaders, mapRoutingKey } from "./workerHelpers";
 
 const EXCHANGE = "domain.events";
 const ROUTING_KEY = "user.registered";
@@ -10,13 +11,6 @@ type OutboxRow = {
 	type: string;
 	payload_json: unknown;
 };
-
-function mapRoutingKey(type: string): string | null {
-	if (type === "UserRegistered") {
-		return ROUTING_KEY;
-	}
-	return null;
-}
 
 async function publishBatch(pool: Pool, channel: amqplib.ConfirmChannel) {
 	const client = await pool.connect();
@@ -46,12 +40,6 @@ async function publishBatch(pool: Pool, channel: amqplib.ConfirmChannel) {
 				continue;
 			}
 
-			const requestId =
-				typeof (row.payload_json as { requestId?: unknown }).requestId ===
-				"string"
-					? (row.payload_json as { requestId: string }).requestId
-					: undefined;
-
 			channel.publish(
 				EXCHANGE,
 				routingKey,
@@ -60,7 +48,7 @@ async function publishBatch(pool: Pool, channel: amqplib.ConfirmChannel) {
 					persistent: true,
 					contentType: "application/json",
 					messageId: row.id,
-					headers: requestId ? { "x-request-id": requestId } : undefined,
+					headers: buildHeaders(row.payload_json),
 				},
 			);
 
