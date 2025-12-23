@@ -11,10 +11,12 @@
 		"test": "bun --filter './services/*' test",
 		"typecheck": "bun --filter './services/*' typecheck",
 		"lint": "biome check .",
-		"fmt": "biome format --write ."
+		"fmt": "biome format --write .",
+		"release": "standard-version"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"standard-version": "^9.5.0",
 		"typescript": "^5.9.3"
 	}
 }

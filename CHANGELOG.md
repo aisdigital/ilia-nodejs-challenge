@@ -36,3 +36,4 @@ All notable changes to this project will be documented in this file.
 - TODO noted for a consolidated Swagger UI container.
 - Added guarded integration test (register → wallet provisioning) runnable with `RUN_INTEGRATION=true`.
 - Integration tests cover both happy path and 401 without JWT.
+- Added `standard-version` release tooling and Conventional Commits note.
