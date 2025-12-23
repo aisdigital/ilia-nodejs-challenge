@@ -1,0 +1,21 @@
+{
+  "name": "@app/root",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "dev:users": "bun --filter @app/users dev",
+    "dev:wallet": "bun --filter @app/wallet dev",
+    "dev": "bun --filter @app/users dev & bun --filter @app/wallet dev",
+    "test": "bun --filter './services/*' test",
+    "typecheck": "bun --filter './services/*' typecheck",
+    "lint": "biome check .",
+    "fmt": "biome format --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "typescript": "^5.9.3"
+  }
+}
