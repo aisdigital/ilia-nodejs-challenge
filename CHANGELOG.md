@@ -25,3 +25,4 @@ All notable changes to this project will be documented in this file.
 - Added wallet DB plugin and base wallet/transactions schema.
 - Wallet consumer worker with RabbitMQ topology and retry ladder for provisioning.
 - Users outbox publisher worker for reliable event emission.
+- Added initial unit tests for wallet rules and messaging helpers.

@@ -2,6 +2,9 @@ import { randomUUID } from "node:crypto";
 import amqplib, { type ConsumeMessage } from "amqplib";
 import { Pool } from "pg";
 import { getConfig } from "./config";
+import { readDeathCount } from "./consumer/headers";
+import { nextRetryQueue } from "./consumer/retry";
+import { parseUserRegistered } from "./domain/events";
 
 const EXCHANGE = "domain.events";
 const DLX = "domain.events.dlx";
@@ -9,43 +12,10 @@ const ROUTING_KEY = "user.registered";
 const QUEUE = "wallet.provision";
 const DLQ = "wallet.provision.dlq";
 
-type UserRegistered = {
-	userId: string;
-};
-
-function readDeathCount(message: ConsumeMessage): number {
-	const headers = message.properties.headers ?? {};
-	const deaths = headers["x-death"];
-	if (!Array.isArray(deaths)) {
-		return 0;
-	}
-	const total = deaths.reduce((sum, entry) => {
-		if (entry && typeof entry === "object" && typeof entry.count === "number") {
-			return sum + entry.count;
-		}
-		return sum;
-	}, 0);
-	return total;
-}
-
-function nextRetryQueue(attempts: number): string | null {
-	if (attempts <= 0) return "wallet.provision.retry.10s";
-	if (attempts === 1) return "wallet.provision.retry.30s";
-	if (attempts === 2) return "wallet.provision.retry.120s";
-	return null;
-}
-
-function parsePayload(message: ConsumeMessage): UserRegistered | null {
+function parsePayload(message: ConsumeMessage) {
 	try {
 		const payload = JSON.parse(message.content.toString("utf8"));
-		if (
-			!payload ||
-			typeof payload.userId !== "string" ||
-			payload.userId.trim() === ""
-		) {
-			return null;
-		}
-		return { userId: payload.userId };
+		return parseUserRegistered(payload);
 	} catch {
 		return null;
 	}
@@ -130,7 +100,7 @@ async function start() {
 				);
 				channel.ack(message);
 			} catch (error) {
-				const attempts = readDeathCount(message);
+				const attempts = readDeathCount(message.properties.headers ?? {});
 				const retryQueue = nextRetryQueue(attempts);
 				if (retryQueue) {
 					channel.sendToQueue(retryQueue, message.content, {
