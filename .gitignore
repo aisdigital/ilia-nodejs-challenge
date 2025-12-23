@@ -53,3 +53,6 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Local planning notes (keep uncommitted)
+docs/architecture/vertical-slices.local.md
