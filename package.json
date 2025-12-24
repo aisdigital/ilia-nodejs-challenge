@@ -1,0 +1,67 @@
+{
+  "name": "ilia-nodejs-challenge",
+  "version": "1.0.0",
+  "description": "Desafio Ília - Sistema de microserviços com Node.js",
+  "private": true,
+  "workspaces": [
+    "ms-users",
+    "ms-wallet"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm run install:users && npm run install:wallet",
+    "install:users": "cd ms-users && npm install",
+    "install:wallet": "cd ms-wallet && npm install",
+    "build": "npm run build:users && npm run build:wallet",
+    "build:users": "cd ms-users && npm run build",
+    "build:wallet": "cd ms-wallet && npm run build",
+    "test": "npm run test:users && npm run test:wallet",
+    "test:users": "cd ms-users && npm run test",
+    "test:wallet": "cd ms-wallet && npm run test",
+    "test:coverage": "npm run test:coverage:users && npm run test:coverage:wallet",
+    "test:coverage:users": "cd ms-users && npm run test:coverage",
+    "test:coverage:wallet": "cd ms-wallet && npm run test:coverage",
+    "lint": "npm run lint:users && npm run lint:wallet",
+    "lint:users": "cd ms-users && npm run lint:check",
+    "lint:wallet": "cd ms-wallet && npm run lint:check",
+    "lint:fix": "npm run lint:fix:users && npm run lint:fix:wallet",
+    "lint:fix:users": "cd ms-users && npm run lint",
+    "lint:fix:wallet": "cd ms-wallet && npm run lint",
+    "format:check": "npm run format:check:users && npm run format:check:wallet",
+    "format:check:users": "cd ms-users && npm run format:check",
+    "format:check:wallet": "cd ms-wallet && npm run format:check",
+    "format": "npm run format:users && npm run format:wallet",
+    "format:users": "cd ms-users && npm run format",
+    "format:wallet": "cd ms-wallet && npm run format",
+    "quality:check": "npm run lint && npm run format:check && npm run build && npm run test",
+    "dev:users": "cd ms-users && npm run dev",
+    "dev:wallet": "cd ms-wallet && npm run dev",
+    "start:users": "cd ms-users && npm start",
+    "start:wallet": "cd ms-wallet && npm start",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.5.2"
+  },
+  "lint-staged": {
+    "ms-users/src/**/*.{ts,js}": [
+      "cd ms-users && npm run lint",
+      "cd ms-users && npm run format",
+      "git add"
+    ],
+    "ms-wallet/src/**/*.{ts,js}": [
+      "cd ms-wallet && npm run lint", 
+      "cd ms-wallet && npm run format",
+      "git add"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
