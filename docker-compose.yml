@@ -1,0 +1,51 @@
+services:
+  # Wallet Database
+  wallet-postgres:
+    image: postgres:15-alpine
+    container_name: wallet-postgres
+    env_file:
+      - ./microservices/ms-wallet/.env
+    environment:
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_pass
+      POSTGRES_DB: wallet_db
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - wallet_postgres_data:/var/lib/postgresql/data
+    networks:
+      - wallet-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet_user -d wallet_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Wallet Microservice
+  wallet-app:
+    build:
+      context: ./microservices/ms-wallet
+      dockerfile: Dockerfile
+    container_name: wallet-app
+    env_file:
+      - ./microservices/ms-wallet/.env
+    environment:
+      DB_HOST: wallet-postgres
+    ports:
+      - "${PORT:-3001}:${PORT:-3001}"
+    depends_on:
+      wallet-postgres:
+        condition: service_healthy
+    networks:
+      - wallet-network
+    volumes:
+      - ./microservices/ms-wallet/src:/app/src
+      - /app/node_modules
+      - /app/dist
+
+networks:
+  wallet-network:
+    driver: bridge
+
+volumes:
+  wallet_postgres_data:
