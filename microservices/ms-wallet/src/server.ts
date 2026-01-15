@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 
 import { connectDB } from './infrastructure/database/sequelize';
-import jwtPlugin from './plugins/jwt';
+import jwtPlugin from './infrastructure/api/plugins/jwt';
 import routes from './infrastructure/api/routes';
 
 dotenv.config();
