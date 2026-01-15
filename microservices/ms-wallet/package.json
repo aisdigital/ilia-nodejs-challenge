@@ -7,6 +7,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "migrate": "node dist/infrastructure/database/runMigrations.js",
+    "start:migrate": "npm run migrate && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
