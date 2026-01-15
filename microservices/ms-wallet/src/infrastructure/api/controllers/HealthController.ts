@@ -1,7 +1,5 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-
 export class HealthController {
-  async check(request: FastifyRequest, reply: FastifyReply) {
+  async check() {
     return {
       status: 'ok',
       service: 'wallet-microservice',
