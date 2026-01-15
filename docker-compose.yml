@@ -38,14 +38,65 @@ services:
         condition: service_healthy
     networks:
       - wallet-network
+      - shared-network
     volumes:
       - ./microservices/ms-wallet/src:/app/src
+      - /app/node_modules
+      - /app/dist
+
+  # User Database
+  user-postgres:
+    image: postgres:15-alpine
+    container_name: user-postgres
+    env_file:
+      - ./microservices/ms-user/.env
+    environment:
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_pass
+      POSTGRES_DB: user_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+    networks:
+      - user-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_user -d user_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # User Microservice
+  user-app:
+    build:
+      context: ./microservices/ms-user
+      dockerfile: Dockerfile
+    container_name: user-app
+    env_file:
+      - ./microservices/ms-user/.env
+    environment:
+      DB_HOST: user-postgres
+    ports:
+      - "3002:3002"
+    depends_on:
+      user-postgres:
+        condition: service_healthy
+    networks:
+      - user-network
+      - shared-network
+    volumes:
+      - ./microservices/ms-user/src:/app/src
       - /app/node_modules
       - /app/dist
 
 networks:
   wallet-network:
     driver: bridge
+  user-network:
+    driver: bridge
+  shared-network:
+    driver: bridge
 
 volumes:
   wallet_postgres_data:
+  user_postgres_data:
