@@ -20,7 +20,7 @@ declare module '@fastify/jwt' {
 
 async function jwtPlugin(fastify: FastifyInstance) {
     fastify.register(jwt, {
-        secret: process.env.JWT_SECRET || 'ILIACHALLENGE',
+        secret: process.env.JWT_SECRET || '',
     });
 
     fastify.decorate('authenticate', async function (request: FastifyRequest, reply: FastifyReply) {
