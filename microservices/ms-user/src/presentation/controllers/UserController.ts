@@ -1,10 +1,10 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { RegisterUser } from '../../../application/use-cases/RegisterUser';
-import { GetUser } from '../../../application/use-cases/GetUser';
-import { ListUsers } from '../../../application/use-cases/ListUsers';
-import { UpdateUser } from '../../../application/use-cases/UpdateUser';
-import { DeleteUser } from '../../../application/use-cases/DeleteUser';
-import { UserRepository } from '../../../infrastructure/repositories/UserRepository';
+import { RegisterUser } from '../../application/use-cases/RegisterUser';
+import { GetUser } from '../../application/use-cases/GetUser';
+import { ListUsers } from '../../application/use-cases/ListUsers';
+import { UpdateUser } from '../../application/use-cases/UpdateUser';
+import { DeleteUser } from '../../application/use-cases/DeleteUser';
+import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 
 const userRepository = new UserRepository();
 const registerUserUseCase = new RegisterUser(userRepository);
@@ -19,8 +19,8 @@ export class UserController {
       const { first_name, last_name, email, password } = request.body as any;
 
       if (!first_name || !last_name || !email || !password) {
-        return reply.code(400).send({ 
-          error: 'Missing required fields.' 
+        return reply.code(400).send({
+          error: 'Missing required fields.'
         });
       }
 

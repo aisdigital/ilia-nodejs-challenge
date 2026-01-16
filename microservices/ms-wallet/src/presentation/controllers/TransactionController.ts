@@ -1,9 +1,9 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { CreateTransaction } from '../../../application/use-cases/CreateTransaction';
-import { ListTransactions } from '../../../application/use-cases/ListTransactions';
-import { GetBalance } from '../../../application/use-cases/GetBalance';
-import { TransactionRepository } from '../../../infrastructure/repositories/TransactionRepository';
-import { TransactionType } from '../../../domain/entities/Transaction';
+import { CreateTransaction } from '../../application/use-cases/CreateTransaction';
+import { ListTransactions } from '../../application/use-cases/ListTransactions';
+import { GetBalance } from '../../application/use-cases/GetBalance';
+import { TransactionRepository } from '../../infrastructure/repositories/TransactionRepository';
+import { TransactionType } from '../../domain/entities/Transaction';
 
 const transactionRepository = new TransactionRepository();
 const createTransactionUseCase = new CreateTransaction(transactionRepository);

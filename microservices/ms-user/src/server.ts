@@ -1,6 +1,6 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors';
-import dotenv from 'dotenv';
+import { config } from './config';
 
 import { connectDB } from './infrastructure/database/sequelize';
 import jwtPlugin from './presentation/plugins/jwt';
@@ -8,8 +8,6 @@ import routes from './presentation/routes';
 import { startGrpcServer } from './infrastructure/grpc/userGrpcServer';
 import { IUserRepository } from './domain/repositories/IUserRepository';
 import { UserRepository } from './infrastructure/repositories/UserRepository';
-
-dotenv.config();
 
 const app = fastify({ logger: true });
 
@@ -24,8 +22,8 @@ const start = async (): Promise<void> => {
         const userRepository: IUserRepository = new UserRepository();
         startGrpcServer(userRepository);
 
-        const port = parseInt(process.env.PORT || '3002');
-        const host = '0.0.0.0';
+        const port = config.server.port;
+        const host = config.server.host;
 
         await app.listen({ port, host });
         console.log(`User Microservice running on http://${host}:${port}`);
