@@ -36,11 +36,14 @@ services:
     depends_on:
       wallet-postgres:
         condition: service_healthy
+      user-app:
+        condition: service_started
     networks:
       - wallet-network
       - shared-network
     volumes:
       - ./microservices/ms-wallet/src:/app/src
+      - ./proto:/app/proto
       - /app/node_modules
       - /app/dist
 
@@ -78,6 +81,7 @@ services:
       DB_HOST: user-postgres
     ports:
       - "3002:3002"
+      - "50051:50051"
     depends_on:
       user-postgres:
         condition: service_healthy
@@ -86,6 +90,7 @@ services:
       - shared-network
     volumes:
       - ./microservices/ms-user/src:/app/src
+      - ./proto:/app/proto
       - /app/node_modules
       - /app/dist
 
