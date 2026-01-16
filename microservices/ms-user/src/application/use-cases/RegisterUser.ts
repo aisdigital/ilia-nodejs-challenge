@@ -1,5 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { DuplicateEmailError } from '../../domain/errors';
 import bcrypt from 'bcrypt';
 
 export interface RegisterUserInput {
@@ -15,7 +16,7 @@ export class RegisterUser {
   async execute(input: RegisterUserInput): Promise<User> {
     const existingUser = await this.userRepository.findByEmail(input.email);
     if (existingUser) {
-      throw new Error('Error inserting user');
+      throw new DuplicateEmailError();
     }
 
     const hashedPassword = await bcrypt.hash(input.password, 10);

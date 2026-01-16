@@ -1,6 +1,7 @@
 import { GetUser } from './GetUser';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { UserNotFoundError } from '../../domain/errors';
 
 describe('GetUser Use Case', () => {
   let getUser: GetUser;
@@ -45,6 +46,6 @@ describe('GetUser Use Case', () => {
 
     await expect(
       getUser.execute({ id: 'nonexistent' })
-    ).rejects.toThrow('Error geting user');
+    ).rejects.toThrow(UserNotFoundError);
   });
 });

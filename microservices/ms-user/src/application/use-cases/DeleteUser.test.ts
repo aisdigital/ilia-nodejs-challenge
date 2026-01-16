@@ -1,6 +1,7 @@
 import { DeleteUser } from './DeleteUser';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { UserNotFoundError } from '../../domain/errors';
 
 describe('DeleteUser Use Case', () => {
   let deleteUser: DeleteUser;
@@ -46,7 +47,7 @@ describe('DeleteUser Use Case', () => {
 
     await expect(
       deleteUser.execute({ id: 'nonexistent' })
-    ).rejects.toThrow('Error deleting user');
+    ).rejects.toThrow(UserNotFoundError);
 
     expect(mockRepository.delete).not.toHaveBeenCalled();
   });

@@ -1,7 +1,12 @@
 import { ITransactionRepository } from '../../domain/repositories/ITransactionRepository';
 import { Transaction, TransactionType } from '../../domain/entities/Transaction';
 import { userGrpcClient } from '../../infrastructure/grpc/userGrpcClient';
-import { InsufficientBalanceError } from '../../domain/errors/InsufficientBalanceError';
+import {
+    InsufficientBalanceError,
+    InvalidAmountError,
+    InvalidTransactionTypeError,
+    UserNotFoundError
+} from '../../domain/errors';
 
 export interface CreateTransactionInput {
     userId: string;
@@ -14,16 +19,16 @@ export class CreateTransaction {
 
     async execute(input: CreateTransactionInput): Promise<Transaction> {
         if (input.amount <= 0) {
-            throw new Error('Amount must be greater than zero');
+            throw new InvalidAmountError();
         }
 
         if (!Object.values(TransactionType).includes(input.type)) {
-            throw new Error('Invalid transaction type');
+            throw new InvalidTransactionTypeError();
         }
 
         const validation = await userGrpcClient.validateUser(input.userId);
         if (!validation.valid) {
-            throw new Error(validation.error || 'Invalid user');
+            throw new UserNotFoundError(validation.error || 'User not found');
         }
 
         if (input.type === TransactionType.DEBIT) {

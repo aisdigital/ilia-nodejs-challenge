@@ -1,6 +1,7 @@
 import { RegisterUser } from './RegisterUser';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { DuplicateEmailError } from '../../domain/errors';
 import bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -77,7 +78,7 @@ describe('RegisterUser Use Case', () => {
         email: 'john@example.com',
         password: 'password123',
       })
-    ).rejects.toThrow('Error inserting user');
+    ).rejects.toThrow(DuplicateEmailError);
 
     expect(mockRepository.create).not.toHaveBeenCalled();
   });
