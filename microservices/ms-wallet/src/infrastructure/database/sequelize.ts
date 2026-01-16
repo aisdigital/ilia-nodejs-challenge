@@ -1,17 +1,15 @@
 import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { config } from '../../config';
 
 export const sequelize = new Sequelize(
-  process.env.DB_NAME || 'wallet_db',
-  process.env.DB_USER || 'wallet_user',
-  process.env.DB_PASSWORD || 'wallet_pass',
+  config.database.name,
+  config.database.user,
+  config.database.password,
   {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
+    host: config.database.host,
+    port: config.database.port,
     dialect: 'postgres',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    logging: config.env === 'development' ? console.log : false,
     pool: {
       max: 5,
       min: 0,
@@ -24,7 +22,7 @@ export const sequelize = new Sequelize(
 export const connectDB = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+    await sequelize.sync({ alter: config.env === 'development' });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
     process.exit(1);

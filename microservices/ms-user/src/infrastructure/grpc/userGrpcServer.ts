@@ -3,8 +3,9 @@ import * as protoLoader from '@grpc/proto-loader';
 import path from 'path';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import jwt from 'jsonwebtoken';
+import { config } from '../../config';
 
-const PROTO_PATH = process.env.PROTO_PATH || path.join(__dirname, '../../../../proto/users.proto');
+const PROTO_PATH = config.grpc.protoPath || path.join(__dirname, '../../../../proto/users.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
@@ -21,8 +22,7 @@ function createValidateUserHandler(userRepository: IUserRepository) {
         const { user_id, internal_token } = call.request;
 
         try {
-            const secret = process.env.JWT_INTERNAL_SECRET || 'ILIACHALLENGE_INTERNAL';
-            jwt.verify(internal_token, secret);
+            jwt.verify(internal_token, config.jwt.internalSecret);
 
             const user = await userRepository.findById(user_id);
 
@@ -53,9 +53,8 @@ export function startGrpcServer(userRepository: IUserRepository): void {
         ValidateUser: createValidateUserHandler(userRepository),
     });
 
-    const grpcPort = process.env.GRPC_PORT || '50051';
     server.bindAsync(
-        `0.0.0.0:${grpcPort}`,
+        `0.0.0.0:${config.grpc.port}`,
         grpc.ServerCredentials.createInsecure(),
         (error, port) => {
             if (error) {

@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import jwt from '@fastify/jwt';
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { config } from '../../config';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -19,7 +20,7 @@ declare module '@fastify/jwt' {
 
 async function jwtPlugin(fastify: FastifyInstance) {
   fastify.register(jwt, {
-    secret: process.env.JWT_SECRET || '',
+    secret: config.jwt.secret,
   });
 
   fastify.decorate('authenticate', async function (request: FastifyRequest, reply: FastifyReply) {

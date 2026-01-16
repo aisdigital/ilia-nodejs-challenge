@@ -1,20 +1,20 @@
 import { FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
-import { LoginUser } from '../../../application/use-cases/LoginUser';
-import { UserRepository } from '../../../infrastructure/repositories/UserRepository';
+import { LoginUser } from '../../application/use-cases/LoginUser';
+import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 
 const userRepository = new UserRepository();
 const loginUserUseCase = new LoginUser(userRepository);
 
 export class AuthController {
-  constructor(private app: FastifyInstance) {}
+  constructor(private app: FastifyInstance) { }
 
   async login(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { user: userInput } = request.body as { user: { email: string; password: string } };
 
       if (!userInput || !userInput.email || !userInput.password) {
-        return reply.code(400).send({ 
-          error: 'Missing required fields' 
+        return reply.code(400).send({
+          error: 'Missing required fields'
         });
       }
 

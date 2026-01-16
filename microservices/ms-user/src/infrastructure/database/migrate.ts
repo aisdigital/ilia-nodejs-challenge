@@ -4,7 +4,7 @@ import { Umzug, SequelizeStorage } from 'umzug';
 
 export const runMigrations = async (sequelize: Sequelize): Promise<void> => {
   const migrationsPath = path.join(__dirname, '../../../src/infrastructure/database/migrations/*.js');
-  
+
   const umzug = new Umzug({
     migrations: {
       glob: migrationsPath,
