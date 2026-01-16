@@ -1,5 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { UserNotFoundError } from '../../domain/errors';
 import bcrypt from 'bcrypt';
 
 export interface UpdateUserInput {
@@ -16,7 +17,7 @@ export class UpdateUser {
   async execute(input: UpdateUserInput): Promise<User> {
     const existingUser = await this.userRepository.findById(input.id);
     if (!existingUser) {
-      throw new Error('Error updating user');
+      throw new UserNotFoundError();
     }
 
     const updateData: any = {};

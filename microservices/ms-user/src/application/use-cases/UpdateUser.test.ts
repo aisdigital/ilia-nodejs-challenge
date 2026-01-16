@@ -1,6 +1,7 @@
 import { UpdateUser } from './UpdateUser';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { UserNotFoundError } from '../../domain/errors';
 import bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -101,7 +102,7 @@ describe('UpdateUser Use Case', () => {
         id: 'nonexistent',
         firstName: 'Jane',
       })
-    ).rejects.toThrow('Error updating user');
+    ).rejects.toThrow(UserNotFoundError);
 
     expect(mockRepository.update).not.toHaveBeenCalled();
   });

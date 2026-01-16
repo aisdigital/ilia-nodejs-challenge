@@ -1,7 +1,12 @@
 import { CreateTransaction } from './CreateTransaction';
 import { ITransactionRepository } from '../../domain/repositories/ITransactionRepository';
 import { Transaction, TransactionType } from '../../domain/entities/Transaction';
-import { InsufficientBalanceError } from '../../domain/errors/InsufficientBalanceError';
+import {
+  InsufficientBalanceError,
+  InvalidAmountError,
+  InvalidTransactionTypeError,
+  UserNotFoundError
+} from '../../domain/errors';
 
 jest.mock('../../infrastructure/grpc/userGrpcClient', () => ({
   userGrpcClient: {
@@ -115,7 +120,7 @@ describe('CreateTransaction Use Case', () => {
           amount: 0,
           type: TransactionType.CREDIT,
         })
-      ).rejects.toThrow('Amount must be greater than zero');
+      ).rejects.toThrow(InvalidAmountError);
     });
 
     it('should throw error for negative amount', async () => {
@@ -125,7 +130,7 @@ describe('CreateTransaction Use Case', () => {
           amount: -10,
           type: TransactionType.CREDIT,
         })
-      ).rejects.toThrow('Amount must be greater than zero');
+      ).rejects.toThrow(InvalidAmountError);
     });
 
     it('should throw error for invalid transaction type', async () => {
@@ -135,7 +140,7 @@ describe('CreateTransaction Use Case', () => {
           amount: 100,
           type: 'INVALID' as TransactionType,
         })
-      ).rejects.toThrow('Invalid transaction type');
+      ).rejects.toThrow(InvalidTransactionTypeError);
     });
 
     it('should throw error when user validation fails', async () => {
@@ -150,7 +155,7 @@ describe('CreateTransaction Use Case', () => {
           amount: 100,
           type: TransactionType.CREDIT,
         })
-      ).rejects.toThrow('User not found');
+      ).rejects.toThrow(UserNotFoundError);
 
       expect(mockRepository.create).not.toHaveBeenCalled();
     });

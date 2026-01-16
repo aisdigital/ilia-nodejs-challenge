@@ -1,5 +1,6 @@
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { InvalidCredentialsError } from '../../domain/errors';
 import bcrypt from 'bcrypt';
 
 export interface LoginUserInput {
@@ -17,12 +18,12 @@ export class LoginUser {
   async execute(input: LoginUserInput): Promise<LoginUserOutput> {
     const user = await this.userRepository.findByEmail(input.email);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new InvalidCredentialsError();
     }
 
     const isValidPassword = await bcrypt.compare(input.password, user.password);
     if (!isValidPassword) {
-      throw new Error('Invalid credentials');
+      throw new InvalidCredentialsError();
     }
 
     return { user };

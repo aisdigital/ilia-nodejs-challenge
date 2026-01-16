@@ -1,6 +1,7 @@
 import { LoginUser } from './LoginUser';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
+import { InvalidCredentialsError } from '../../domain/errors';
 import bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -56,7 +57,7 @@ describe('LoginUser Use Case', () => {
         email: 'notfound@example.com',
         password: 'password123',
       })
-    ).rejects.toThrow('Invalid credentials');
+    ).rejects.toThrow(InvalidCredentialsError);
 
     expect(bcrypt.compare).not.toHaveBeenCalled();
   });
@@ -80,6 +81,6 @@ describe('LoginUser Use Case', () => {
         email: 'john@example.com',
         password: 'wrongpassword',
       })
-    ).rejects.toThrow('Invalid credentials');
+    ).rejects.toThrow(InvalidCredentialsError);
   });
 });
