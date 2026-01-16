@@ -1,4 +1,7 @@
-import { ITransactionRepository, CreateTransactionDTO } from '../../domain/repositories/ITransactionRepository';
+import {
+  ITransactionRepository,
+  CreateTransactionDTO,
+} from '../../domain/repositories/ITransactionRepository';
 import { Transaction, TransactionType } from '../../domain/entities/Transaction';
 import TransactionModel from '../database/models/Transaction.model';
 import { sequelize } from '../database/sequelize';

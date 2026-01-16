@@ -7,7 +7,7 @@ export interface GetUserInput {
 }
 
 export class GetUser {
-  constructor(private userRepository: IUserRepository) { }
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(input: GetUserInput): Promise<User> {
     const user = await this.userRepository.findById(input.id);

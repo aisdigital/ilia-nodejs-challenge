@@ -1,12 +1,11 @@
 import { FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
 import { LoginUser } from '../../application/use-cases/LoginUser';
-import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-
-const userRepository = new UserRepository();
-const loginUserUseCase = new LoginUser(userRepository);
 
 export class AuthController {
-  constructor(private app: FastifyInstance) { }
+  constructor(
+    private readonly app: FastifyInstance,
+    private readonly loginUserUseCase: LoginUser
+  ) {}
 
   async login(request: FastifyRequest, reply: FastifyReply) {
     try {
@@ -14,11 +13,11 @@ export class AuthController {
 
       if (!userInput || !userInput.email || !userInput.password) {
         return reply.code(400).send({
-          error: 'Missing required fields'
+          error: 'Missing required fields',
         });
       }
 
-      const { user } = await loginUserUseCase.execute({
+      const { user } = await this.loginUserUseCase.execute({
         email: userInput.email,
         password: userInput.password,
       });

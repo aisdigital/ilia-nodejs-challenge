@@ -5,7 +5,7 @@ import {
   InsufficientBalanceError,
   InvalidAmountError,
   InvalidTransactionTypeError,
-  UserNotFoundError
+  UserNotFoundError,
 } from '../../domain/errors';
 
 jest.mock('../../infrastructure/grpc/userGrpcClient', () => ({

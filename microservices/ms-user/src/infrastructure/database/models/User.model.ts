@@ -11,7 +11,7 @@ interface UserAttributes {
   updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id'> { }
+interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
 class UserModel extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   declare id: string;

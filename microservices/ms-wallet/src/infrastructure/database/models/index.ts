@@ -1,10 +1,9 @@
-import TransactionModel from "./Transaction.model"
-
+import TransactionModel from './Transaction.model';
 
 export { TransactionModel };
 
 export const initModels = () => {
-    return {
-        TransactionModel,
-    };
+  return {
+    TransactionModel,
+  };
 };

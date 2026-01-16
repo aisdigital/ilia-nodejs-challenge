@@ -5,7 +5,7 @@ describe('Transaction Entity', () => {
     const transaction = new Transaction({
       id: '123',
       userId: 'user-123',
-      amount: 100.50,
+      amount: 100.5,
       type: TransactionType.CREDIT,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -13,7 +13,7 @@ describe('Transaction Entity', () => {
 
     expect(transaction.id).toBe('123');
     expect(transaction.userId).toBe('user-123');
-    expect(transaction.amount).toBe(100.50);
+    expect(transaction.amount).toBe(100.5);
     expect(transaction.type).toBe(TransactionType.CREDIT);
   });
 

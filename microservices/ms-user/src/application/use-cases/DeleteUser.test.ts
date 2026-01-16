@@ -45,9 +45,7 @@ describe('DeleteUser Use Case', () => {
   it('should throw error when user does not exist', async () => {
     mockRepository.findById.mockResolvedValue(null);
 
-    await expect(
-      deleteUser.execute({ id: 'nonexistent' })
-    ).rejects.toThrow(UserNotFoundError);
+    await expect(deleteUser.execute({ id: 'nonexistent' })).rejects.toThrow(UserNotFoundError);
 
     expect(mockRepository.delete).not.toHaveBeenCalled();
   });

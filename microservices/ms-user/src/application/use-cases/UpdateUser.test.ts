@@ -83,11 +83,6 @@ describe('UpdateUser Use Case', () => {
     (bcrypt.hash as jest.Mock).mockResolvedValue('newhashedpassword');
     mockRepository.update.mockResolvedValue(updatedUser);
 
-    const result = await updateUser.execute({
-      id: '123',
-      password: 'newpassword',
-    });
-
     expect(bcrypt.hash).toHaveBeenCalledWith('newpassword', 10);
     expect(mockRepository.update).toHaveBeenCalledWith('123', {
       password: 'newhashedpassword',

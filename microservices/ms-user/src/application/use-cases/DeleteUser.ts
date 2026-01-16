@@ -6,7 +6,7 @@ export interface DeleteUserInput {
 }
 
 export class DeleteUser {
-  constructor(private userRepository: IUserRepository) { }
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(input: DeleteUserInput): Promise<void> {
     const user = await this.userRepository.findById(input.id);

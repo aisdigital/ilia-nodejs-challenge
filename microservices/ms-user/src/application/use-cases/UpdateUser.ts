@@ -12,7 +12,7 @@ export interface UpdateUserInput {
 }
 
 export class UpdateUser {
-  constructor(private userRepository: IUserRepository) { }
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(input: UpdateUserInput): Promise<User> {
     const existingUser = await this.userRepository.findById(input.id);

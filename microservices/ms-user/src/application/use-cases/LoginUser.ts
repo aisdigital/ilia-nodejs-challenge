@@ -13,7 +13,7 @@ export interface LoginUserOutput {
 }
 
 export class LoginUser {
-  constructor(private userRepository: IUserRepository) { }
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(input: LoginUserInput): Promise<LoginUserOutput> {
     const user = await this.userRepository.findByEmail(input.email);

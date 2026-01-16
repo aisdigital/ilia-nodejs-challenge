@@ -11,7 +11,7 @@ export interface RegisterUserInput {
 }
 
 export class RegisterUser {
-  constructor(private userRepository: IUserRepository) { }
+  constructor(private userRepository: IUserRepository) {}
 
   async execute(input: RegisterUserInput): Promise<User> {
     const existingUser = await this.userRepository.findByEmail(input.email);

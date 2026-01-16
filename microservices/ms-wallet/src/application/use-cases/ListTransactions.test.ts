@@ -75,7 +75,7 @@ describe('ListTransactions Use Case', () => {
     });
 
     expect(result).toEqual(mockCreditTransactions);
-    expect(result.every(t => t.type === TransactionType.CREDIT)).toBe(true);
+    expect(result.every((t) => t.type === TransactionType.CREDIT)).toBe(true);
     expect(mockRepository.findByUserId).toHaveBeenCalledWith('user-123', TransactionType.CREDIT);
   });
 
@@ -99,7 +99,7 @@ describe('ListTransactions Use Case', () => {
     });
 
     expect(result).toEqual(mockDebitTransactions);
-    expect(result.every(t => t.type === TransactionType.DEBIT)).toBe(true);
+    expect(result.every((t) => t.type === TransactionType.DEBIT)).toBe(true);
     expect(mockRepository.findByUserId).toHaveBeenCalledWith('user-456', TransactionType.DEBIT);
   });
 

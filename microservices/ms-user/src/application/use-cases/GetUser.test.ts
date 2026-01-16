@@ -44,8 +44,6 @@ describe('GetUser Use Case', () => {
   it('should throw error when user is not found', async () => {
     mockRepository.findById.mockResolvedValue(null);
 
-    await expect(
-      getUser.execute({ id: 'nonexistent' })
-    ).rejects.toThrow(UserNotFoundError);
+    await expect(getUser.execute({ id: 'nonexistent' })).rejects.toThrow(UserNotFoundError);
   });
 });

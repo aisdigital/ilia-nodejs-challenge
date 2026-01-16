@@ -1,4 +1,8 @@
-import { IUserRepository, CreateUserDTO, UpdateUserDTO } from '../../domain/repositories/IUserRepository';
+import {
+  IUserRepository,
+  CreateUserDTO,
+  UpdateUserDTO,
+} from '../../domain/repositories/IUserRepository';
 import { User } from '../../domain/entities/User';
 import UserModel from '../database/models/User.model';
 
