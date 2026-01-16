@@ -5,6 +5,9 @@ import dotenv from 'dotenv';
 import { connectDB } from './infrastructure/database/sequelize';
 import jwtPlugin from './infrastructure/api/plugins/jwt';
 import routes from './infrastructure/api/routes';
+import { startGrpcServer } from './infrastructure/grpc/userGrpcServer';
+import { IUserRepository } from './domain/repositories/IUserRepository';
+import { UserRepository } from './infrastructure/repositories/UserRepository';
 
 dotenv.config();
 
@@ -17,6 +20,9 @@ const start = async (): Promise<void> => {
         await app.register(routes);
 
         await connectDB();
+
+        const userRepository: IUserRepository = new UserRepository();
+        startGrpcServer(userRepository);
 
         const port = parseInt(process.env.PORT || '3002');
         const host = '0.0.0.0';
