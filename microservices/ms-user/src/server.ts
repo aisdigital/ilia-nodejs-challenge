@@ -3,8 +3,8 @@ import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 
 import { connectDB } from './infrastructure/database/sequelize';
-import jwtPlugin from './infrastructure/api/plugins/jwt';
-import routes from './infrastructure/api/routes';
+import jwtPlugin from './presentation/plugins/jwt';
+import routes from './presentation/routes';
 import { startGrpcServer } from './infrastructure/grpc/userGrpcServer';
 import { IUserRepository } from './domain/repositories/IUserRepository';
 import { UserRepository } from './infrastructure/repositories/UserRepository';
