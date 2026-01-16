@@ -33,7 +33,7 @@ DB_PASSWORD=wallet_pass
 DB_NAME=wallet_db
 
 # JWT Configuration
-JWT_SECRET=ILIACHALLENGE
+JWT_SECRET=secret
 ```
 
 ## Installation & Setup
@@ -109,7 +109,7 @@ GET /api/wallet
 
 ## Testing Authentication
 
-To test JWT authentication, you can generate a token using the secret `ILIACHALLENGE`:
+To test JWT authentication, you can generate a token using the secret `secret`:
 
 ```javascript
 // Example: Generate token at https://jwt.io or using a script

@@ -13,14 +13,14 @@ export const config = {
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432', 10),
-    user: process.env.DB_USER || 'user_user',
-    password: process.env.DB_PASSWORD || 'user_pass',
-    name: process.env.DB_NAME || 'user_db',
+    user: process.env.DB_USER || '',
+    password: process.env.DB_PASSWORD || '',
+    name: process.env.DB_NAME || '',
   },
 
   jwt: {
-    secret: process.env.JWT_SECRET || 'ILIACHALLENGE',
-    internalSecret: process.env.JWT_INTERNAL_SECRET || 'ILIACHALLENGE_INTERNAL',
+    secret: process.env.JWT_SECRET || 'secret',
+    internalSecret: process.env.JWT_INTERNAL_SECRET || 'secret',
   },
 
   grpc: {
