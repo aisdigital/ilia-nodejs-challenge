@@ -6,19 +6,22 @@ import { validate } from './utils/env/env.service';
 import { PrismaService } from './utils/prisma/prisma.service';
 import { AuthModule } from './domains/auth/auth.module';
 import { UserModule } from './domains/users/users.module';
-
+import { PrismaModule } from './utils/prisma/prisma.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ validate }), AuthModule, UserModule],
+  imports: [
+    ConfigModule.forRoot({ validate }),
+    AuthModule,
+    UserModule,
+    PrismaModule,
+  ],
   controllers: [],
   providers: [
-    PrismaService,
     {
       provide: FIREBASE_APP,
       useFactory: firebaseAdminFactory,
       inject: [ConfigService],
     },
   ],
-  exports: [PrismaService],
 })
 export class AppModule {}

@@ -4,7 +4,9 @@ import {
   Delete,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UseGuards,
@@ -31,17 +33,24 @@ export class UserController {
   }
 
   @Get('/:id')
-  async getUserById(@Param('id') id: number) {
-    return await this.userService.getOne(id);
+  async getUserById(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.getOne(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
   }
 
   @Patch('/:id')
-  async updateUser(@Param('id') id: number, @Body() body: UserRequestDTO) {
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UserRequestDTO,
+  ) {
     return await this.userService.update(id, body);
   }
 
   @Delete('/:id')
-  async deleteUser(@Param('id') id: number) {
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.delete(id);
   }
 }
