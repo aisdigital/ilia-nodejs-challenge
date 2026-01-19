@@ -3,9 +3,18 @@ import { FIREBASE_APP } from './utils/consts';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { firebaseAdminFactory } from './utils/firebase-admin.factory';
 import { validate } from './utils/env/env.service';
+import { PrismaService } from './utils/prisma/prisma.service';
+import { AuthModule } from './domains/auth/auth.module';
+import { UserModule } from './domains/users/users.module';
+import { PrismaModule } from './utils/prisma/prisma.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ validate })],
+  imports: [
+    ConfigModule.forRoot({ validate }),
+    AuthModule,
+    UserModule,
+    PrismaModule,
+  ],
   controllers: [],
   providers: [
     {
