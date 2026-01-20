@@ -14,10 +14,10 @@ datasource db {
 
 model Transaction {
 id String @id @default(uuid())
-userId String @map("user_id")
+user_id String @map("user_id")
 amount Int
 type TransactionType
-createdAt DateTime @default(now())
+created_at DateTime @default(now())
 }
 
 

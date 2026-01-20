@@ -10,7 +10,7 @@ export class WalletRepository {
     return this.prisma.$transaction(async (tx) => {
       return tx.transaction.create({
         data: {
-          userId: transaction.user_id,
+          user_id: transaction.user_id,
           amount: transaction.amount,
           type: transaction.type,
         },
@@ -21,7 +21,7 @@ export class WalletRepository {
   async findAll(type?: 'CREDIT' | 'DEBIT') {
     return this.prisma.transaction.findMany({
       where: type ? { type } : {},
-      orderBy: { createdAt: 'desc' },
+      orderBy: { created_at: 'desc' },
     });
   }
 

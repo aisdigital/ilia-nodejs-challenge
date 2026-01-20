@@ -4,6 +4,7 @@ import { validate } from './utils/env/env.service';
 import { PrismaModule } from './utils/prisma/prisma.module';
 import { WalletModule } from './domains/wallet/wallet.module';
 import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './domains/auth/jwt.strategy';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [JwtStrategy],
 })
 export class AppModule {}
