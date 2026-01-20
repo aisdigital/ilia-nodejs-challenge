@@ -43,9 +43,6 @@ Transaction.init({
   amount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
-    validate: {
-      min: 1.00,
-    },
   },
   type: {
     type: DataTypes.ENUM(TransactionType.CREDIT, TransactionType.DEBIT),
