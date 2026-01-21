@@ -12,7 +12,7 @@ export class WalletService {
 
   async createTransaction(userId: number, dto: CreateTransactionRequestDTO) {
     return this.walletRepository.runTransaction(async (tx) => {
-      const wallet = await this.walletRepository.findWallet(userId);
+      const wallet = await this.walletRepository.findWallet(tx, userId);
 
       if (!wallet) {
         throw new NotFoundException('Wallet not found');
@@ -42,12 +42,12 @@ export class WalletService {
   }
 
   async getBalance(userId: number) {
-    const wallet = await this.walletRepository.findWallet(userId);
+    const wallet = await this.walletRepository.getBalance(userId);
 
     if (!wallet) {
       throw new NotFoundException(`wallet for user ${userId} not found`);
     }
 
-    return { amount: wallet.balance };
+    return { amount: wallet.amount };
   }
 }

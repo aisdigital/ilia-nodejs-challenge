@@ -30,9 +30,15 @@ export class UserRepository {
       return user;
     } catch (error) {
       if (user) {
-        await this.prisma.user.delete({
-          where: { id: user.id },
-        });
+        try {
+          await this.prisma.user.delete({
+            where: { id: user.id },
+          });
+        } catch (deleteError) {
+          throw new Error(
+            'Failed to rollback user creation after wallet creation failure',
+          );
+        }
       }
 
       throw error;

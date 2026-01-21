@@ -7,13 +7,16 @@ import { Prisma } from 'src/generated/client';
 export class WalletRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-   async runTransaction<T>(
+  async runTransaction<T>(
     fn: (tx: Prisma.TransactionClient) => Promise<T>,
   ): Promise<T> {
     return this.prisma.$transaction(async (tx) => fn(tx));
   }
 
-  async createTransaction(tx: Prisma.TransactionClient,transaction: Transaction) {
+  async createTransaction(
+    tx: Prisma.TransactionClient,
+    transaction: Transaction,
+  ) {
     return this.prisma.$transaction(async (tx) => {
       return tx.transaction.create({
         data: {
@@ -32,7 +35,7 @@ export class WalletRepository {
     });
   }
 
-  findWallet(userId: number) {
+  findWallet(tx:Prisma.TransactionClient,userId: number) {
     return this.prisma.wallet.findUnique({
       where: { user_id: userId },
     });
@@ -44,7 +47,7 @@ export class WalletRepository {
         SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE -amount END),
         0
       ) AS amount
-      FROM "Transaction
+      FROM "Transaction"
       WHERE user_id = ${userId};
       ";
     `;

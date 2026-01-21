@@ -6,17 +6,9 @@ import { firebaseAdminFactory } from 'src/utils/firebase-admin.factory';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from '../../utils/env/env.service';
 
-
 @Module({
-   imports: [ConfigModule.forRoot({ validate })],
+  imports: [],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    {
-      provide: FIREBASE_APP,
-      useFactory: firebaseAdminFactory,
-      inject: [ConfigService],
-    },
-  ],
+  providers: [AuthService],
 })
 export class AuthModule {}

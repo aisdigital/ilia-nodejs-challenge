@@ -2,6 +2,10 @@ import 'express';
 
 declare module 'express' {
   export interface Request {
-    user?: any;
+    user?: {
+      userId?: number;
+      email?: string;
+      sub?: string;
+    };
   }
 }

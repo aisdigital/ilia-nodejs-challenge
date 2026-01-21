@@ -4,6 +4,7 @@ import { IsString, validateSync } from 'class-validator';
 export interface IEnvService {
   FIREBASE_CREDENTIALS: string;
   DATABASE_URL: string;
+  WALLET_DATABASE_URL: string;
   JWT_PRIVATE_KEY: string;
   JWT_INTERNAL_KEY: string;
   FIREBASE_API_KEY: string;
@@ -21,6 +22,10 @@ export class EnvSchema {
   @Expose()
   @IsString()
   DATABASE_URL!: string;
+
+  @Expose()
+  @IsString()
+  WALLET_DATABASE_URL!: string;
 
   @Expose()
   @IsString()
