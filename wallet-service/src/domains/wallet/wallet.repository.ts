@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../utils/prisma/prisma.service';
 import { Transaction } from './entity/transaction.entity';
-import { Prisma } from 'src/generated/client';
+import { Prisma } from '@prisma/wallet-client';
 
 @Injectable()
 export class WalletRepository {
@@ -35,7 +35,7 @@ export class WalletRepository {
     });
   }
 
-  findWallet(tx:Prisma.TransactionClient,userId: number) {
+  findWallet(tx: Prisma.TransactionClient, userId: number) {
     return this.prisma.wallet.findUnique({
       where: { user_id: userId },
     });
