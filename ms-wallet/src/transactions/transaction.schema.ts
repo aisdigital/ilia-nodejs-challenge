@@ -3,20 +3,22 @@ import { TransactionType } from './transaction.model';
 
 //Create Transaction and Response Schema
 export const createTransactionSchema = z.object({
-  user_id: z.uuidv4('Invalid user ID format'),
-  amount: z.number(),
-  type: z.enum(TransactionType, {
-    error: 'Type must be CREDIT or DEBIT',
+  user_id: z.string().uuid({ message: 'Invalid user ID format' }),
+  amount: z.number().refine(val => val !== 0, {
+    message: 'Amount cannot be zero',
+  }),
+  type: z.nativeEnum(TransactionType, {
+    message: 'Type must be CREDIT or DEBIT',
   }),
 });
 
 export type CreateTransactionDTO = z.infer<typeof createTransactionSchema>;
 
 export const transactionResponseSchema = z.object({
-  id: z.uuidv4(),
-  user_id: z.uuidv4(),
+  id: z.string().uuid(),
+  user_id: z.string().uuid(),
   amount: z.number(),
-  type: z.enum(TransactionType),
+  type: z.nativeEnum(TransactionType),
   created_at: z.date(),
 });
 
@@ -25,7 +27,7 @@ export type TransactionResponseDTO = z.infer<typeof transactionResponseSchema>;
 
 //List Transactions Query Schema
 export const listTransactionsQuerySchema = z.object({
-  type: z.enum(TransactionType).optional(),
+  type: z.nativeEnum(TransactionType).optional(),
 });
 
 export type ListTransactionsQueryDTO = z.infer<typeof listTransactionsQuerySchema>;
@@ -33,7 +35,7 @@ export type ListTransactionsQueryDTO = z.infer<typeof listTransactionsQuerySchem
 
 //Balance Response Schema
 export const balanceResponseSchema = z.object({
-  balance: z.number(),
+  amount: z.number(),
 });
 
 export type BalanceResponseDTO = z.infer<typeof balanceResponseSchema>;
