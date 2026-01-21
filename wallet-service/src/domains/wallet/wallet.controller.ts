@@ -27,7 +27,7 @@ export class WalletController {
   }
 
   @Get('balance')
-  balance(@UserId() userId: string) {
-    return this.service.getBalance(parseInt(userId, 10));
+  balance(@UserId() userId: number) {
+    return this.service.getBalance(userId);
   }
 }

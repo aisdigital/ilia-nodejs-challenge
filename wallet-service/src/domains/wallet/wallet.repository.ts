@@ -43,13 +43,20 @@ export class WalletRepository {
 
   async getBalance(userId: number) {
     const result = await this.prisma.$queryRaw<{ amount: number }[]>`
-      SELECT COALESCE(
-        SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE -amount END),
-        0
-      ) AS amount
-      FROM "Transaction"
-      WHERE user_id = ${userId};
-      ";
+     SELECT
+  COALESCE(
+    SUM(
+      CASE
+        WHEN type = 'CREDIT' THEN amount
+        ELSE - amount
+      END
+    ),
+    0
+  ) AS amount
+FROM
+  "Transaction"
+WHERE
+  user_id = ${userId};
     `;
 
     return { amount: Number(result[0].amount) };
