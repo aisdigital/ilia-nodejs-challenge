@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-@Injectable()
 export class FirebaseConnection {
   private serviceAccount: any;
   private app: admin.app.App;
@@ -33,6 +32,9 @@ export class FirebaseConnection {
   }
 
   private initializeFirebaseAdmin(): admin.app.App {
+    if (admin.apps.length > 0) {
+      return admin.app();
+    }
     return admin.initializeApp({
       credential: admin.credential.cert(this.serviceAccount),
     });

@@ -3,6 +3,7 @@ import { WalletService } from './wallet.service';
 import { CreateTransactionRequestDTO } from './dto/createTransaction.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { Transaction } from './entity/transaction.entity';
+import { UserId } from 'src/utils/decorators/user.decorator';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -17,7 +18,7 @@ export class WalletController {
       type: dto.type,
     };
 
-    return this.service.createTransaction(transaction);
+    return this.service.createTransaction(dto.user_id, transaction);
   }
 
   @Get('transactions')
@@ -26,7 +27,7 @@ export class WalletController {
   }
 
   @Get('balance')
-  balance() {
-    return this.service.getBalance();
+  balance(@UserId() userId: number) {
+    return this.service.getBalance(userId);
   }
 }

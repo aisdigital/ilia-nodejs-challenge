@@ -1,20 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { WalletRepository } from './wallet.repository';
-import { Transaction } from './entity/transaction.entity';
+import { CreateTransactionRequestDTO } from './dto/createTransaction.dto';
 
 @Injectable()
 export class WalletService {
-  constructor(private readonly repository: WalletRepository) {}
+  constructor(private readonly walletRepository: WalletRepository) {}
 
-  createTransaction(transaction: Transaction) {
-    return this.repository.create(transaction);
+  async createTransaction(userId: number, dto: CreateTransactionRequestDTO) {
+    return this.walletRepository.runTransaction(async (tx) => {
+      const wallet = await this.walletRepository.findWallet(userId);
+
+      if (!wallet) {
+        throw new NotFoundException('Wallet not found');
+      }
+
+      if (dto.type === 'DEBIT' && wallet.balance < dto.amount) {
+        throw new BadRequestException('Insufficient balance');
+      }
+
+      const newBalance =
+        dto.type === 'CREDIT'
+          ? wallet.balance + dto.amount
+          : wallet.balance - dto.amount;
+
+      await this.walletRepository.createTransaction(tx, {
+        user_id: userId,
+        amount: dto.amount,
+        type: dto.type,
+      });
+
+      await this.walletRepository.updateBalance(tx, userId, newBalance);
+    });
   }
 
-  listTransactions(type?: 'CREDIT' | 'DEBIT') {
-    return this.repository.findAll(type);
+  async listTransactions(type?: 'CREDIT' | 'DEBIT') {
+    return await this.walletRepository.findAll(type);
   }
 
-  getBalance() {
-    return this.repository.getBalance();
+  async getBalance(userId: number) {
+    const wallet = await this.walletRepository.findWallet(userId);
+
+    if (!wallet) {
+      throw new NotFoundException(`wallet for user ${userId} not found`);
+    }
+
+    return { amount: wallet.balance };
   }
 }

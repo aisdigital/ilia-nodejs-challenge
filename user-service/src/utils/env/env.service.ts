@@ -22,7 +22,12 @@ export class EnvSchema {
   @IsString()
   DATABASE_URL!: string;
 
+  @Expose()
+  @IsString()
   JWT_PRIVATE_KEY!: string;
+
+  @Expose()
+  @IsString()
   JWT_INTERNAL_KEY!: string;
 }
 
