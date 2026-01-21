@@ -13,7 +13,7 @@ import jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
-  constructor(@Inject(FIREBASE_APP) private firebaseApp: FirebaseConnection) {}
+  constructor() {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req: Request = ctx.switchToHttp().getRequest();

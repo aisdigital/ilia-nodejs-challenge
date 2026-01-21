@@ -1,10 +1,10 @@
 import { Expose } from 'class-transformer';
-import { IsEnum, IsInt, IsString, Min } from 'class-validator';
+import { IsEnum, IsInt, IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateTransactionRequestDTO {
   @Expose()
-  @IsString()
-  user_id: string;
+  @IsNumber()
+  user_id: number;
 
   @Expose()
   @IsInt()

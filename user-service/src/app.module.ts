@@ -3,25 +3,20 @@ import { FIREBASE_APP } from './utils/consts';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { firebaseAdminFactory } from './utils/firebase-admin.factory';
 import { validate } from './utils/env/env.service';
-import { PrismaService } from './utils/prisma/prisma.service';
 import { AuthModule } from './domains/auth/auth.module';
 import { UserModule } from './domains/users/users.module';
 import { PrismaModule } from './utils/prisma/prisma.module';
+import { FirebaseModule } from './utils/firebase/firebase.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ validate }),
+    ConfigModule.forRoot({ validate, isGlobal: true }),
     AuthModule,
     UserModule,
     PrismaModule,
+    FirebaseModule,
   ],
   controllers: [],
-  providers: [
-    {
-      provide: FIREBASE_APP,
-      useFactory: firebaseAdminFactory,
-      inject: [ConfigService],
-    },
-  ],
+  providers: [],
 })
 export class AppModule {}

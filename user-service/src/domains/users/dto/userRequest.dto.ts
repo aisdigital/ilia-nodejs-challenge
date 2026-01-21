@@ -8,9 +8,9 @@ export class UserRequestDTO {
 
   @Expose()
   @IsString()
-  firstName: string;
+  first_name: string;
 
   @Expose()
   @IsString()
-  lastName: string;
+  last_name: string;
 }

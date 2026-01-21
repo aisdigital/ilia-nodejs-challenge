@@ -1,0 +1,15 @@
+generator walletClient {
+  provider = "prisma-client-js"
+  output = "../src/generated/wallet-client"
+}
+
+datasource walletDb {
+  provider = "postgresql"
+}
+
+model Wallet {
+  user_id    Int      @id
+  balance    Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
