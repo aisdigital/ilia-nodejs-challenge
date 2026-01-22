@@ -1,11 +1,24 @@
 import { sequelize } from "../config/database";
-import { Transaction } from "./transaction.model";
+import { Transaction, TransactionType } from "./transaction.model";
 import { ITransactionRepository } from "./transaction.repository.interface";
 
 export class TransactionRepository implements ITransactionRepository {
 
   async create(data: Partial<Transaction>): Promise<Transaction> {
     return Transaction.create(data as any);
+  }
+
+  async findByUserId(userId: string, type?: TransactionType): Promise<Transaction[]> {
+    const where: any = { user_id: userId };
+    
+    if (type) {
+      where.type = type;
+    }
+
+    return Transaction.findAll({
+      where,
+      order: [['created_at', 'DESC']],
+    });
   }
   
   async getBalance(userId: string): Promise<number> {
