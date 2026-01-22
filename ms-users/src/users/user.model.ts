@@ -14,13 +14,13 @@ export interface UserAttributes {
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'deleted_at' | 'created_at' | 'updated_at'> {}
 
 export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-  public id!: string;
-  public email!: string;
-  public password!: string;
-  public name!: string;
-  public deleted_at!: Date | null;
-  public created_at!: Date;
-  public updated_at!: Date;
+  declare id: string;
+  declare email: string;
+  declare password: string;
+  declare name: string;
+  declare deleted_at: Date | null;
+  declare created_at: Date;
+  declare updated_at: Date;
 }
 
 User.init(

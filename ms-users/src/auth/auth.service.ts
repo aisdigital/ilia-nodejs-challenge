@@ -5,7 +5,7 @@ import {
   DuplicateEmailError,
   InvalidCredentialsError,
   UserAlreadyDeletedException,
-} from '../shared/errors';
+} from '../shared/errors/app-error';
 import { User } from '../users/user.model';
 
 export class AuthService {
