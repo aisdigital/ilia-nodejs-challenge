@@ -1,6 +1,7 @@
 import { buildApp } from './app';
 import { env } from './config/env';
 import { startGrpcServer } from './grpc/wallet.server';
+import { loggers } from './shared/utils/logger';
 
 async function start(): Promise<void> {
   try {
@@ -8,6 +9,7 @@ async function start(): Promise<void> {
       logger: {
         level: env.NODE_ENV === 'development' ? 'info' : 'error',
       },
+      disableRequestLogging: true, 
     });
 
     await app.listen({
@@ -15,26 +17,33 @@ async function start(): Promise<void> {
       host: '0.0.0.0',
     });
 
-    console.log(`🚀 Microservice Wallet running on port ${env.PORT}`);
-    console.log(`📚 Swagger documentation available at http://localhost:${env.PORT}/docs`);
+    loggers.server.info({
+      message: 'Microservice Wallet started successfully',
+      port: env.PORT,
+      environment: env.NODE_ENV,
+      docs: `http://localhost:${env.PORT}/docs`,
+    });
 
     // Start gRPC server
     startGrpcServer();
-    console.log(`🔌 gRPC Server running on port ${env.GRPC_PORT}`);
+    loggers.grpc.info({
+      message: 'gRPC Server started successfully',
+      port: env.GRPC_PORT,
+    });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    loggers.server.fatal({ message: 'Failed to start server', error });
     process.exit(1);
   }
 }
 
 // Handle graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('⚠️ Received SIGINT, shutting down gracefully...');
+  loggers.server.info('Received SIGINT, shutting down gracefully...');
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  console.log('⚠️ Received SIGTERM, shutting down gracefully...');
+  loggers.server.info('Received SIGTERM, shutting down gracefully...');
   process.exit(0);
 });
 
