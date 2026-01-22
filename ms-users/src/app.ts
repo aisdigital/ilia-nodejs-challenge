@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify';
+import Fastify, { FastifyInstance, FastifyServerOptions, FastifyRequest, FastifyReply } from 'fastify';
 import { connectDatabase } from './config/database';
 import { AppError, UnauthorizedError } from './shared/errors/app-error';
 import { authRoutes } from './modules/auth/auth.routes';
@@ -13,7 +13,7 @@ export async function buildApp(opts: FastifyServerOptions = {}): Promise<Fastify
     secret: process.env.JWT_SECRET || 'your-secret-key',
   });
 
-  app.decorate('authenticate', async function (request: any, reply: any) {
+  app.decorate('authenticate', async function (request: FastifyRequest, _reply: FastifyReply) {
     try {
       await request.jwtVerify();
     } catch (err) {
