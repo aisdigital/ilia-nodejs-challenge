@@ -24,6 +24,7 @@ const config: Config = {
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
+  maxWorkers: 1, 
 };
 
 export default config;
