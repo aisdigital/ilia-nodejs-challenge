@@ -3,9 +3,12 @@ import { connectDatabase } from './config/database';
 import { AppError, UnauthorizedError } from './shared/errors/app-error';
 import { authRoutes } from './modules/auth/auth.routes';
 import { userRoutes } from './modules/users/user.routes';
+import { registerSwagger } from './shared/plugins/swagger.plugin';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify(opts);
+
+  await registerSwagger(app);
 
   await connectDatabase();
 

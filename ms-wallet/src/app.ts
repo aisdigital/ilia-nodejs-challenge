@@ -4,9 +4,12 @@ import { connectDatabase } from './config/database';
 import { env } from './config/env';
 import { AppError } from './shared/errors/app-error';
 import { transactionRoutes } from './modules/transactions/transaction.routes';
+import { registerSwagger } from './shared/plugins/swagger.plugin';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify(opts);
+
+  await registerSwagger(app);
 
   await app.register(fastifyJwt, {
     secret: env.JWT_SECRET,
