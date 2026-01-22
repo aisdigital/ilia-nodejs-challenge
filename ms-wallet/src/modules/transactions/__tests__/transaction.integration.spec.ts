@@ -5,6 +5,7 @@ import { Transaction, TransactionType } from '../transaction.model';
 
 describe('Transaction Integration Tests', () => {
   let app: FastifyInstance;
+  let token: string;
   const userId = '123e4567-e89b-12d3-a456-426614174000';
 
   beforeAll(async () => {
@@ -12,6 +13,9 @@ describe('Transaction Integration Tests', () => {
       app = await buildApp({ logger: false });
       
       await sequelize.sync({ force: true });
+      
+      // Generate JWT token for testing
+      token = app.jwt.sign({ user_id: userId });
     } catch (error) {
       console.error('Failed to setup test environment:', error);
       throw error;
@@ -40,6 +44,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
         payload: {
           user_id: userId,
           amount: 100,
@@ -67,6 +74,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
         payload: {
           user_id: userId,
           amount: 50,
@@ -91,6 +101,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
         payload: {
           user_id: userId,
           amount: 150,
@@ -108,6 +121,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
         payload: {
           user_id: userId,
           amount: 10,
@@ -190,6 +206,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
         payload: {
           user_id: userId,
           amount: 100,
@@ -219,6 +238,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
         payload: {
           user_id: userId,
           amount: 75,
@@ -231,6 +253,9 @@ describe('Transaction Integration Tests', () => {
       const response2 = await app.inject({
         method: 'POST',
         url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
         payload: {
           user_id: userId,
           amount: 100,
@@ -262,6 +287,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/transactions?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -288,6 +316,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/transactions?user_id=${userId}&type=CREDIT`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -319,6 +350,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/transactions?user_id=${userId}&type=DEBIT`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -332,6 +366,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/transactions?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -386,6 +423,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/transactions?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -402,6 +442,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -426,6 +469,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -449,6 +495,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -472,6 +521,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -492,6 +544,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
@@ -531,11 +586,17 @@ describe('Transaction Integration Tests', () => {
       const response1 = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       const response2 = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId2}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response1.statusCode).toBe(200);
@@ -564,6 +625,9 @@ describe('Transaction Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/balance?user_id=${userId}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       });
 
       expect(response.statusCode).toBe(200);
