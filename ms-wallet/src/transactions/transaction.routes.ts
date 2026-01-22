@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { TransactionController } from './transaction.controller';
+import { jwtAuthMiddleware } from '../shared/middlewares/jwt-auth.middleware';
 
 export async function transactionRoutes(app: FastifyInstance): Promise<void> {
   const controller = new TransactionController();
@@ -8,6 +9,7 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     '/balance',
     {
+      preHandler: [jwtAuthMiddleware],
       schema: {
         tags: ['Transactions'],
         description: 'Get consolidated balance (CREDIT - DEBIT)',
@@ -45,6 +47,7 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     '/transactions',
     {
+      preHandler: [jwtAuthMiddleware],
       schema: {
         tags: ['Transactions'],
         description: 'List all transactions for a user',
@@ -95,6 +98,7 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     '/transactions',
     {
+      preHandler: [jwtAuthMiddleware],
       schema: {
         tags: ['Transactions'],
         description: 'Create a new transaction (CREDIT or DEBIT)',

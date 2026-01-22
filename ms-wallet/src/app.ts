@@ -1,18 +1,21 @@
 import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify';
+import fastifyJwt from '@fastify/jwt';
 import { connectDatabase } from './config/database';
+import { env } from './config/env';
 import { AppError } from './shared/errors/app-error';
 import { transactionRoutes } from './transactions/transaction.routes';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify(opts);
 
-  // Connect to database
+  await app.register(fastifyJwt, {
+    secret: env.JWT_SECRET,
+  });
+
   await connectDatabase();
 
-  // Register routes
   await app.register(transactionRoutes);
 
-  // Global error handler
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {
       return reply.status(error.statusCode).send({
@@ -21,7 +24,6 @@ export async function buildApp(opts: FastifyServerOptions = {}): Promise<Fastify
       });
     }
 
-    // Log unexpected errors
     request.log.error(error);
 
     return reply.status(500).send({

@@ -1,5 +1,6 @@
 import { buildApp } from './app';
 import { env } from './config/env';
+import { startGrpcServer } from './grpc/wallet.server';
 
 async function start(): Promise<void> {
   try {
@@ -14,8 +15,12 @@ async function start(): Promise<void> {
       host: '0.0.0.0',
     });
 
-    console.log(`🚀 Microservice Wallet HTTP Server running on port ${env.PORT}`);
+    console.log(`🚀 Microservice Wallet running on port ${env.PORT}`);
     console.log(`📚 Swagger documentation available at http://localhost:${env.PORT}/docs`);
+
+    // Start gRPC server
+    startGrpcServer();
+    console.log(`🔌 gRPC Server running on port ${env.GRPC_PORT}`);
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
