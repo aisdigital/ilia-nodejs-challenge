@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { TransactionController } from './transaction.controller';
-import { jwtAuthMiddleware } from '../shared/middlewares/jwt-auth.middleware';
+import { jwtAuthMiddleware } from '../../shared/middlewares/jwt-auth.middleware';
 
 export async function transactionRoutes(app: FastifyInstance): Promise<void> {
   const controller = new TransactionController();

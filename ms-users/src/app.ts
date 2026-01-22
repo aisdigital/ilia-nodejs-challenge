@@ -1,8 +1,8 @@
 import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { connectDatabase } from './config/database';
 import { AppError, UnauthorizedError } from './shared/errors/app-error';
-import { authRoutes } from './auth/auth.routes';
-import { userRoutes } from './users/user.routes';
+import { authRoutes } from './modules/auth/auth.routes';
+import { userRoutes } from './modules/users/user.routes';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify(opts);

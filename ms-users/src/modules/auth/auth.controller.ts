@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { AuthService } from './auth.service';
-import { UserRepository } from '../../users/user.repository';
-import { createUserSchema, loginSchema } from '../../users/user.schema';
+import { UserRepository } from '../users/user.repository';
+import { createUserSchema, loginSchema } from '../users/user.schema';
 import { ValidationError } from '../../shared/errors/app-error';
 
 export class AuthController {

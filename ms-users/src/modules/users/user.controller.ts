@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { updateUserSchema } from './user.schema';
-import { ValidationError } from '../shared/errors/app-error';
+import { ValidationError } from '../../shared/errors/app-error';
 
 export class UserController {
   private service: UserService;

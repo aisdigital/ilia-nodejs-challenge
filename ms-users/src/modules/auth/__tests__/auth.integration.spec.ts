@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { sequelize } from '../../config/database';
-import { User } from '../../modules/users/user.model';
-import { buildApp } from '../../app';
+import { sequelize } from '../../../config/database';
+import { User } from '../../users/user.model';
+import { buildApp } from '../../../app';
 
 describe('Auth Integration Tests', () => {
   let app: FastifyInstance;

@@ -3,9 +3,9 @@ import * as protoLoader from '@grpc/proto-loader';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
-import { TransactionService } from '../transactions/transaction.service';
-import { TransactionRepository } from '../transactions/transaction.repository';
-import { TransactionType } from '../transactions/transaction.model';
+import { TransactionService } from '../modules/transactions/transaction.service';
+import { TransactionRepository } from '../modules/transactions/transaction.repository';
+import { TransactionType } from '../modules/transactions/transaction.model';
 
 const PROTO_PATH = path.resolve(__dirname, '../../../proto/wallet.proto');
 

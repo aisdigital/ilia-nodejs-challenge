@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { buildApp } from '../../app';
-import { sequelize } from '../../config/database';
+import { buildApp } from '../../../app';
+import { sequelize } from '../../../config/database';
 import { Transaction, TransactionType } from '../transaction.model';
 
 describe('Transaction Integration Tests', () => {

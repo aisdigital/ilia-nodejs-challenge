@@ -2,7 +2,7 @@ import argon2 from 'argon2';
 import { UserService } from '../user.service';
 import { IUserRepository } from '../user.repository.interface';
 import { User } from '../user.model';
-import { UserNotFoundError } from '../../shared/errors/app-error';
+import { UserNotFoundError } from '../../../shared/errors/app-error';
 import { UpdateUserDTO } from '../user.schema';
 
 jest.mock('argon2');

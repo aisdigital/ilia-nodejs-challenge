@@ -1,4 +1,4 @@
-import { sequelize } from "../config/database";
+import { sequelize } from "../../config/database";
 import { Transaction, TransactionType } from "./transaction.model";
 import { ITransactionRepository } from "./transaction.repository.interface";
 

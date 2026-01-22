@@ -3,7 +3,7 @@ import fastifyJwt from '@fastify/jwt';
 import { connectDatabase } from './config/database';
 import { env } from './config/env';
 import { AppError } from './shared/errors/app-error';
-import { transactionRoutes } from './transactions/transaction.routes';
+import { transactionRoutes } from './modules/transactions/transaction.routes';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify(opts);

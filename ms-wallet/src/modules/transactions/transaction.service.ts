@@ -1,7 +1,7 @@
 import { Transaction, TransactionType } from './transaction.model';
 import { ITransactionRepository } from './transaction.repository.interface';
 import { CreateTransactionDTO, ListTransactionsQueryDTO, BalanceResponseDTO } from './transaction.schema';
-import { InsufficientBalanceError } from '../shared/errors/app-error';
+import { InsufficientBalanceError } from '../../shared/errors/app-error';
 
 export class TransactionService {
   constructor(private repository: ITransactionRepository) {}

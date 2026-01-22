@@ -1,7 +1,7 @@
 import { TransactionService } from '../transaction.service';
 import { ITransactionRepository } from '../transaction.repository.interface';
 import { Transaction, TransactionType } from '../transaction.model';
-import { InsufficientBalanceError } from '../../shared/errors/app-error';
+import { InsufficientBalanceError } from '../../../shared/errors/app-error';
 import { CreateTransactionDTO } from '../transaction.schema';
 
 describe('TransactionService', () => {

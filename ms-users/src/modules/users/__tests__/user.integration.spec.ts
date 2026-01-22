@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { buildApp } from '../../app';
-import { sequelize } from '../../config/database';
+import { buildApp } from '../../../app';
+import { sequelize } from '../../../config/database';
 import { User } from '../user.model';
 import argon2 from 'argon2';
 

@@ -1,13 +1,13 @@
 import argon2 from 'argon2';
 import { AuthService } from '../auth.service';
-import { IUserRepository } from '../../modules/users/user.repository.interface';
-import { User } from '../../modules/users/user.model';
+import { IUserRepository } from '../../users/user.repository.interface';
+import { User } from '../../users/user.model';
 import {
   DuplicateEmailError,
   InvalidCredentialsError,
   UserAlreadyDeletedException,
-} from '../../shared/errors/app-error';
-import { CreateUserDTO, LoginDTO } from '../../modules/users/user.schema';
+} from '../../../shared/errors/app-error';
+import { CreateUserDTO, LoginDTO } from '../../users/user.schema';
 
 jest.mock('argon2');
 

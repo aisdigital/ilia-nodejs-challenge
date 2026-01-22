@@ -7,7 +7,7 @@ import {
   ListTransactionsQueryDTO,
   listTransactionsQuerySchema 
 } from './transaction.schema';
-import { ValidationError } from '../shared/errors/app-error';
+import { ValidationError } from '../../shared/errors/app-error';
 
 export class TransactionController {
   private service: TransactionService;

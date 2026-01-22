@@ -2,7 +2,7 @@ import argon2 from 'argon2';
 import { User } from './user.model';
 import { IUserRepository } from './user.repository.interface';
 import { UpdateUserDTO, UserResponseDTO } from './user.schema';
-import { UserNotFoundError } from '../shared/errors/app-error';
+import { UserNotFoundError } from '../../shared/errors/app-error';
 
 export class UserService {
   constructor(private repository: IUserRepository) {}

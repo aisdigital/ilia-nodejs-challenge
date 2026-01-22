@@ -1,12 +1,12 @@
 import argon2 from 'argon2';
-import { IUserRepository } from '../../users/user.repository.interface';
-import { CreateUserDTO, LoginDTO, UserResponseDTO, AuthResponseDTO } from '../../users/user.schema';
+import { IUserRepository } from '../users/user.repository.interface';
+import { CreateUserDTO, LoginDTO, UserResponseDTO, AuthResponseDTO } from '../users/user.schema';
 import {
   DuplicateEmailError,
   InvalidCredentialsError,
   UserAlreadyDeletedException,
 } from '../../shared/errors/app-error';
-import { User } from '../../users/user.model';
+import { User } from '../users/user.model';
 import { walletGrpcClient } from '../../grpc/wallet.client';
 
 export class AuthService {
