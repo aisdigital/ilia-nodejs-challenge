@@ -6,7 +6,7 @@ import {
   DuplicateEmailError,
   InvalidCredentialsError,
   UserAlreadyDeletedException,
-} from '../../shared/errors';
+} from '../../shared/errors/app-error';
 import { CreateUserDTO, LoginDTO } from '../../users/user.schema';
 
 jest.mock('argon2');
