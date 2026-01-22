@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { env } from './env';
+import { loggers, logError } from '../shared/utils/logger';
 
 export const sequelize = new Sequelize({
   dialect: 'postgres',
@@ -8,7 +9,7 @@ export const sequelize = new Sequelize({
   database: env.DB_NAME,
   username: env.DB_USER,
   password: env.DB_PASSWORD,
-  logging: env.NODE_ENV === 'development' ? console.log : false,
+  logging: env.NODE_ENV === 'development' ? (msg) => loggers.database.debug(msg) : false,
   pool: {
     max: 10,
     min: 0,
@@ -24,14 +25,18 @@ export const sequelize = new Sequelize({
 export async function connectDatabase(): Promise<void> {
   try {
     await sequelize.authenticate();
-    console.log('Database connected successfully.');
+    loggers.database.info({
+      message: 'Database connected successfully',
+      host: env.DB_HOST,
+      database: env.DB_NAME,
+    });
 
     if (env.NODE_ENV === 'development') {
       await sequelize.sync({ alter: true });
-      console.log('Database synchronized.');
+      loggers.database.info('Database synchronized (development mode)');
     }
    } catch (error) {
-    console.error('Database connection failed:', error);
+    logError(error, 'database_connection');
     throw error;
   }
 }
