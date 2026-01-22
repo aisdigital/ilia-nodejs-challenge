@@ -1,7 +1,8 @@
 import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { connectDatabase } from './config/database';
-import { AppError } from './shared/errors/app-error';
+import { AppError, UnauthorizedError } from './shared/errors/app-error';
 import { authRoutes } from './auth/auth.routes';
+import { userRoutes } from './users/user.routes';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify(opts);
@@ -12,7 +13,16 @@ export async function buildApp(opts: FastifyServerOptions = {}): Promise<Fastify
     secret: process.env.JWT_SECRET || 'your-secret-key',
   });
 
+  app.decorate('authenticate', async function (request: any, reply: any) {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      throw new UnauthorizedError('Invalid or missing token');
+    }
+  });
+
   await app.register(authRoutes);
+  await app.register(userRoutes);
 
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {
