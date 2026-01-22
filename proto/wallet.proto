@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package wallet;
+
+// Wallet service for internal communication between microservices
+service WalletService {
+  // Create initial balance for new user
+  rpc CreateInitialBalance (CreateInitialBalanceRequest) returns (CreateInitialBalanceResponse);
+  
+  // Get user balance
+  rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse);
+  
+  // Get user transactions
+  rpc GetTransactions (GetTransactionsRequest) returns (GetTransactionsResponse);
+}
+
+// Messages for CreateInitialBalance
+message CreateInitialBalanceRequest {
+  string user_id = 1;
+  double initial_amount = 2;
+}
+
+message CreateInitialBalanceResponse {
+  bool success = 1;
+  string message = 2;
+  Transaction transaction = 3;
+}
+
+// Messages for GetBalance
+message GetBalanceRequest {
+  string user_id = 1;
+}
+
+message GetBalanceResponse {
+  double amount = 1;
+}
+
+// Messages for GetTransactions
+message GetTransactionsRequest {
+  string user_id = 1;
+  optional string type = 2; // CREDIT or DEBIT
+}
+
+message GetTransactionsResponse {
+  repeated Transaction transactions = 1;
+}
+
+// Transaction model
+message Transaction {
+  string id = 1;
+  string user_id = 2;
+  double amount = 3;
+  string type = 4; // CREDIT or DEBIT
+  string created_at = 5;
+  string updated_at = 6;
+}

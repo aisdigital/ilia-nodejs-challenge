@@ -7,6 +7,7 @@ import {
   UserAlreadyDeletedException,
 } from '../shared/errors/app-error';
 import { User } from '../users/user.model';
+import { walletGrpcClient } from '../grpc/wallet.client';
 
 export class AuthService {
   constructor(
@@ -30,6 +31,13 @@ export class AuthService {
       ...data,
       password: hashedPassword,
     });
+
+    try {
+      await walletGrpcClient.createInitialBalance(user.id, 0);
+      console.log(`Initial balance created for user ${user.id} via gRPC`);
+    } catch (error) {
+      console.error('Failed to create initial balance via gRPC:', error);
+    }
 
     const token = this.generateToken({ user_id: user.id });
 
