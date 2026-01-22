@@ -44,8 +44,53 @@ services:
       - ilia-network
     restart: unless-stopped
 
+  db-users:
+    image: postgres:15-alpine
+    container_name: db-users
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - users-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ilia-network
+
+  ms-users:
+    build: 
+      context: ./ms-users
+      dockerfile: Dockerfile
+    container_name: ms-users
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - DB_HOST=db-users
+      - DB_PORT=5432
+      - DB_NAME=users_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JWT_SECRET=ILIACHALLENGE
+      - JWT_SECRET_INTERNAL=ILIACHALLENGE_INTERNAL
+      - WALLET_GRPC_URL=ms-wallet:50051
+    depends_on:
+      db-users:
+        condition: service_healthy
+    networks:
+      - ilia-network
+    restart: unless-stopped
+
 volumes:
   wallet-data:
+  users-data:
 
 networks:
   ilia-network:
