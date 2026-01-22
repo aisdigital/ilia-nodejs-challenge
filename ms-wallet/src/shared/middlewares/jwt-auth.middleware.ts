@@ -3,7 +3,7 @@ import { UnauthorizedError } from '../errors/app-error';
 
 export async function jwtAuthMiddleware(
   request: FastifyRequest,
-  reply: FastifyReply
+  _reply: FastifyReply
 ): Promise<void> {
   try {
     await request.jwtVerify();

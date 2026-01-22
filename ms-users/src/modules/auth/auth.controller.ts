@@ -7,7 +7,7 @@ import { ValidationError } from '../../shared/errors/app-error';
 export class AuthController {
   private service: AuthService;
 
-  constructor(private generateToken: (payload: { user_id: string }) => string) {
+  constructor(generateToken: (payload: { user_id: string }) => string) {
     const repository = new UserRepository();
     this.service = new AuthService(repository, generateToken);
   }

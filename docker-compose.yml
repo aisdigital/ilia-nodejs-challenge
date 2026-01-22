@@ -20,8 +20,8 @@ services:
 
   ms-wallet:
     build: 
-      context: /.ms-wallet
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./ms-wallet/Dockerfile
     container_name: ms-wallet
     ports:
       - "3001:3001"
@@ -65,8 +65,8 @@ services:
 
   ms-users:
     build: 
-      context: ./ms-users
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./ms-users/Dockerfile
     container_name: ms-users
     ports:
       - "3002:3002"
@@ -80,6 +80,8 @@ services:
       - DB_PASSWORD=postgres
       - JWT_SECRET=ILIACHALLENGE
       - JWT_SECRET_INTERNAL=ILIACHALLENGE_INTERNAL
+      - GRPC_WALLET_HOST=ms-wallet
+      - GRPC_WALLET_PORT=50051
       - WALLET_GRPC_URL=ms-wallet:50051
     depends_on:
       db-users:

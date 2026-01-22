@@ -12,7 +12,7 @@ export class UserController {
     this.service = new UserService(repository);
   }
 
-  async list(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async list(_request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const users = await this.service.findAll();
       reply.status(200).send(users);
