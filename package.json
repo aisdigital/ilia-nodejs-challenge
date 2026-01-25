@@ -1,0 +1,14 @@
+
+{
+  "name": "ilia-microservices",
+  "version": "1.0.0",
+  "description": "ILIA Node.js Challenge - Monorepo",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
