@@ -939,6 +939,114 @@
 						"description": "Get user balance from MS-Wallet via gRPC integration.\n\nThis endpoint demonstrates the microservices communication."
 					},
 					"response": []
+				},
+				{
+					"name": "Get User Transactions (via gRPC)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has transactions array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user_id');",
+									"    pm.expect(jsonData).to.have.property('transactions');",
+									"    pm.expect(jsonData.transactions).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"transactions"
+							]
+						},
+						"description": "Get user transactions from MS-Wallet via gRPC integration."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Transactions - CREDIT only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"All transactions are CREDIT\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.transactions.length > 0) {",
+									"        jsonData.transactions.forEach(function(tx) {",
+									"            pm.expect(tx.type).to.eql('CREDIT');",
+									"        });",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/transactions?type=CREDIT",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "CREDIT"
+								}
+							]
+						},
+						"description": "Get user CREDIT transactions only."
+					},
+					"response": []
 				}
 			],
 			"description": "Endpoints that integrate with MS-Wallet via gRPC"
