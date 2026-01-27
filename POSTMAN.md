@@ -2,14 +2,34 @@
 
 Quick guide to test the microservices APIs using Postman.
 
+## ✨ New Features (v2.0)
+
+### Idempotency
+
+- All POST requests include auto-generated `Idempotency-Key` header
+- Prevents duplicate transactions on network retries
+- Cached responses return `x-idempotent-replayed: true` header
+
+### Rate Limiting
+
+- Response headers show rate limit status
+- `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+- 429 response when limit exceeded
+
+### Health Metrics
+
+- `/health` endpoint shows rate limiter and backpressure metrics
+
 ## 📦 Available Collections
 
 ### MS-Wallet Collection
+
 - **File**: `ms-wallet/postman/MS-Wallet.postman_collection.json`
 - **Environment**: `ms-wallet/postman/MS-Wallet.postman_environment.json`
 - **Port**: 3001
 
 ### MS-Users Collection
+
 - **File**: `ms-users/postman/MS-Users.postman_collection.json`
 - **Environment**: `ms-users/postman/MS-Users.postman_environment.json`
 - **Port**: 3002
@@ -19,6 +39,7 @@ Quick guide to test the microservices APIs using Postman.
 ### 1. Import Collections
 
 In Postman:
+
 1. **File** → **Import**
 2. Select the `.postman_collection.json` files
 3. Select the `.postman_environment.json` files
@@ -58,6 +79,7 @@ curl http://localhost:3002/health
 ### MS-Wallet - Authentication
 
 MS-Wallet requires:
+
 - JWT token from MS-Users (external authentication)
 - OR internal JWT token (for gRPC)
 
@@ -77,10 +99,13 @@ MS-Wallet requires:
 ### 2️⃣ Then: MS-Wallet
 
 ```
-1. Create Transaction        → Creates transaction (CREDIT/DEBIT)
-2. Get Balance              → Queries user balance
-3. Get All Transactions     → Lists all transactions
-4. Get Transactions by Type → Filters by CREDIT or DEBIT
+1. Health Check              → Check service status + metrics
+2. Create CREDIT Transaction → Add funds (uses idempotency)
+3. Retry Same Idempotency    → Verify cached response returned
+4. Get Balance               → Query balance (O(1) lookup)
+5. Create DEBIT Transaction  → Withdraw funds
+6. Get All Transactions      → List all transactions
+7. Test Rate Limiting        → Burst requests to see limits
 ```
 
 ## 🔑 Environment Variables
@@ -88,6 +113,7 @@ MS-Wallet requires:
 Collections use automatic variables:
 
 ### MS-Users Environment
+
 ```json
 {
   "baseUrl": "http://localhost:3002",
@@ -97,6 +123,7 @@ Collections use automatic variables:
 ```
 
 ### MS-Wallet Environment
+
 ```json
 {
   "baseUrl": "http://localhost:3001",
@@ -117,6 +144,7 @@ Both collections include **automated tests** in each request:
 ### View Test Results
 
 After executing a request:
+
 1. Click on the **Test Results** tab
 2. See which tests passed (✓) or failed (✗)
 
@@ -168,12 +196,14 @@ newman run ms-wallet/postman/MS-Wallet.postman_collection.json \
 ### Expired Token
 
 If you receive 401 Unauthorized error:
+
 1. Run **Register New User** or **Login** again
 2. Token will be automatically updated
 
 ### Incorrect Port
 
 Verify that the ports in the environment match `docker-compose.yml`:
+
 - MS-Users: `3002`
 - MS-Wallet: `3001`
 

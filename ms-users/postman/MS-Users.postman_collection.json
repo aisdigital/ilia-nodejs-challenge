@@ -2,9 +2,24 @@
 	"info": {
 		"_postman_id": "ms-users-api",
 		"name": "MS-Users API",
-		"description": "Collection for testing Users Microservice endpoints",
+		"description": "Collection for testing Users Microservice endpoints.\n\n## Getting Started\n1. Run 'Register New User' to create a user and get JWT token\n2. The token is automatically saved to environment variables\n3. Use MS-Wallet collection to test wallet operations\n\n## Authentication\nJWT tokens are valid for 24 hours. Use Login endpoint to refresh.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"exec": [
+					"// Generate unique email for registration tests",
+					"if (!pm.environment.get('test_email')) {",
+					"    const timestamp = Date.now();",
+					"    pm.environment.set('test_email', `user${timestamp}@example.com`);",
+					"}"
+				],
+				"type": "text/javascript"
+			}
+		}
+	],
 	"item": [
 		{
 			"name": "Authentication",
@@ -12,6 +27,17 @@
 				{
 					"name": "Register New User",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate unique email for this registration",
+									"const timestamp = Date.now();",
+									"pm.environment.set('test_email', `user${timestamp}@example.com`);"
+								],
+								"type": "text/javascript"
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
@@ -28,9 +54,14 @@
 									"    pm.expect(jsonData.user).to.have.property('email');",
 									"    pm.expect(jsonData.user).to.not.have.property('password');",
 									"    ",
-									"    // Save token for subsequent requests",
-									"    pm.environment.set(\"jwt_token\", jsonData.token);",
-									"    pm.environment.set(\"user_id\", jsonData.user.id);",
+									"    // Save token and user_id for subsequent requests (both services)",
+									"    pm.environment.set('jwt_token', jsonData.token);",
+									"    pm.environment.set('user_id', jsonData.user.id);",
+									"    pm.environment.set('user_email', jsonData.user.email);",
+									"    ",
+									"    console.log('✅ JWT token saved to environment');",
+									"    console.log('✅ User ID:', jsonData.user.id);",
+									"    console.log('✅ You can now use MS-Wallet collection');",
 									"});"
 								],
 								"type": "text/javascript"
@@ -47,7 +78,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securepass123\",\n  \"name\": \"John Doe\"\n}"
+							"raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"securepass123\",\n  \"name\": \"Test User\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/register",
@@ -59,7 +90,7 @@
 								"register"
 							]
 						},
-						"description": "Register a new user and receive JWT token"
+						"description": "Register a new user and receive JWT token.\n\n**Auto-saves to environment:**\n- `jwt_token` - For authenticated requests\n- `user_id` - For wallet operations\n- `user_email` - For login tests"
 					},
 					"response": []
 				},
@@ -180,7 +211,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securepass123\",\n  \"name\": \"John Doe\"\n}"
+							"raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"securepass123\",\n  \"name\": \"John Doe\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/register",
@@ -213,8 +244,11 @@
 									"    pm.expect(jsonData).to.have.property('user');",
 									"    pm.expect(jsonData.user).to.not.have.property('password');",
 									"    ",
-									"    // Update token",
-									"    pm.environment.set(\"jwt_token\", jsonData.token);",
+									"    // Update token and user_id",
+									"    pm.environment.set('jwt_token', jsonData.token);",
+									"    pm.environment.set('user_id', jsonData.user.id);",
+									"    ",
+									"    console.log('✅ JWT token refreshed');",
 									"});"
 								],
 								"type": "text/javascript"
@@ -231,7 +265,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securepass123\"\n}"
+							"raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"securepass123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/login",
@@ -243,7 +277,7 @@
 								"login"
 							]
 						},
-						"description": "Login with valid credentials and receive JWT token"
+						"description": "Login with valid credentials and receive JWT token.\n\nUse this to refresh an expired token."
 					},
 					"response": []
 				},
@@ -277,7 +311,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+							"raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"wrongpassword\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/login",
@@ -586,6 +620,17 @@
 					"name": "Update User Email",
 					"event": [
 						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate new unique email",
+									"const timestamp = Date.now();",
+									"pm.environment.set('new_email', `updated${timestamp}@example.com`);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
 							"listen": "test",
 							"script": {
 								"exec": [
@@ -595,7 +640,10 @@
 									"",
 									"pm.test(\"User email was updated\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.email).to.eql('jane.updated@example.com');",
+									"    pm.expect(jsonData.email).to.eql(pm.environment.get('new_email'));",
+									"    ",
+									"    // Update stored email for future logins",
+									"    pm.environment.set('user_email', jsonData.email);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -622,7 +670,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"jane.updated@example.com\"\n}"
+							"raw": "{\n  \"email\": \"{{new_email}}\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/users/{{user_id}}",
@@ -759,7 +807,10 @@
 								"exec": [
 									"pm.test(\"Status code is 204\", function () {",
 									"    pm.response.to.have.status(204);",
-									"});"
+									"});",
+									"",
+									"// Clear environment after delete",
+									"console.log('⚠️ User deleted. Re-run Register to create a new user.');"
 								],
 								"type": "text/javascript"
 							}
@@ -836,6 +887,121 @@
 				}
 			],
 			"description": "User management endpoints (protected by JWT)"
+		},
+		{
+			"name": "Wallet Integration",
+			"item": [
+				{
+					"name": "Get User Balance (via gRPC)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has balance\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('balance');",
+									"    pm.expect(typeof jsonData.balance).to.eql('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/balance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"balance"
+							]
+						},
+						"description": "Get user balance from MS-Wallet via gRPC integration.\n\nThis endpoint demonstrates the microservices communication."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints that integrate with MS-Wallet via gRPC"
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 503]);",
+									"});",
+									"",
+									"pm.test(\"Response has status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Get MS-Users service health status"
+					},
+					"response": []
+				},
+				{
+					"name": "API Documentation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/docs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs"
+							]
+						},
+						"description": "Access Swagger/OpenAPI documentation"
+					},
+					"response": []
+				}
+			],
+			"description": "Health and documentation endpoints"
 		}
 	],
 	"variable": [
@@ -851,6 +1017,11 @@
 		},
 		{
 			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_email",
 			"value": "",
 			"type": "string"
 		}
