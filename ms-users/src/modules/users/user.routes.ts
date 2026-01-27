@@ -211,4 +211,137 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     },
     controller.delete.bind(controller)
   );
+
+  // GET /users/:id/balance - Get user balance via gRPC from MS-Wallet
+  app.get(
+    '/users/:id/balance',
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ['Users', 'Wallet Integration'],
+        description: 'Get user balance via gRPC from MS-Wallet service',
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid', description: 'User ID' },
+          },
+          required: ['id'],
+        },
+        response: {
+          200: {
+            description: 'User balance retrieved successfully',
+            type: 'object',
+            properties: {
+              user_id: { type: 'string', format: 'uuid' },
+              balance: { type: 'number', description: 'Current balance amount' },
+            },
+          },
+          401: {
+            description: 'Unauthorized',
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          404: {
+            description: 'User not found',
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          503: {
+            description: 'MS-Wallet service unavailable',
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+    controller.getBalance.bind(controller)
+  );
+
+  // GET /users/:id/transactions - Get user transactions via gRPC from MS-Wallet
+  app.get(
+    '/users/:id/transactions',
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ['Users', 'Wallet Integration'],
+        description: 'Get user transactions via gRPC from MS-Wallet service',
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid', description: 'User ID' },
+          },
+          required: ['id'],
+        },
+        querystring: {
+          type: 'object',
+          properties: {
+            type: { 
+              type: 'string', 
+              enum: ['CREDIT', 'DEBIT'],
+              description: 'Filter by transaction type' 
+            },
+          },
+        },
+        response: {
+          200: {
+            description: 'User transactions retrieved successfully',
+            type: 'object',
+            properties: {
+              user_id: { type: 'string', format: 'uuid' },
+              transactions: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string', format: 'uuid' },
+                    user_id: { type: 'string', format: 'uuid' },
+                    amount: { type: 'number' },
+                    type: { type: 'string', enum: ['CREDIT', 'DEBIT'] },
+                    created_at: { type: 'string', format: 'date-time' },
+                    updated_at: { type: 'string', format: 'date-time' },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Unauthorized',
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          404: {
+            description: 'User not found',
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          503: {
+            description: 'MS-Wallet service unavailable',
+            type: 'object',
+            properties: {
+              code: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+    controller.getTransactions.bind(controller)
+  );
 }

@@ -1,7 +1,29 @@
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
+import * as crypto from 'crypto';
 import { env } from '../config/env';
 import path from 'path';
+
+// Simple JWT creation for internal service communication
+function createInternalToken(secret: string): string {
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const payload = { 
+    service: 'ms-users', 
+    type: 'internal',
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour expiry
+  };
+  
+  const base64Header = Buffer.from(JSON.stringify(header)).toString('base64url');
+  const base64Payload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  
+  const signature = crypto
+    .createHmac('sha256', secret)
+    .update(`${base64Header}.${base64Payload}`)
+    .digest('base64url');
+  
+  return `${base64Header}.${base64Payload}.${signature}`;
+}
 
 export type TransactionType = 'CREDIT' | 'DEBIT';
 
@@ -88,7 +110,8 @@ export class WalletGrpcClient {
     ) as WalletServiceClient;
 
     this.metadata = new grpc.Metadata();
-    this.metadata.add('authorization', `Bearer ${env.JWT_SECRET_INTERNAL}`);
+    const internalToken = createInternalToken(env.JWT_SECRET_INTERNAL);
+    this.metadata.add('authorization', `Bearer ${internalToken}`);
   }
 
   async createInitialBalance(userId: string, initialAmount: number = 0): Promise<CreateInitialBalanceResponse> {

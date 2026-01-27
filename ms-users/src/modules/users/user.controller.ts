@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { updateUserSchema } from './user.schema';
 import { ValidationError } from '../../shared/errors/app-error';
+import { walletGrpcClient } from '../../grpc/wallet.client';
 
 export class UserController {
   private service: UserService;
@@ -53,6 +54,41 @@ export class UserController {
       const { id } = request.params as { id: string };
       await this.service.delete(id);
       reply.status(204).send();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getBalance(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    try {
+      const { id } = request.params as { id: string };
+      
+      await this.service.findById(id);
+      
+      // Get balance via gRPC from MS-Wallet
+      const balance = await walletGrpcClient.getBalance(id);
+      reply.status(200).send({
+        user_id: id,
+        balance: balance.amount,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTransactions(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    try {
+      const { id } = request.params as { id: string };
+      const { type } = request.query as { type?: 'CREDIT' | 'DEBIT' };
+      
+      await this.service.findById(id);
+      
+      // Get transactions via gRPC from MS-Wallet
+      const result = await walletGrpcClient.getTransactions(id, type);
+      reply.status(200).send({
+        user_id: id,
+        transactions: result.transactions,
+      });
     } catch (error) {
       throw error;
     }

@@ -135,7 +135,7 @@ async function getTransactions(
       });
     }
 
-    const transactions = await transactionService.list(user_id, type || undefined);
+    const transactions = await transactionService.list(user_id, { type: type || undefined });
 
     callback(null, {
       transactions: transactions.map((tx) => ({
