@@ -23,6 +23,29 @@ interface HealthStatus {
       status: 'up' | 'down';
       port: number;
     };
+    rateLimiter?: {
+      rateLimit: {
+        ip: {
+          activeKeys: number;
+          totalRequests: number;
+          blockedRequests: number;
+        };
+        user: {
+          activeKeys: number;
+          totalRequests: number;
+          blockedRequests: number;
+        };
+      };
+      backpressure: {
+        currentConcurrent: number;
+        queueSize: number;
+        isOverloaded: boolean;
+        totalProcessed: number;
+        totalQueued: number;
+        totalRejected: number;
+        totalTimeouts: number;
+      };
+    };
   };
 }
 
@@ -67,6 +90,9 @@ export async function registerHealthCheck(app: FastifyInstance): Promise<void> {
           status: 'up', 
           port: 50051,
         },
+        ...(app.rateLimiter && {
+          rateLimiter: app.rateLimiter.getStatus(),
+        }),
       },
     };
 
