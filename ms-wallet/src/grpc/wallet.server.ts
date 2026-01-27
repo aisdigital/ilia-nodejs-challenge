@@ -107,9 +107,9 @@ async function getBalance(
       });
     }
 
-    const balance = await transactionService.getBalance(user_id);
+    const balanceResponse = await transactionService.getBalance(user_id);
 
-    callback(null, { amount: balance });
+    callback(null, { amount: balanceResponse.amount });
   } catch (error: any) {
     console.error('gRPC GetBalance error:', error);
     callback({
