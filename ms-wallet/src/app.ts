@@ -8,6 +8,8 @@ import { registerSwagger } from './shared/plugins/swagger.plugin';
 import { registerHealthCheck } from './shared/plugins/health-check.plugin';
 import { registerRequestContext } from './shared/plugins/request-context.plugin';
 import { logError } from './shared/utils/logger';
+import { idempotencyPlugin } from './shared/middlewares/idempotency.middleware';
+import { IdempotencyConflictError } from './modules/idempotency';
 
 export async function buildApp(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify(opts);
@@ -22,11 +24,20 @@ export async function buildApp(opts: FastifyServerOptions = {}): Promise<Fastify
     secret: env.JWT_SECRET,
   });
 
+  await app.register(idempotencyPlugin);
+
   await connectDatabase();
 
   await app.register(transactionRoutes);
 
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof IdempotencyConflictError) {
+      return reply.status(409).send({
+        code: 'IDEMPOTENCY_CONFLICT',
+        message: error.message,
+      });
+    }
+
     if (error instanceof AppError) {
       request.log.warn({
         type: 'application_error',
