@@ -6,7 +6,13 @@ import { env } from '../config/env';
 import { TransactionService } from '../modules/transactions/transaction.service';
 import { TransactionRepository } from '../modules/transactions/transaction.repository';
 import { TransactionType } from '../modules/transactions/transaction.model';
+import type {
+  CreateInitialBalanceResponse,
+  GetBalanceResponse,
+  GetTransactionsResponse,
+} from './generated/wallet';
 
+// Proto loading for service registration
 const PROTO_PATH = path.resolve(__dirname, '../../../proto/wallet.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -40,9 +46,11 @@ function verifyInternalToken(metadata: grpc.Metadata): void {
   }
 }
 
+// Note: Request/Response use snake_case from proto, types use camelCase
+// We keep snake_case in runtime to match proto-loader behavior
 async function createInitialBalance(
-  call: grpc.ServerUnaryCall<any, any>,
-  callback: grpc.sendUnaryData<any>
+  call: grpc.ServerUnaryCall<{ user_id: string; initial_amount?: number }, CreateInitialBalanceResponse>,
+  callback: grpc.sendUnaryData<CreateInitialBalanceResponse>
 ): Promise<void> {
   try {
     verifyInternalToken(call.metadata);
@@ -75,12 +83,12 @@ async function createInitialBalance(
         : `Wallet initialized for user ${user_id} with zero balance`,
       transaction: transaction ? {
         id: transaction.id,
-        user_id: transaction.user_id,
+        userId: transaction.user_id,
         amount: transaction.amount,
         type: transaction.type,
-        created_at: transaction.created_at.toISOString(),
-        updated_at: transaction.updated_at.toISOString(),
-      } : null,
+        createdAt: transaction.created_at.toISOString(),
+        updatedAt: transaction.updated_at.toISOString(),
+      } : undefined,
     });
   } catch (error: any) {
     console.error('gRPC CreateInitialBalance error:', error);
@@ -92,8 +100,8 @@ async function createInitialBalance(
 }
 
 async function getBalance(
-  call: grpc.ServerUnaryCall<any, any>,
-  callback: grpc.sendUnaryData<any>
+  call: grpc.ServerUnaryCall<{ user_id: string }, GetBalanceResponse>,
+  callback: grpc.sendUnaryData<GetBalanceResponse>
 ): Promise<void> {
   try {
     verifyInternalToken(call.metadata);
@@ -120,8 +128,8 @@ async function getBalance(
 }
 
 async function getTransactions(
-  call: grpc.ServerUnaryCall<any, any>,
-  callback: grpc.sendUnaryData<any>
+  call: grpc.ServerUnaryCall<{ user_id: string; type?: string }, GetTransactionsResponse>,
+  callback: grpc.sendUnaryData<GetTransactionsResponse>
 ): Promise<void> {
   try {
     verifyInternalToken(call.metadata);
@@ -135,16 +143,16 @@ async function getTransactions(
       });
     }
 
-    const transactions = await transactionService.list(user_id, { type: type || undefined });
+    const transactions = await transactionService.list(user_id, { type: (type as TransactionType) || undefined });
 
     callback(null, {
       transactions: transactions.map((tx) => ({
         id: tx.id,
-        user_id: tx.user_id,
+        userId: tx.user_id,
         amount: tx.amount,
         type: tx.type,
-        created_at: tx.created_at.toISOString(),
-        updated_at: tx.updated_at.toISOString(),
+        createdAt: tx.created_at.toISOString(),
+        updatedAt: tx.updated_at.toISOString(),
       })),
     });
   } catch (error: any) {

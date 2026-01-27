@@ -7,6 +7,10 @@ RUN npm ci
 
 COPY ms-users/. .
 COPY proto /proto
+
+# Copy generated proto types to src/grpc/generated
+RUN mkdir -p src/grpc/generated && cp -r /proto/generated/* src/grpc/generated/
+
 RUN npm run build
 
 FROM node:22-alpine

@@ -6,7 +6,8 @@ gRPC server for internal communication between microservices.
 
 Authentication via JWT with separate secret: `JWT_SECRET_INTERNAL`
 
-```javascript
+```typescript
+// Client sends token in metadata
 const metadata = new grpc.Metadata();
 metadata.add('authorization', `Bearer ${JWT_TOKEN_INTERNAL}`);
 ```
@@ -15,26 +16,76 @@ metadata.add('authorization', `Bearer ${JWT_TOKEN_INTERNAL}`);
 
 **50051** (configurable via `GRPC_PORT`)
 
+## 📂 Structure
+
+```
+ms-wallet/src/grpc/
+├── wallet.server.ts      # gRPC server (manual code)
+├── README.md             # This file
+└── generated/            # ⚠️ Auto-generated (do not edit)
+    ├── index.ts
+    └── wallet.ts
+```
+
+> ⚠️ The `generated/` folder is copied from `proto/generated/` and is in `.gitignore`
+
+## 🏗️ Code Generation
+
+TypeScript types are auto-generated from `.proto` files using `buf` + `ts-proto`.
+
+### Generate Types
+
+```bash
+# From project root
+npm run proto:generate
+```
+
+This generates typed interfaces in `./generated/wallet.ts`:
+
+- `CreateInitialBalanceRequest` / `CreateInitialBalanceResponse`
+- `GetBalanceRequest` / `GetBalanceResponse`
+- `GetTransactionsRequest` / `GetTransactionsResponse`
+- `Transaction`
+- `WalletServiceClient` (typed client)
+- `WalletServiceServer` (server interface)
+
+### Using Generated Types
+
+```typescript
+import {
+  WalletServiceServer,
+  CreateInitialBalanceRequest,
+  CreateInitialBalanceResponse,
+  GetBalanceRequest,
+  GetBalanceResponse,
+  GetTransactionsRequest,
+  GetTransactionsResponse,
+  Transaction,
+} from './generated/wallet';
+```
+
 ## 🔧 Available RPCs
 
 ### 1. CreateInitialBalance
 
-Creates initial balance for new user.
+Creates initial balance for a new user.
 
 **Request:**
+
 ```typescript
 {
-  user_id: string;
-  initial_amount: number;
+  userId: string;
+  initialAmount: number;
 }
 ```
 
 **Response:**
+
 ```typescript
 {
   success: boolean;
-  user_id: string;
-  balance: number;
+  message: string;
+  transaction: Transaction | undefined;
 }
 ```
 
@@ -43,17 +94,18 @@ Creates initial balance for new user.
 Queries user's current balance.
 
 **Request:**
+
 ```typescript
 {
-  user_id: string;
+  userId: string;
 }
 ```
 
 **Response:**
+
 ```typescript
 {
-  user_id: string;
-  balance: number;
+  amount: number;
 }
 ```
 
@@ -62,40 +114,46 @@ Queries user's current balance.
 Lists user transactions (with optional type filter).
 
 **Request:**
+
 ```typescript
 {
-  user_id: string;
-  type?: 'CREDIT' | 'DEBIT';
+  userId: string;
+  type?: 'CREDIT' | 'DEBIT';  // Optional
 }
 ```
 
 **Response:**
+
 ```typescript
 {
   transactions: Array<{
     id: string;
-    user_id: string;
+    userId: string;
     type: 'CREDIT' | 'DEBIT';
     amount: number;
-    description: string;
-    created_at: string;
+    createdAt: string;
+    updatedAt: string;
   }>;
 }
 ```
 
-## 📂 Files
+## ⚙️ Configuration
 
-- **`wallet.server.ts`** - gRPC server implementation
-- **`../../../proto/wallet.proto`** - Protocol definition (shared)
+Required environment variables:
 
-## 🧪 Testing
-
-See tests at: `__tests__/wallet.client.spec.ts`
-
-```bash
-npm test -- wallet.client.spec
+```env
+GRPC_PORT=50051              # gRPC server port
+JWT_SECRET_INTERNAL=your-key # JWT key for internal auth
 ```
 
-## 🔗 Client
+## 🧪 Tests
 
-The gRPC client is in **MS-Users**: `ms-users/src/grpc/wallet.client.ts`
+```bash
+npm test -- wallet.server
+```
+
+## 🔗 Related Links
+
+- **gRPC Client**: `ms-users/src/grpc/wallet.client.ts`
+- **Proto Definition**: `proto/wallet.proto`
+- **Proto Documentation**: `proto/README.md`

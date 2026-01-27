@@ -10,7 +10,7 @@ Authentication via internal JWT: `JWT_SECRET_INTERNAL`
 
 ```
 MS-Users (Port 3002)
-    ↓ gRPC Client
+    ↓ gRPC Client (wallet.client.ts)
     ↓ JWT_SECRET_INTERNAL
     ↓
 MS-Wallet gRPC Server (Port 50051)
@@ -19,13 +19,41 @@ MS-Wallet gRPC Server (Port 50051)
 MS-Wallet Database
 ```
 
-## 📂 File
+## 📂 Structure
 
-**`wallet.client.ts`** - gRPC client with 3 methods:
+```
+ms-users/src/grpc/
+├── wallet.client.ts      # gRPC client (manual code)
+├── README.md             # This file
+├── generated/            # ⚠️ Auto-generated (do not edit)
+│   ├── index.ts
+│   └── wallet.ts
+└── __tests__/
+    └── wallet.client.spec.ts
+```
+
+> ⚠️ The `generated/` folder is copied from `proto/generated/` and is in `.gitignore`
+
+## 📦 Imported Types
+
+```typescript
+import {
+  WalletServiceClient,
+  CreateInitialBalanceRequest,
+  CreateInitialBalanceResponse,
+  GetBalanceRequest,
+  GetBalanceResponse,
+  GetTransactionsRequest,
+  GetTransactionsResponse,
+  Transaction,
+} from './generated/wallet';
+```
+
+## 🔧 Available Methods
 
 ### 1. createInitialBalance
 
-Creates initial balance when user registers.
+Creates initial balance when a user registers.
 
 ```typescript
 await walletGrpcClient.createInitialBalance(userId, 0);
@@ -37,14 +65,22 @@ Queries user balance.
 
 ```typescript
 const balance = await walletGrpcClient.getBalance(userId);
+// Returns: number
 ```
 
 ### 3. getTransactions
 
-Lists transactions (with optional filter).
+Lists user transactions (with optional filter).
 
 ```typescript
-const transactions = await walletGrpcClient.getTransactions(userId, 'CREDIT');
+// All transactions
+const transactions = await walletGrpcClient.getTransactions(userId);
+
+// Credits only
+const credits = await walletGrpcClient.getTransactions(userId, 'CREDIT');
+
+// Debits only
+const debits = await walletGrpcClient.getTransactions(userId, 'DEBIT');
 ```
 
 ## 💡 Usage in AuthService
@@ -66,18 +102,20 @@ try {
 Required environment variables:
 
 ```env
-WALLET_GRPC_URL=ms-wallet:50051
-JWT_SECRET_INTERNAL=ILIACHALLENGE_INTERNAL
+WALLET_GRPC_URL=ms-wallet:50051    # gRPC server URL
+JWT_SECRET_INTERNAL=your-key       # JWT key for internal auth
 ```
 
 ## 🧪 Tests
-
-See tests at: `__tests__/wallet.client.spec.ts`
 
 ```bash
 npm test -- wallet.client.spec
 ```
 
-## 🔗 Server
+See tests at: `__tests__/wallet.client.spec.ts`
 
-The gRPC server is in **MS-Wallet**: `ms-wallet/src/grpc/wallet.server.ts`
+## 🔗 Related Links
+
+- **gRPC Server**: `ms-wallet/src/grpc/wallet.server.ts`
+- **Proto Definition**: `proto/wallet.proto`
+- **Proto Documentation**: `proto/README.md`

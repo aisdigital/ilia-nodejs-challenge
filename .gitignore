@@ -141,4 +141,8 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
+# gRPC generated types (do not commit)
+ms-users/src/grpc/generated/
+ms-wallet/src/grpc/generated/
+
 # End of https://www.toptal.com/developers/gitignore/api/node

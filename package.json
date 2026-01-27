@@ -4,11 +4,17 @@
   "description": "Financial Microservices - Workspace Root",
   "private": true,
   "scripts": {
-    "proto:generate": "npx protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./proto/generated --ts_proto_opt=outputServices=grpc-js,env=node,esModuleInterop=true,useExactTypes=false ./proto/wallet.proto",
-    "proto:generate:win": "npx protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\proto\\generated --ts_proto_opt=outputServices=grpc-js,env=node,esModuleInterop=true,useExactTypes=false .\\proto\\wallet.proto"
+    "proto:generate": "cd proto && npx buf generate && cd .. && node scripts/copy-proto.js",
+    "proto:lint": "cd proto && npx buf lint",
+    "proto:breaking": "cd proto && npx buf breaking --against ../.git#branch=main"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.11.0",
+    "@grpc/grpc-js": "^1.14.3"
   },
   "devDependencies": {
-    "@grpc/grpc-js": "^1.14.3",
+    "@bufbuild/buf": "^1.64.0",
+    "@bufbuild/protoc-gen-es": "^2.11.0",
     "ts-proto": "^2.11.1"
   }
 }

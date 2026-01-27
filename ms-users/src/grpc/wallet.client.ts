@@ -3,6 +3,22 @@ import * as protoLoader from '@grpc/proto-loader';
 import * as crypto from 'crypto';
 import { env } from '../config/env';
 import path from 'path';
+import type {
+  CreateInitialBalanceResponse,
+  GetBalanceResponse,
+  GetTransactionsResponse,
+  Transaction,
+} from './generated/wallet';
+
+// Re-export generated types for consumers
+export type { 
+  CreateInitialBalanceResponse,
+  GetBalanceResponse, 
+  GetTransactionsResponse,
+  Transaction,
+};
+
+export type TransactionType = 'CREDIT' | 'DEBIT';
 
 // Simple JWT creation for internal service communication
 function createInternalToken(secret: string): string {
@@ -25,62 +41,88 @@ function createInternalToken(secret: string): string {
   return `${base64Header}.${base64Payload}.${signature}`;
 }
 
-export type TransactionType = 'CREDIT' | 'DEBIT';
-
-export interface Transaction {
+// Proto-loader runtime types (snake_case) - used internally for gRPC calls
+// These map to the generated types which use camelCase
+interface ProtoTransaction {
   id: string;
   user_id: string;
   amount: number;
-  type: TransactionType;
+  type: string;
   created_at: string;
   updated_at: string;
 }
 
-
-export interface CreateInitialBalanceRequest {
+interface ProtoCreateInitialBalanceRequest {
   user_id: string;
   initial_amount: number;
 }
 
-export interface CreateInitialBalanceResponse {
+interface ProtoCreateInitialBalanceResponse {
   success: boolean;
   message: string;
-  transaction?: Transaction;
+  transaction?: ProtoTransaction;
 }
 
-export interface GetBalanceRequest {
+interface ProtoGetBalanceRequest {
   user_id: string;
 }
 
-export interface GetBalanceResponse {
+interface ProtoGetBalanceResponse {
   amount: number;
 }
 
-export interface GetTransactionsRequest {
+interface ProtoGetTransactionsRequest {
   user_id: string;
-  type?: TransactionType;
+  type?: string;
 }
 
-export interface GetTransactionsResponse {
-  transactions: Transaction[];
+interface ProtoGetTransactionsResponse {
+  transactions: ProtoTransaction[];
 }
+
+// Conversion helpers: proto (snake_case) -> generated types (camelCase)
+function convertTransaction(proto: ProtoTransaction): Transaction {
+  return {
+    id: proto.id,
+    userId: proto.user_id,
+    amount: proto.amount,
+    type: proto.type,
+    createdAt: proto.created_at,
+    updatedAt: proto.updated_at,
+  };
+}
+
+function convertCreateInitialBalanceResponse(proto: ProtoCreateInitialBalanceResponse): CreateInitialBalanceResponse {
+  return {
+    success: proto.success,
+    message: proto.message,
+    transaction: proto.transaction ? convertTransaction(proto.transaction) : undefined,
+  };
+}
+
+function convertGetTransactionsResponse(proto: ProtoGetTransactionsResponse): GetTransactionsResponse {
+  return {
+    transactions: proto.transactions.map(convertTransaction),
+  };
+}
+
 interface WalletServiceClient {
   CreateInitialBalance: (
-    request: CreateInitialBalanceRequest,
+    request: ProtoCreateInitialBalanceRequest,
     metadata: grpc.Metadata,
-    callback: (error: grpc.ServiceError | null, response: CreateInitialBalanceResponse) => void
+    callback: (error: grpc.ServiceError | null, response: ProtoCreateInitialBalanceResponse) => void
   ) => void;
 
   GetBalance: (
-    request: GetBalanceRequest,
+    request: ProtoGetBalanceRequest,
     metadata: grpc.Metadata,
-    callback: (error: grpc.ServiceError | null, response: GetBalanceResponse) => void
+    callback: (error: grpc.ServiceError | null, response: ProtoGetBalanceResponse) => void
   ) => void;
 
   GetTransactions: (
-    request: GetTransactionsRequest,
+    request: ProtoGetTransactionsRequest,
     metadata: grpc.Metadata,
-    callback: (error: grpc.ServiceError | null, response: GetTransactionsResponse) => void
+    callback: (error: grpc.ServiceError | null, response: ProtoGetTransactionsResponse) => void
   ) => void;
 }
 
@@ -116,7 +158,7 @@ export class WalletGrpcClient {
 
   async createInitialBalance(userId: string, initialAmount: number = 0): Promise<CreateInitialBalanceResponse> {
     return new Promise((resolve, reject) => {
-      const request: CreateInitialBalanceRequest = {
+      const request: ProtoCreateInitialBalanceRequest = {
         user_id: userId,
         initial_amount: initialAmount,
       };
@@ -126,7 +168,7 @@ export class WalletGrpcClient {
           console.error('gRPC CreateInitialBalance error:', error);
           reject(error);
         } else {
-          resolve(response);
+          resolve(convertCreateInitialBalanceResponse(response));
         }
       });
     });
@@ -134,7 +176,7 @@ export class WalletGrpcClient {
 
   async getBalance(userId: string): Promise<GetBalanceResponse> {
     return new Promise((resolve, reject) => {
-      const request: GetBalanceRequest = {
+      const request: ProtoGetBalanceRequest = {
         user_id: userId,
       };
 
@@ -143,7 +185,7 @@ export class WalletGrpcClient {
           console.error('gRPC GetBalance error:', error);
           reject(error);
         } else {
-          resolve(response);
+          resolve(response); // GetBalanceResponse is the same structure
         }
       });
     });
@@ -151,7 +193,7 @@ export class WalletGrpcClient {
 
   async getTransactions(userId: string, type?: 'CREDIT' | 'DEBIT'): Promise<GetTransactionsResponse> {
     return new Promise((resolve, reject) => {
-      const request: GetTransactionsRequest = {
+      const request: ProtoGetTransactionsRequest = {
         user_id: userId,
         type,
       };
@@ -161,7 +203,7 @@ export class WalletGrpcClient {
           console.error('gRPC GetTransactions error:', error);
           reject(error);
         } else {
-          resolve(response);
+          resolve(convertGetTransactionsResponse(response));
         }
       });
     });
