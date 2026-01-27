@@ -2,11 +2,34 @@ import { FastifyInstance } from 'fastify';
 import { buildApp } from '../../../app';
 import { sequelize } from '../../../config/database';
 import { Transaction, TransactionType } from '../transaction.model';
+import { UserBalance } from '../../balances/balance.model';
 
 describe('Transaction Integration Tests', () => {
   let app: FastifyInstance;
   let token: string;
   const userId = '123e4567-e89b-12d3-a456-426614174000';
+
+  // Helper function to create transactions via API (updates balance correctly)
+  const createTransactionViaApi = async (
+    forUserId: string,
+    amount: number,
+    type: 'CREDIT' | 'DEBIT',
+    authToken?: string
+  ) => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/transactions',
+      headers: {
+        authorization: `Bearer ${authToken || token}`,
+      },
+      payload: {
+        user_id: forUserId,
+        amount,
+        type,
+      },
+    });
+    return JSON.parse(response.body);
+  };
 
   beforeAll(async () => {
     try {
@@ -36,7 +59,8 @@ describe('Transaction Integration Tests', () => {
   });
 
   beforeEach(async () => {
-    await Transaction.destroy({ where: {}, truncate: true });
+    await Transaction.destroy({ where: {}, truncate: true, cascade: true });
+    await UserBalance.destroy({ where: {}, truncate: true, cascade: true });
   });
 
   describe('POST /transactions', () => {
@@ -65,10 +89,18 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should return 201 and create a DEBIT transaction when balance is sufficient', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 200,
-        type: TransactionType.CREDIT,
+      // Create a CREDIT first via API to ensure balance is updated
+      await app.inject({
+        method: 'POST',
+        url: '/transactions',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        payload: {
+          user_id: userId,
+          amount: 200,
+          type: 'CREDIT',
+        },
       });
 
       const response = await app.inject({
@@ -92,11 +124,7 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should return 400 when insufficient balance for DEBIT', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 100,
-        type: TransactionType.CREDIT,
-      });
+      await createTransactionViaApi(userId, 100, 'CREDIT');
 
       const response = await app.inject({
         method: 'POST',
@@ -197,11 +225,7 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should allow DEBIT when balance equals amount', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 100,
-        type: TransactionType.CREDIT,
-      });
+      await createTransactionViaApi(userId, 100, 'CREDIT');
 
       const response = await app.inject({
         method: 'POST',
@@ -223,17 +247,8 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should handle multiple CREDIT and DEBIT transactions correctly', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 100,
-        type: TransactionType.CREDIT,
-      });
-
-      await Transaction.create({
-        user_id: userId,
-        amount: 50,
-        type: TransactionType.CREDIT,
-      });
+      await createTransactionViaApi(userId, 100, 'CREDIT');
+      await createTransactionViaApi(userId, 50, 'CREDIT');
 
       const response = await app.inject({
         method: 'POST',
@@ -454,17 +469,8 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should return correct balance with only CREDIT transactions', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 100,
-        type: TransactionType.CREDIT,
-      });
-
-      await Transaction.create({
-        user_id: userId,
-        amount: 50.50,
-        type: TransactionType.CREDIT,
-      });
+      await createTransactionViaApi(userId, 100, 'CREDIT');
+      await createTransactionViaApi(userId, 50.50, 'CREDIT');
 
       const response = await app.inject({
         method: 'GET',
@@ -480,17 +486,8 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should return correct balance with CREDIT and DEBIT transactions', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 200,
-        type: TransactionType.CREDIT,
-      });
-
-      await Transaction.create({
-        user_id: userId,
-        amount: 75.25,
-        type: TransactionType.DEBIT,
-      });
+      await createTransactionViaApi(userId, 200, 'CREDIT');
+      await createTransactionViaApi(userId, 75.25, 'DEBIT');
 
       const response = await app.inject({
         method: 'GET',
@@ -506,17 +503,8 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should return zero balance when CREDIT equals DEBIT', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 100,
-        type: TransactionType.CREDIT,
-      });
-
-      await Transaction.create({
-        user_id: userId,
-        amount: 100,
-        type: TransactionType.DEBIT,
-      });
+      await createTransactionViaApi(userId, 100, 'CREDIT');
+      await createTransactionViaApi(userId, 100, 'DEBIT');
 
       const response = await app.inject({
         method: 'GET',
@@ -533,13 +521,13 @@ describe('Transaction Integration Tests', () => {
 
     it('should handle multiple transactions correctly', async () => {
       // Multiple CREDITS
-      await Transaction.create({ user_id: userId, amount: 100, type: TransactionType.CREDIT });
-      await Transaction.create({ user_id: userId, amount: 200, type: TransactionType.CREDIT });
-      await Transaction.create({ user_id: userId, amount: 150, type: TransactionType.CREDIT });
+      await createTransactionViaApi(userId, 100, 'CREDIT');
+      await createTransactionViaApi(userId, 200, 'CREDIT');
+      await createTransactionViaApi(userId, 150, 'CREDIT');
       
       // Multiple DEBITS
-      await Transaction.create({ user_id: userId, amount: 50, type: TransactionType.DEBIT });
-      await Transaction.create({ user_id: userId, amount: 75, type: TransactionType.DEBIT });
+      await createTransactionViaApi(userId, 50, 'DEBIT');
+      await createTransactionViaApi(userId, 75, 'DEBIT');
 
       const response = await app.inject({
         method: 'GET',
@@ -576,12 +564,13 @@ describe('Transaction Integration Tests', () => {
 
     it('should return different balances for different users', async () => {
       const userId2 = '550e8400-e29b-41d4-a716-446655440000';
+      const token2 = app.jwt.sign({ user_id: userId2 });
 
       // User 1 transactions
-      await Transaction.create({ user_id: userId, amount: 100, type: TransactionType.CREDIT });
+      await createTransactionViaApi(userId, 100, 'CREDIT');
       
       // User 2 transactions
-      await Transaction.create({ user_id: userId2, amount: 500, type: TransactionType.CREDIT });
+      await createTransactionViaApi(userId2, 500, 'CREDIT', token2);
 
       const response1 = await app.inject({
         method: 'GET',
@@ -595,7 +584,7 @@ describe('Transaction Integration Tests', () => {
         method: 'GET',
         url: `/balance?user_id=${userId2}`,
         headers: {
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${token2}`,
         },
       });
 
@@ -610,17 +599,8 @@ describe('Transaction Integration Tests', () => {
     });
 
     it('should handle decimal amounts correctly', async () => {
-      await Transaction.create({
-        user_id: userId,
-        amount: 99.99,
-        type: TransactionType.CREDIT,
-      });
-
-      await Transaction.create({
-        user_id: userId,
-        amount: 25.50,
-        type: TransactionType.DEBIT,
-      });
+      await createTransactionViaApi(userId, 99.99, 'CREDIT');
+      await createTransactionViaApi(userId, 25.50, 'DEBIT');
 
       const response = await app.inject({
         method: 'GET',
