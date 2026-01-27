@@ -11,14 +11,14 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
     {
       preHandler: [jwtAuthMiddleware],
       schema: {
-        tags: ['Transactions'],
-        description: 'Get consolidated balance (CREDIT - DEBIT)',
+        tags: ['Balance'],
+        description: 'Get consolidated balance (CREDIT - DEBIT) from materialized user_balances table.',
         security: [{ bearerAuth: [] }],
         querystring: {
           type: 'object',
           required: ['user_id'],
           properties: {
-            user_id: { type: 'string', format: 'uuid', description: 'User ID' },
+            user_id: { type: 'string', format: 'uuid', description: 'User ID from MS-Users' },
           },
         },
         response: {
@@ -34,6 +34,14 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
             type: 'object',
             properties: {
               code: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          429: {
+            description: 'Too Many Requests - Rate limit exceeded',
+            type: 'object',
+            properties: {
+              code: { type: 'string', example: 'RATE_LIMIT_EXCEEDED' },
               message: { type: 'string' },
             },
           },
@@ -101,15 +109,25 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
       preHandler: [jwtAuthMiddleware],
       schema: {
         tags: ['Transactions'],
-        description: 'Create a new transaction (CREDIT or DEBIT)',
+        description: 'Create a new transaction (CREDIT or DEBIT).',
         security: [{ bearerAuth: [] }],
+        headers: {
+          type: 'object',
+          properties: {
+            'idempotency-key': {
+              type: 'string',
+              format: 'uuid',
+              description: 'Unique key to ensure idempotent transaction processing',
+            },
+          },
+        },
         body: {
           type: 'object',
           required: ['user_id', 'amount', 'type'],
           properties: {
-            user_id: { type: 'string', format: 'uuid' },
-            amount: { type: 'number', minimum: 1 },
-            type: { type: 'string', enum: ['CREDIT', 'DEBIT'] },
+            user_id: { type: 'string', format: 'uuid', description: 'User ID from MS-Users' },
+            amount: { type: 'number', minimum: 1, description: 'Transaction amount (minimum: 1)' },
+            type: { type: 'string', enum: ['CREDIT', 'DEBIT'], description: 'CREDIT adds to balance, DEBIT subtracts' },
           },
         },
         response: {
@@ -124,12 +142,34 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
               created_at: { type: 'string', format: 'date-time' },
               updated_at: { type: 'string', format: 'date-time' },
             },
+            headers: {
+              'x-idempotent-replayed': {
+                type: 'string',
+                description: 'Present and set to "true" if response was replayed from cache',
+              },
+            },
           },
           400: {
             description: 'Bad Request - Invalid data or insufficient balance',
             type: 'object',
             properties: {
-              code: { type: 'string' },
+              code: { type: 'string', description: 'Error code (e.g., INSUFFICIENT_BALANCE, VALIDATION_ERROR)' },
+              message: { type: 'string', description: 'Human-readable error message' },
+            },
+          },
+          409: {
+            description: 'Conflict - Same idempotency key with different payload',
+            type: 'object',
+            properties: {
+              code: { type: 'string', example: 'IDEMPOTENCY_CONFLICT' },
+              message: { type: 'string' },
+            },
+          },
+          429: {
+            description: 'Too Many Requests - Rate limit exceeded',
+            type: 'object',
+            properties: {
+              code: { type: 'string', example: 'RATE_LIMIT_EXCEEDED' },
               message: { type: 'string' },
             },
           },
