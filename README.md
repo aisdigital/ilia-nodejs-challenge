@@ -1,6 +1,6 @@
 # Financial Microservices
 
-Financial system with microservices architecture using Node.js 22, TypeScript, Fastify, PostgreSQL, and gRPC.
+Production-ready financial system with microservices architecture using Node.js 22, TypeScript, Fastify, PostgreSQL, and gRPC. Built with banking-grade features including pessimistic locking, idempotency, and rate limiting.
 
 ![Architecture](diagram.png)
 
@@ -10,6 +10,32 @@ Financial system with microservices architecture using Node.js 22, TypeScript, F
 - **MS-Users** (port 3002) - Authentication and user management
 - **Internal Communication** - gRPC with JWT authentication (port 50051)
 - **Database** - PostgreSQL 15 Alpine (dedicated per service)
+
+## ✨ Production-Ready Features
+
+### 🔒 Data Integrity & Concurrency Control
+
+- **Pessimistic Locking**: `SELECT FOR UPDATE` prevents race conditions and double-spending
+- **Materialized Balances**: O(1) balance queries via `user_balances` table
+- **Atomic Transactions**: All operations wrapped in database transactions
+- **Optimistic Locking**: Version column for additional concurrency safety
+
+### 🔑 Idempotency
+
+- **Idempotency Keys**: Prevents duplicate transactions from retries
+- **TTL-based Cleanup**: Automatic expiration of old keys (24h default)
+- **Conflict Detection**: Returns cached response for duplicate requests
+- **Header Support**: `Idempotency-Key` header for POST requests
+
+### 🚦 Rate Limiting & Backpressure
+
+- **Sliding Window Algorithm**: Precise rate control per IP and per user
+- **Configurable Tiers**: STRICT (30/min), STANDARD (100/min), RELAXED (200/min)
+- **Backpressure Protection**: Limits concurrent requests (100 max)
+- **Request Queuing**: Graceful handling of burst traffic
+- **RFC Headers**: RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset
+
+See detailed documentation: [Rate Limiting Guide](./ms-wallet/docs/RATE-LIMITING.md)
 
 ## 🚀 Quick Start
 
@@ -208,24 +234,35 @@ docker exec -it ms-wallet sh
 ilia-nodejs-challenge/
 ├── ms-wallet/              # Wallet Microservice
 │   ├── src/
-│   │   ├── modules/transactions/
-│   │   ├── grpc/          # gRPC Server
-│   │   ├── shared/        # Plugins, utils, middlewares
+│   │   ├── modules/
+│   │   │   ├── transactions/  # Transaction CRUD
+│   │   │   ├── balances/      # Materialized balance management
+│   │   │   └── idempotency/   # Idempotency key handling
+│   │   ├── grpc/              # gRPC Server
+│   │   ├── shared/
+│   │   │   ├── database/      # Transaction manager
+│   │   │   ├── middlewares/   # Rate limiter, idempotency, JWT
+│   │   │   ├── plugins/       # Swagger, health check
+│   │   │   └── errors/        # Custom error classes
 │   │   └── config/
-│   ├── postman/           # Postman Collections
+│   ├── docs/                  # Technical documentation
+│   ├── postman/               # Postman Collections
 │   └── Dockerfile
-├── ms-users/              # Users Microservice
+├── ms-users/                  # Users Microservice
 │   ├── src/
 │   │   ├── modules/auth/
 │   │   ├── modules/users/
-│   │   ├── grpc/          # gRPC Client
+│   │   ├── grpc/              # gRPC Client
 │   │   ├── shared/
 │   │   └── config/
 │   ├── postman/
 │   └── Dockerfile
-├── proto/                 # Shared gRPC definitions
-├── docker-compose.yml     # Services orchestration
-└── MONITORING.md         # Monitoring guide
+├── proto/
+│   ├── wallet.proto           # gRPC service definition
+│   └── generated/             # Generated TypeScript types
+├── docker-compose.yml         # Services orchestration
+├── MONITORING.md              # Monitoring guide
+└── README.md
 ```
 
 ## 🧩 Technologies
@@ -305,3 +342,74 @@ docker-compose logs ms-wallet | grep "gRPC"
 # Check port 50051
 docker-compose ps | grep 50051
 ```
+
+## ⚖️ Trade-offs & Design Decisions
+
+### 1. Materialized Balance vs. Calculated Balance
+
+| Approach                  | Pros                                            | Cons                                   |
+| ------------------------- | ----------------------------------------------- | -------------------------------------- |
+| **Materialized (chosen)** | O(1) queries, consistent reads, simpler queries | Storage overhead, update complexity    |
+| **Calculated (SUM)**      | No redundancy, always accurate                  | O(n) queries, lock contention on reads |
+
+**Decision**: Materialized balance for O(1) performance. In banking, balance queries vastly outnumber transactions, making this trade-off favorable.
+
+### 2. Pessimistic vs. Optimistic Locking
+
+| Approach                 | Pros                               | Cons                                    |
+| ------------------------ | ---------------------------------- | --------------------------------------- |
+| **Pessimistic (chosen)** | Guaranteed consistency, no retries | Lower throughput, potential deadlocks   |
+| **Optimistic**           | Higher throughput, no blocking     | Requires retry logic, conflict overhead |
+
+**Decision**: Pessimistic locking (`SELECT FOR UPDATE`) for financial transactions. Correctness is paramount; we cannot afford failed transactions due to conflicts.
+
+### 3. In-Memory vs. Distributed Rate Limiting
+
+| Approach               | Pros                          | Cons                               |
+| ---------------------- | ----------------------------- | ---------------------------------- |
+| **In-Memory (chosen)** | Zero latency, no dependencies | Single-instance only               |
+| **Redis**              | Distributed, persistent       | Additional infrastructure, latency |
+
+**Decision**: In-memory for medium/low volume. The implementation is designed for easy migration to Redis when horizontal scaling is needed.
+
+### 4. PostgreSQL-Only vs. Redis for Idempotency
+
+| Approach                | Pros                         | Cons                                            |
+| ----------------------- | ---------------------------- | ----------------------------------------------- |
+| **PostgreSQL (chosen)** | Single source of truth, ACID | Slightly higher latency                         |
+| **Redis**               | Very fast, built-in TTL      | Additional infrastructure, eventual consistency |
+
+**Decision**: PostgreSQL for simplicity and transactional guarantees. For high-volume scenarios (>10k req/min), Redis would be recommended.
+
+### 5. Synchronous vs. Async Transaction Processing
+
+| Approach                 | Pros                        | Cons                             |
+| ------------------------ | --------------------------- | -------------------------------- |
+| **Synchronous (chosen)** | Immediate feedback, simpler | Lower throughput under load      |
+| **Event-driven (queue)** | High throughput, resilient  | Eventual consistency, complexity |
+
+**Decision**: Synchronous for immediate balance confirmation. Financial users expect real-time feedback on transactions.
+
+### 6. Single Transaction Table vs. Event Sourcing
+
+| Approach                  | Pros                                | Cons                    |
+| ------------------------- | ----------------------------------- | ----------------------- |
+| **Single table (chosen)** | Simple queries, familiar ORM        | Less audit granularity  |
+| **Event sourcing**        | Complete history, replay capability | Complex, higher storage |
+
+**Decision**: Traditional CRUD with materialized balance. Event sourcing adds complexity without proportional benefit for this scale.
+
+### Summary: Optimized For
+
+- ✅ **Correctness** over raw throughput
+- ✅ **Simplicity** over premature optimization
+- ✅ **PostgreSQL-only** to minimize infrastructure
+- ✅ **Single-instance** deployment with clear upgrade path
+- ✅ **Banking-grade** consistency guarantees
+
+### Future Enhancements (When Needed)
+
+1. **Redis Rate Limiting**: For horizontal scaling
+2. **Event Sourcing**: For complete audit trail
+3. **Read Replicas**: For read-heavy workloads
+4. **Message Queue**: For async processing under extreme load
