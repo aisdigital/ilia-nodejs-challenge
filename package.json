@@ -1,0 +1,14 @@
+{
+  "name": "ilia-nodejs-challenge",
+  "version": "1.0.0",
+  "description": "Financial Microservices - Workspace Root",
+  "private": true,
+  "scripts": {
+    "proto:generate": "npx protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./proto/generated --ts_proto_opt=outputServices=grpc-js,env=node,esModuleInterop=true,useExactTypes=false ./proto/wallet.proto",
+    "proto:generate:win": "npx protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\proto\\generated --ts_proto_opt=outputServices=grpc-js,env=node,esModuleInterop=true,useExactTypes=false .\\proto\\wallet.proto"
+  },
+  "devDependencies": {
+    "@grpc/grpc-js": "^1.14.3",
+    "ts-proto": "^2.11.1"
+  }
+}

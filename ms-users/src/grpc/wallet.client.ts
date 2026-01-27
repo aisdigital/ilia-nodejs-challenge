@@ -3,43 +3,45 @@ import * as protoLoader from '@grpc/proto-loader';
 import { env } from '../config/env';
 import path from 'path';
 
-interface Transaction {
+export type TransactionType = 'CREDIT' | 'DEBIT';
+
+export interface Transaction {
   id: string;
   user_id: string;
   amount: number;
-  type: 'CREDIT' | 'DEBIT';
+  type: TransactionType;
   created_at: string;
   updated_at: string;
 }
 
-interface CreateInitialBalanceRequest {
+
+export interface CreateInitialBalanceRequest {
   user_id: string;
   initial_amount: number;
 }
 
-interface CreateInitialBalanceResponse {
+export interface CreateInitialBalanceResponse {
   success: boolean;
   message: string;
   transaction?: Transaction;
 }
 
-interface GetBalanceRequest {
+export interface GetBalanceRequest {
   user_id: string;
 }
 
-interface GetBalanceResponse {
+export interface GetBalanceResponse {
   amount: number;
 }
 
-interface GetTransactionsRequest {
+export interface GetTransactionsRequest {
   user_id: string;
-  type?: 'CREDIT' | 'DEBIT';
+  type?: TransactionType;
 }
 
-interface GetTransactionsResponse {
+export interface GetTransactionsResponse {
   transactions: Transaction[];
 }
-
 interface WalletServiceClient {
   CreateInitialBalance: (
     request: CreateInitialBalanceRequest,
