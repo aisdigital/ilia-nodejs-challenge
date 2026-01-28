@@ -13,7 +13,13 @@
         "test:wallet": "jest --config apps/wallet-service/test/jest.config.js",
         "test:wallet:unit": "jest --config apps/wallet-service/test/unit/jest.config.js",
         "test:wallet:integration": "jest --config apps/wallet-service/test/integration/jest.config.js",
-        "test:wallet:cov": "jest --config apps/wallet-service/test/unit/jest.config.js --coverage"
+        "test:wallet:cov": "jest --config apps/wallet-service/test/unit/jest.config.js --coverage",
+        "build:users": "nest build users-service",
+        "start:dev:users": "nest start users-service --watch",
+        "test:users": "jest --config apps/users-service/test/jest.config.js",
+        "test:users:unit": "jest --config apps/users-service/test/unit/jest.config.js",
+        "test:users:integration": "jest --config apps/users-service/test/integration/jest.config.js",
+        "test:users:cov": "jest --config apps/users-service/test/unit/jest.config.js --coverage"
     },
     "dependencies": {
         "@nestjs/common": "^10.0.0",
