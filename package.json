@@ -1,0 +1,20 @@
+{
+  "name": "ilia-nodejs-challenge",
+  "version": "1.0.0",
+  "description": "Financial Microservices - Workspace Root",
+  "private": true,
+  "scripts": {
+    "proto:generate": "cd proto && npx buf generate && cd .. && node scripts/copy-proto.js",
+    "proto:lint": "cd proto && npx buf lint",
+    "proto:breaking": "cd proto && npx buf breaking --against ../.git#branch=main"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.11.0",
+    "@grpc/grpc-js": "^1.14.3"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.64.0",
+    "@bufbuild/protoc-gen-es": "^2.11.0",
+    "ts-proto": "^2.11.1"
+  }
+}

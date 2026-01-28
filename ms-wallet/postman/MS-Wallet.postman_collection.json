@@ -1,0 +1,724 @@
+{
+	"info": {
+		"_postman_id": "ms-wallet-api",
+		"name": "MS-Wallet API",
+		"description": "Collection for testing Wallet Microservice endpoints.\n\n## Features\n- **Idempotency**: Use `Idempotency-Key` header for POST/PUT/PATCH requests\n- **Rate Limiting**: Check response headers for rate limit status\n- **Backpressure**: Server returns 503 when overloaded\n\n## Authentication\nAll endpoints require JWT Bearer token from MS-Users service.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"exec": [
+					"// Ensure we have a JWT token",
+					"if (!pm.environment.get('jwt_token')) {",
+					"    console.warn('Warning: No JWT token set. Please login via MS-Users first.');",
+					"}"
+				],
+				"type": "text/javascript"
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"exec": [
+					"// Log rate limit headers if present",
+					"const rateLimit = pm.response.headers.get('X-RateLimit-Limit');",
+					"const rateRemaining = pm.response.headers.get('X-RateLimit-Remaining');",
+					"const rateReset = pm.response.headers.get('X-RateLimit-Reset');",
+					"",
+					"if (rateLimit) {",
+					"    console.log('Rate Limit:', rateLimit);",
+					"    console.log('Remaining:', rateRemaining);",
+					"    console.log('Reset:', rateReset);",
+					"}",
+					"",
+					"// Check if response was replayed (idempotency)",
+					"const replayed = pm.response.headers.get('x-idempotent-replayed');",
+					"if (replayed === 'true') {",
+					"    console.log('⚠️ Response was replayed from idempotency cache');",
+					"}"
+				],
+				"type": "text/javascript"
+			}
+		}
+	],
+	"item": [
+		{
+			"name": "Health & Monitoring",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 503\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 503]);",
+									"});",
+									"",
+									"pm.test(\"Response has health data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData).to.have.property('checks');",
+									"    pm.expect(jsonData.checks).to.have.property('database');",
+									"    pm.expect(jsonData.checks).to.have.property('memory');",
+									"    pm.expect(jsonData.checks).to.have.property('grpc');",
+									"});",
+									"",
+									"pm.test(\"Rate limiter metrics present\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.checks.rateLimiter) {",
+									"        pm.expect(jsonData.checks.rateLimiter).to.have.property('rateLimit');",
+									"        pm.expect(jsonData.checks.rateLimiter).to.have.property('backpressure');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Get service health status including:\n- Database connectivity\n- Memory usage\n- gRPC status\n- Rate limiter metrics\n- Backpressure status"
+					},
+					"response": []
+				},
+				{
+					"name": "Get API Documentation",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/docs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs"
+							]
+						},
+						"description": "Access Swagger/OpenAPI documentation"
+					},
+					"response": []
+				}
+			],
+			"description": "Health check and monitoring endpoints"
+		},
+		{
+			"name": "Balance",
+			"item": [
+				{
+					"name": "Get Balance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has amount property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('amount');",
+									"    pm.expect(typeof jsonData.amount).to.eql('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/balance?user_id={{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"balance"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						},
+						"description": "Get consolidated balance (CREDIT - DEBIT) from materialized user_balances table.\n\nThis endpoint uses O(1) lookup instead of calculating sum of all transactions."
+					},
+					"response": []
+				}
+			],
+			"description": "Balance query endpoints"
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "List All Transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/transactions?user_id={{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						},
+						"description": "List all transactions for a user"
+					},
+					"response": []
+				},
+				{
+					"name": "List CREDIT Transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"All transactions are CREDIT\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(tx) {",
+									"        pm.expect(tx.type).to.eql('CREDIT');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/transactions?user_id={{user_id}}&type=CREDIT",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								},
+								{
+									"key": "type",
+									"value": "CREDIT"
+								}
+							]
+						},
+						"description": "Filter transactions by type CREDIT"
+					},
+					"response": []
+				},
+				{
+					"name": "List DEBIT Transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"All transactions are DEBIT\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(tx) {",
+									"        pm.expect(tx.type).to.eql('DEBIT');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/transactions?user_id={{user_id}}&type=DEBIT",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								},
+								{
+									"key": "type",
+									"value": "DEBIT"
+								}
+							]
+						},
+						"description": "Filter transactions by type DEBIT"
+					},
+					"response": []
+				},
+				{
+					"name": "Create CREDIT Transaction",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate unique idempotency key for this request",
+									"pm.environment.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has transaction id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData.type).to.eql('CREDIT');",
+									"});",
+									"",
+									"// Save transaction id for potential retry test",
+									"pm.environment.set('last_transaction_id', pm.response.json().id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Idempotency-Key",
+								"value": "{{idempotency_key}}",
+								"description": "Unique key for idempotent request (prevents duplicate transactions)"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"amount\": 100.50,\n  \"type\": \"CREDIT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							]
+						},
+						"description": "Create a new CREDIT transaction.\n\n**Idempotency**: Include `Idempotency-Key` header to prevent duplicate transactions. The same key with the same payload will return the cached response.\n\n**Atomicity**: Uses pessimistic locking to ensure data consistency."
+					},
+					"response": []
+				},
+				{
+					"name": "Create CREDIT Transaction (Retry - Same Idempotency Key)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"pm.test(\"Response was replayed\", function () {",
+									"    const replayed = pm.response.headers.get('x-idempotent-replayed');",
+									"    pm.expect(replayed).to.eql('true');",
+									"});",
+									"",
+									"pm.test(\"Same transaction id returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var lastTxId = pm.environment.get('last_transaction_id');",
+									"    pm.expect(jsonData.id).to.eql(lastTxId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Idempotency-Key",
+								"value": "{{idempotency_key}}",
+								"description": "Same key as previous request - should return cached response"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"amount\": 100.50,\n  \"type\": \"CREDIT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							]
+						},
+						"description": "Test idempotency by retrying the same request with the same Idempotency-Key.\n\nExpected behavior: Returns the same response as the original request with `x-idempotent-replayed: true` header."
+					},
+					"response": []
+				},
+				{
+					"name": "Create DEBIT Transaction",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate unique idempotency key for this request",
+									"pm.environment.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has transaction id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData.type).to.eql('DEBIT');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Idempotency-Key",
+								"value": "{{idempotency_key}}",
+								"description": "Unique key for idempotent request"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"amount\": 50.25,\n  \"type\": \"DEBIT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							]
+						},
+						"description": "Create a new DEBIT transaction (requires sufficient balance).\n\n**Balance Check**: Uses pessimistic locking (SELECT FOR UPDATE) to ensure balance cannot go negative."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transaction with Insufficient Balance",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response has error code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql('INSUFFICIENT_BALANCE');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Idempotency-Key",
+								"value": "{{idempotency_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"amount\": 99999.99,\n  \"type\": \"DEBIT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							]
+						},
+						"description": "Test insufficient balance error when trying to debit more than available balance."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transaction with Invalid UUID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"invalid-uuid\",\n  \"amount\": 100,\n  \"type\": \"CREDIT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							]
+						},
+						"description": "Test validation error for invalid UUID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transaction with Zero Amount",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"amount\": 0,\n  \"type\": \"CREDIT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions"
+							]
+						},
+						"description": "Test validation error for zero amount (minimum is 1)"
+					},
+					"response": []
+				}
+			],
+			"description": "Transaction management endpoints.\n\n## Important Headers\n- `Idempotency-Key`: Unique identifier to prevent duplicate transactions\n- `Authorization: Bearer <token>`: JWT token from MS-Users\n\n## Rate Limiting\nResponse headers include:\n- `X-RateLimit-Limit`: Max requests per window\n- `X-RateLimit-Remaining`: Remaining requests\n- `X-RateLimit-Reset`: Window reset time (epoch seconds)"
+		},
+		{
+			"name": "Rate Limiting & Backpressure",
+			"item": [
+				{
+					"name": "Test Rate Limit (Burst Requests)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Check rate limit headers",
+									"const limit = pm.response.headers.get('X-RateLimit-Limit');",
+									"const remaining = pm.response.headers.get('X-RateLimit-Remaining');",
+									"",
+									"pm.test(\"Rate limit headers present\", function () {",
+									"    pm.expect(limit).to.exist;",
+									"    pm.expect(remaining).to.exist;",
+									"});",
+									"",
+									"pm.test(\"Status code is 200 or 429\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 429]);",
+									"});",
+									"",
+									"if (pm.response.code === 429) {",
+									"    pm.test(\"Rate limit exceeded response\", function () {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.code).to.eql('RATE_LIMIT_EXCEEDED');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/balance?user_id={{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"balance"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						},
+						"description": "Test rate limiting by sending multiple requests.\n\nRun this request multiple times quickly to see rate limit headers change. Eventually you'll get a 429 Too Many Requests response.\n\n**Limits by tier:**\n- STRICT: 30 requests/minute\n- STANDARD: 100 requests/minute\n- RELAXED: 500 requests/minute"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints to test rate limiting and backpressure behavior"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3001",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "123e4567-e89b-12d3-a456-426614174000",
+			"type": "string"
+		},
+		{
+			"key": "idempotency_key",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

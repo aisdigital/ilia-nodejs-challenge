@@ -1,13 +1,12 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Microservice Users
   version: 1.0.0
-  
+
 servers:
   - url: http://localhost:3002
     description: Local
-  
-  
+
 tags:
   - name: Users
   - name: Auth
@@ -32,11 +31,11 @@ paths:
           description: Response
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-      
+
     get:
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
         200:
@@ -58,7 +57,7 @@ paths:
               $ref: '#/components/schemas/UserRequest'
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
         '200':
@@ -69,11 +68,11 @@ paths:
           description: Response
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-      
+
     get:
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
         200:
@@ -87,14 +86,14 @@ paths:
     delete:
       tags:
         - Users
-      security: 
+      security:
         - bearerAuth: []
       responses:
         200:
           description: OK
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  
+
   # Auth
   /auth:
     post:
@@ -114,17 +113,16 @@ paths:
           description: Response
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-    
-  
+
 components:
   schemas:
     UserRequest:
       type: object
       required:
-      - first_name
-      - last_name
-      - password
-      - email
+        - first_name
+        - last_name
+        - password
+        - email
       properties:
         first_name:
           type: string
@@ -137,13 +135,13 @@ components:
     Users:
       type: object
       required:
-      - id
-      - first_name
-      - last_name
-      - password
-      - email
+        - id
+        - first_name
+        - last_name
+        - password
+        - email
       properties:
-        id: 
+        id:
           type: string
         first_name:
           type: string
@@ -156,13 +154,13 @@ components:
     UsersModel:
       type: object
       required:
-      - id
-      - first_name
-      - last_name
-      - password
-      - email
+        - id
+        - first_name
+        - last_name
+        - password
+        - email
       properties:
-        id: 
+        id:
           type: string
         first_name:
           type: string
@@ -175,12 +173,12 @@ components:
     UsersResponse:
       type: object
       required:
-      - id
-      - first_name
-      - last_name
-      - email
+        - id
+        - first_name
+        - last_name
+        - email
       properties:
-        id: 
+        id:
           type: string
         first_name:
           type: string
@@ -191,13 +189,13 @@ components:
     AuthRequest:
       type: object
       required:
-      - email
-      - password
+        - email
+        - password
       properties:
-        user: 
+        user:
           type: object
           properties:
-            email: 
+            email:
               type: string
             password:
               type: string
@@ -205,13 +203,13 @@ components:
     AuthResponse:
       type: object
       required:
-      - email
-      - password
+        - email
+        - password
       properties:
-        user: 
+        user:
           type: object
           properties:
-            id: 
+            id:
               type: string
             first_name:
               type: string
@@ -222,10 +220,10 @@ components:
         access_token:
           type: string
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth: # arbitrary name for the security scheme
       type: http
       scheme: bearer
       bearerFormat: JWT
   responses:
     UnauthorizedError:
-      description: Access token is missing or invalid    
+      description: Access token is missing or invalid

@@ -1,13 +1,12 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Microservice Wallet
   version: 1.0.0
-  
+
 servers:
   - url: http://localhost:3001
     description: Local
-  
-  
+
 tags:
   - name: Transactions
 
@@ -31,12 +30,12 @@ paths:
           description: Response
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-      security: 
+      security:
         - bearerAuth: []
     get:
       tags:
         - Transactions
-      security: 
+      security:
         - bearerAuth: []
       parameters:
         - in: query
@@ -69,16 +68,16 @@ paths:
                 $ref: '#/components/schemas/BalanceResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-      security: 
+      security:
         - bearerAuth: []
 components:
   schemas:
     Transactions:
       type: object
       required:
-      - user_id
-      - type
-      - amount
+        - user_id
+        - type
+        - amount
       properties:
         user_id:
           type: string
@@ -87,16 +86,16 @@ components:
         type:
           type: string
           enum:
-          - CREDIT
-          - DEBIT
+            - CREDIT
+            - DEBIT
     TransactionsModel:
       type: object
       required:
-      - user_id
-      - type
-      - amount
+        - user_id
+        - type
+        - amount
       properties:
-        id: 
+        id:
           type: string
         user_id:
           type: string
@@ -105,19 +104,19 @@ components:
         type:
           type: string
           enum:
-          - CREDIT
-          - DEBIT
+            - CREDIT
+            - DEBIT
     BalanceResponse:
       type: object
       properties:
         amount:
           type: integer
-        
+
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth: # arbitrary name for the security scheme
       type: http
       scheme: bearer
       bearerFormat: JWT
   responses:
     UnauthorizedError:
-      description: Access token is missing or invalid    
+      description: Access token is missing or invalid

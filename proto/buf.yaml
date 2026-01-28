@@ -1,0 +1,14 @@
+# buf.yaml - Buffer configuration
+# https://buf.build/docs/configuration/v2/buf-yaml
+version: v2
+modules:
+  - path: .
+lint:
+  use:
+    - STANDARD
+  except:
+    - PACKAGE_DIRECTORY_MATCH
+    - PACKAGE_VERSION_SUFFIX
+breaking:
+  use:
+    - FILE
