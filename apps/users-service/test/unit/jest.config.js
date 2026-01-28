@@ -1,0 +1,27 @@
+module.exports = {
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: '../..',
+  testMatch: ['<rootDir>/test/unit/**/*.spec.ts'],
+  testPathIgnorePatterns: ['<rootDir>/test/unit/main.spec.ts'],
+  transform: {
+    '^.+\.(t|j)s$': 'ts-jest',
+  },
+  collectCoverageFrom: [
+    '<rootDir>/src/modules/user/**/*.(t|j)s',
+    '!<rootDir>/src/**/*.module.ts',
+    '!<rootDir>/src/main.ts',
+    '!<rootDir>/src/app.module.ts',
+    '!<rootDir>/src/**/*.spec.ts',
+  ],
+  coverageDirectory: '../../coverage/users-service/unit',
+  testEnvironment: 'node',
+  maxWorkers: 1,
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
+  verbose: false,
+  silent: true,
+  setupFilesAfterEnv: ['<rootDir>/test/unit/setup.ts'],
+  testTimeout: 10000,
+  forceExit: true,
+  detectOpenHandles: false,
+};
