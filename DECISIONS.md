@@ -73,7 +73,7 @@ Este documento registra as decisões técnicas relevantes adotadas durante a imp
    - npm run test:wallet:unit --silent
    - npm run test:users:unit --silent
 
-> Nota: os scripts de teste definem `HISTFILE=/dev/null` internamente para evitar problemas conhecidos com a história do shell (zsh) ao executar o test runner.
+> Nota: os scripts de teste não requerem configuração adicional de `HISTFILE` para execução normal.
 
 > Nota operacional: se preferir não usar Docker localmente, é necessário garantir que os bancos (Postgres) e demais infraestruturas estejam acessíveis e configuradas conforme `.env.local`. 
 

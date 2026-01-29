@@ -64,10 +64,10 @@ jobs:
           npm run build:users
 
       - name: Run wallet unit tests with coverage
-        run: HISTFILE=/dev/null npx jest apps/wallet-service/test/unit/ --config apps/wallet-service/test/unit/jest.config.js --coverage --runInBand
+        run: npx jest apps/wallet-service/test/unit/ --config apps/wallet-service/test/unit/jest.config.js --coverage --runInBand
 
       - name: Run users unit tests with coverage
-        run: HISTFILE=/dev/null npx jest apps/users-service/test/unit/ --config apps/users-service/test/unit/jest.config.js --coverage --runInBand
+        run: npx jest apps/users-service/test/unit/ --config apps/users-service/test/unit/jest.config.js --coverage --runInBand
 
       - name: Stop Docker Compose
         if: always()
