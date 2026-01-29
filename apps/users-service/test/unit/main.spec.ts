@@ -1,4 +1,4 @@
-describe.skip('Main', () => {
+describe('Main', () => {
   it('should have correct module structure', async () => {
     const fs = await import('fs');
     const path = await import('path');

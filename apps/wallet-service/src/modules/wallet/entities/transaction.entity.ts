@@ -33,3 +33,5 @@ export class Transaction {
   @ManyToOne(() => Wallet, wallet => wallet.transactions)
   wallet: Wallet;
 }
+
+

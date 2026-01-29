@@ -21,3 +21,5 @@ export class Wallet {
   @OneToMany(() => Transaction, wallet => wallet.wallet)
   transactions: Transaction[];
 }
+
+
