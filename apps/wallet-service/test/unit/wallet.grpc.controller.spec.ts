@@ -80,7 +80,6 @@ describe('WalletGrpcController', () => {
           created_at: mockWallet.created_at.toISOString(),
           updated_at: mockWallet.updated_at.toISOString(),
         },
-        success: true,
         message: 'Wallet created successfully',
       });
       expect(walletService.createWallet).toHaveBeenCalledWith({ user_id: 'user-1' });
@@ -94,7 +93,6 @@ describe('WalletGrpcController', () => {
 
       expect(result).toEqual({
         wallet: null,
-        success: false,
         message: 'Failed to create wallet',
       });
     });
@@ -114,7 +112,6 @@ describe('WalletGrpcController', () => {
           created_at: mockWallet.created_at.toISOString(),
           updated_at: mockWallet.updated_at.toISOString(),
         },
-        success: true,
         message: 'Wallet found',
       });
       expect(walletService.findWalletByUserId).toHaveBeenCalledWith('user-1');
@@ -128,7 +125,6 @@ describe('WalletGrpcController', () => {
 
       expect(result).toEqual({
         wallet: null,
-        success: false,
         message: 'Wallet not found',
       });
     });
@@ -155,7 +151,6 @@ describe('WalletGrpcController', () => {
           created_at: mockTransaction.created_at.toISOString(),
           updated_at: mockTransaction.updated_at.toISOString(),
         },
-        success: true,
         message: 'Transaction created successfully',
       });
       expect(walletService.createTransaction).toHaveBeenCalledWith({
@@ -178,7 +173,6 @@ describe('WalletGrpcController', () => {
 
       expect(result).toEqual({
         transaction: null,
-        success: false,
         message: 'Insufficient balance',
       });
     });
@@ -216,7 +210,6 @@ describe('WalletGrpcController', () => {
           created_at: tx.created_at.toISOString(),
           updated_at: tx.updated_at.toISOString(),
         })),
-        success: true,
         message: 'Transactions found',
       });
       expect(walletService.getTransactions).toHaveBeenCalledWith('wallet-1');
@@ -230,7 +223,6 @@ describe('WalletGrpcController', () => {
 
       expect(result).toEqual({
         transactions: [],
-        success: false,
         message: 'Failed to get transactions',
       });
     });
@@ -241,7 +233,7 @@ describe('WalletGrpcController', () => {
       const result = await controller.getTransactions({ wallet_id: 'wallet-1' });
 
       expect(result.transactions).toEqual([]);
-      expect(result.success).toBe(true);
+      expect(result.message).toBeDefined();
     });
   });
 
@@ -253,7 +245,6 @@ describe('WalletGrpcController', () => {
 
       expect(result).toEqual({
         balance: 100,
-        success: true,
         message: 'Balance retrieved successfully',
       });
       expect(walletService.getBalance).toHaveBeenCalledWith('wallet-1');
@@ -267,7 +258,6 @@ describe('WalletGrpcController', () => {
 
       expect(result).toEqual({
         balance: 0,
-        success: false,
         message: 'Wallet not found',
       });
     });

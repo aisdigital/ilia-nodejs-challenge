@@ -19,13 +19,11 @@ export class WalletGrpcController {
           created_at: wallet.created_at.toISOString(),
           updated_at: wallet.updated_at.toISOString(),
         },
-        success: true,
         message: 'Wallet created successfully',
       };
     } catch (error) {
       return {
         wallet: null,
-        success: false,
         message: error.message,
       };
     }
@@ -43,13 +41,11 @@ export class WalletGrpcController {
           created_at: wallet.created_at.toISOString(),
           updated_at: wallet.updated_at.toISOString(),
         },
-        success: true,
         message: 'Wallet found',
       };
     } catch (error) {
       return {
         wallet: null,
-        success: false,
         message: error.message,
       };
     }
@@ -79,13 +75,11 @@ export class WalletGrpcController {
           created_at: transaction.created_at.toISOString(),
           updated_at: transaction.updated_at.toISOString(),
         },
-        success: true,
         message: 'Transaction created successfully',
       };
     } catch (error) {
       return {
         transaction: null,
-        success: false,
         message: error.message,
       };
     }
@@ -105,13 +99,11 @@ export class WalletGrpcController {
           created_at: tx.created_at.toISOString(),
           updated_at: tx.updated_at.toISOString(),
         })),
-        success: true,
         message: 'Transactions found',
       };
     } catch (error) {
       return {
         transactions: [],
-        success: false,
         message: error.message,
       };
     }
@@ -123,13 +115,11 @@ export class WalletGrpcController {
       const balance = await this.walletService.getBalance(data.wallet_id);
       return {
         balance: balance.balance,
-        success: true,
         message: 'Balance retrieved successfully',
       };
     } catch (error) {
       return {
         balance: 0,
-        success: false,
         message: error.message,
       };
     }

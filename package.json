@@ -15,7 +15,7 @@
     "test:wallet:unit": "jest --config apps/wallet-service/test/unit/jest.config.js",
     "test:wallet:integration": "jest --config apps/wallet-service/test/integration/jest.config.js",
     "test:wallet:cov": "npx jest apps/wallet-service/test/unit/ --config apps/wallet-service/test/jest.config.js --coverage",
-    "build:users": "swc apps/users-service -d dist/apps --copy-files",
+    "build:users": "swc apps/users-service -d dist/apps --copy-files && cp -r proto dist/apps/ 2>/dev/null || true",
     "start:dev:users": "nest start users-service --watch",
     "start:prod:users": "node dist/apps/users-service/src/main.js",
     "test:users": "jest --config apps/users-service/test/jest.config.js",

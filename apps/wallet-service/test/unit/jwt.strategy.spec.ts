@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing';
 import { JwtStrategy } from '../../src/modules/auth/jwt.strategy';
-import { AuthService } from '../../src/modules/auth/auth.service';
 
 const originalConsole = { ...console };
 const mockConsole = {
@@ -11,7 +10,6 @@ const mockConsole = {
   debug: jest.fn(),
 };
 
-// Mock environment variables
 process.env.JWT_PRIVATE_KEY = 'test-secret-key';
 
 describe('JwtStrategy', () => {
@@ -26,66 +24,41 @@ describe('JwtStrategy', () => {
   });
 
   beforeEach(async () => {
-    // Set up test environment
-
     process.env.NODE_ENV = 'test';
     process.env.JWT_PRIVATE_KEY = 'test-secret-key';
 
-    const mockAuthService = {
-      validateUser: jest.fn(),
-    } as any;
-
     const moduleRef = await Test.createTestingModule({
-      providers: [
-        JwtStrategy,
-        {
-          provide: AuthService,
-          useValue: mockAuthService,
-        },
-      ],
+      providers: [JwtStrategy],
     }).compile();
 
     strategy = moduleRef.get<JwtStrategy>(JwtStrategy);
   });
 
   describe('validate', () => {
-    it('should validate user successfully with valid payload', async () => {
-      const payload = { username: 'admin', sub: 1 };
-
+    it('should validate payload with sub and email', async () => {
+      const payload = { sub: 'user-uuid', email: 'user@example.com' };
       const result = await strategy.validate(payload);
-
-      expect(result).toEqual({ userId: 1, username: 'admin' });
+      expect(result).toEqual({
+        userId: 'user-uuid',
+        email: 'user@example.com',
+        username: undefined,
+      });
     });
 
-    it('should handle validation with missing username', async () => {
-      const payload = { sub: 999 };
-
+    it('should handle payload with username (legacy)', async () => {
+      const payload = { sub: '1', username: 'admin' };
       const result = await strategy.validate(payload);
-
-      expect(result).toEqual({ userId: 999, username: undefined });
-    });
-
-    it('should handle validation with missing sub', async () => {
-      const payload = { username: 'admin' };
-
-      const result = await strategy.validate(payload);
-
-      expect(result).toEqual({ userId: undefined, username: 'admin' });
+      expect(result).toEqual({ userId: '1', email: undefined, username: 'admin' });
     });
 
     it('should handle empty payload', async () => {
       const payload = {};
-
-      const result = await strategy.validate(payload);
-
-      expect(result).toEqual({ userId: undefined, username: undefined });
+      const result = await strategy.validate(payload as any);
+      expect(result).toEqual({ userId: undefined, email: undefined, username: undefined });
     });
 
     it('should handle null payload gracefully', async () => {
-      const payload = null;
-
-      // The actual strategy will throw an error with null payload, so we expect that
-      await expect(strategy.validate(payload)).rejects.toThrow();
+      await expect(strategy.validate(null as any)).rejects.toThrow();
     });
   });
 

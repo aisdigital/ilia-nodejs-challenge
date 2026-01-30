@@ -61,11 +61,29 @@ describe('WalletService', () => {
       find: jest.fn(),
     };
 
-    // Create service instance manually to avoid DI issues
-    service = new RealWalletService(walletRepository, transactionRepository);
+    const mockQueryRunner = {
+      connect: jest.fn().mockResolvedValue(undefined),
+      startTransaction: jest.fn().mockResolvedValue(undefined),
+      commitTransaction: jest.fn().mockResolvedValue(undefined),
+      rollbackTransaction: jest.fn().mockResolvedValue(undefined),
+      release: jest.fn().mockResolvedValue(undefined),
+      manager: {
+        getRepository: jest.fn().mockImplementation((entity: any) => {
+          const name = entity?.name ?? entity;
+          if (name === 'Wallet') return walletRepository;
+          if (name === 'Transaction') return transactionRepository;
+          return walletRepository;
+        }),
+      },
+    };
+
+    const mockDataSource = {
+      createQueryRunner: jest.fn().mockReturnValue(mockQueryRunner),
+    };
+
+    service = new RealWalletService(walletRepository, transactionRepository, mockDataSource as any);
     jest.clearAllMocks();
 
-    // Reset mockWallet balance to 100 for each test
     mockWallet.balance = 100;
   });
 

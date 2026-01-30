@@ -5,6 +5,11 @@ import { User } from '../../src/modules/user/entities/user.entity';
 import { CreateUserDto } from '../../src/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from '../../src/modules/user/dto/update-user.dto';
 
+jest.mock('bcrypt', () => ({
+  hash: jest.fn().mockResolvedValue('hashed_password'),
+  compare: jest.fn().mockResolvedValue(true),
+}));
+
 const mockUser: User = {
   id: 'user-1',
   first_name: 'Maria',
@@ -34,6 +39,7 @@ describe('UserService', () => {
             delete: jest.fn(),
           },
         },
+        { provide: 'WALLET_PACKAGE', useValue: null },
       ],
     }).compile();
 
@@ -42,7 +48,7 @@ describe('UserService', () => {
   });
 
   describe('create', () => {
-    it('should create a user', async () => {
+    it('should create a user with hashed password', async () => {
       const userData: CreateUserDto = {
         first_name: 'Maria',
         last_name: 'Silva',
@@ -50,14 +56,51 @@ describe('UserService', () => {
         password: 'secret',
       };
 
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest.spyOn(repository, 'create').mockReturnValue(mockUser);
       jest.spyOn(repository, 'save').mockResolvedValue(mockUser);
 
       const result = await service.create(userData);
 
       expect(result).toEqual(mockUser);
-      expect(repository.create).toHaveBeenCalledWith(userData);
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { email: userData.email } });
+      expect(repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          email: userData.email,
+        }),
+      );
+      expect(repository.create.mock.calls[0][0].password).toBe('hashed_password');
       expect(repository.save).toHaveBeenCalledWith(mockUser);
+    });
+
+    it('should throw ConflictException if email already exists', async () => {
+      const userData: CreateUserDto = {
+        first_name: 'Maria',
+        last_name: 'Silva',
+        email: 'maria@email.com',
+        password: 'secret',
+      };
+      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUser);
+
+      await expect(service.create(userData)).rejects.toThrow('User with this email already exists');
+      expect(repository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findOneByEmail', () => {
+    it('should return user by email', async () => {
+      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUser);
+      const result = await service.findOneByEmail('maria@email.com');
+      expect(result).toEqual(mockUser);
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { email: 'maria@email.com' } });
+    });
+
+    it('should return null when user not found', async () => {
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      const result = await service.findOneByEmail('unknown@email.com');
+      expect(result).toBeNull();
     });
   });
 
@@ -102,6 +145,20 @@ describe('UserService', () => {
 
       expect(result.first_name).toBe('João');
       expect(repository.update).toHaveBeenCalledWith({ id: 'user-1' }, updateData);
+    });
+
+    it('should hash password when updating with new password', async () => {
+      const updatedUser = { ...mockUser, password: 'hashed_password' };
+      jest.spyOn(repository, 'update').mockResolvedValue({} as any);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(updatedUser);
+
+      const updateData: UpdateUserDto = { password: 'newsecret' };
+      await service.update('user-1', updateData);
+
+      expect(repository.update).toHaveBeenCalledWith(
+        { id: 'user-1' },
+        expect.objectContaining({ password: 'hashed_password' }),
+      );
     });
   });
 
