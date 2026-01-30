@@ -16,7 +16,6 @@ process.env.JWT_PRIVATE_KEY = 'test-secret-key';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
-  let authService: jest.Mocked<AuthService>;
 
   beforeAll(() => {
     Object.assign(console, mockConsole);
@@ -28,9 +27,7 @@ describe('JwtStrategy', () => {
 
   beforeEach(async () => {
     // Set up test environment
-    const originalEnv = process.env.NODE_ENV;
-    const originalJwtKey = process.env.JWT_PRIVATE_KEY;
-    
+
     process.env.NODE_ENV = 'test';
     process.env.JWT_PRIVATE_KEY = 'test-secret-key';
 
@@ -49,7 +46,6 @@ describe('JwtStrategy', () => {
     }).compile();
 
     strategy = moduleRef.get<JwtStrategy>(JwtStrategy);
-    authService = moduleRef.get(AuthService);
   });
 
   describe('validate', () => {

@@ -2,7 +2,10 @@ module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '../..',
   testMatch: ['<rootDir>/test/unit/**/*.spec.ts'],
-  testPathIgnorePatterns: ['<rootDir>/test/unit/main.spec.ts', '<rootDir>/test/unit/app.module.spec.ts'],
+  testPathIgnorePatterns: [
+    '<rootDir>/test/unit/main.spec.ts',
+    '<rootDir>/test/unit/app.module.spec.ts',
+  ],
   transform: {
     '^.+\\.(t|j)s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.app.json', diagnostics: false }],
   },

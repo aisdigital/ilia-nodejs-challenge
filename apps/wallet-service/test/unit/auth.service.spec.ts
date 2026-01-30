@@ -79,7 +79,7 @@ describe('AuthService', () => {
     it('should generate JWT token for valid user', async () => {
       const user = { userId: 1, username: 'admin' };
       const expectedToken = 'mock-jwt-token';
-      
+
       jwtService.sign.mockReturnValue(expectedToken);
 
       const result = await service.login(user);
@@ -94,7 +94,7 @@ describe('AuthService', () => {
     it('should handle different user types', async () => {
       const user = { userId: 2, username: 'user' };
       const expectedToken = 'mock-jwt-token-2';
-      
+
       jwtService.sign.mockReturnValue(expectedToken);
 
       const result = await service.login(user);
@@ -109,7 +109,7 @@ describe('AuthService', () => {
     it('should handle empty user object', async () => {
       const user = { userId: undefined, username: undefined };
       const expectedToken = 'mock-jwt-token-empty';
-      
+
       jwtService.sign.mockReturnValue(expectedToken);
 
       const result = await service.login(user);

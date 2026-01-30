@@ -4,6 +4,7 @@ import * as request from 'supertest';
 
 describe('Users API (e2e)', () => {
   let app: INestApplication;
+  let httpServer: any;
 
   beforeAll(async () => {
     process.env.DB_TYPE = 'sqlite';
@@ -16,6 +17,7 @@ describe('Users API (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    httpServer = app.getHttpServer();
   });
 
   afterAll(async () => {
@@ -23,7 +25,7 @@ describe('Users API (e2e)', () => {
   });
 
   it('/POST /users', () => {
-    return request(app.getHttpServer())
+    return request(httpServer)
       .post('/users')
       .send({
         first_name: 'Maria',
@@ -40,7 +42,7 @@ describe('Users API (e2e)', () => {
   });
 
   it('/GET /users', () => {
-    return request(app.getHttpServer())
+    return request(httpServer)
       .get('/users')
       .expect(200)
       .expect((res) => {
@@ -49,7 +51,7 @@ describe('Users API (e2e)', () => {
   });
 
   it('/GET /users/:id', async () => {
-    const createRes = await request(app.getHttpServer())
+    const createRes = await request(httpServer)
       .post('/users')
       .send({
         first_name: 'João',
@@ -59,7 +61,7 @@ describe('Users API (e2e)', () => {
       })
       .expect(201);
 
-    return request(app.getHttpServer())
+    return request(httpServer)
       .get(`/users/${createRes.body.id}`)
       .expect(200)
       .expect((res) => {
@@ -69,7 +71,7 @@ describe('Users API (e2e)', () => {
   });
 
   it('/PATCH /users/:id', async () => {
-    const createRes = await request(app.getHttpServer())
+    const createRes = await request(httpServer)
       .post('/users')
       .send({
         first_name: 'Ana',
@@ -79,7 +81,7 @@ describe('Users API (e2e)', () => {
       })
       .expect(201);
 
-    return request(app.getHttpServer())
+    return request(httpServer)
       .patch(`/users/${createRes.body.id}`)
       .send({ first_name: 'Ana Maria' })
       .expect(200)
@@ -89,7 +91,7 @@ describe('Users API (e2e)', () => {
   });
 
   it('/DELETE /users/:id', async () => {
-    const createRes = await request(app.getHttpServer())
+    const createRes = await request(httpServer)
       .post('/users')
       .send({
         first_name: 'Carlos',
@@ -99,8 +101,6 @@ describe('Users API (e2e)', () => {
       })
       .expect(201);
 
-    return request(app.getHttpServer())
-      .delete(`/users/${createRes.body.id}`)
-      .expect(200);
+    return request(httpServer).delete(`/users/${createRes.body.id}`).expect(200);
   });
 });

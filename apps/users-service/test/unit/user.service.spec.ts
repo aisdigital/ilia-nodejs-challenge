@@ -92,10 +92,10 @@ describe('UserService', () => {
   describe('update', () => {
     it('should update a user', async () => {
       const updatedUser = { ...mockUser, first_name: 'João' };
-      
+
       jest.spyOn(repository, 'update').mockResolvedValue({} as any);
       jest.spyOn(repository, 'findOne').mockResolvedValue(updatedUser);
-      
+
       const updateData: UpdateUserDto = { first_name: 'João' };
 
       const result = await service.update('user-1', updateData);

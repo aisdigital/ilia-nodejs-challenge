@@ -11,12 +11,12 @@ export class AuthService {
       { username: 'user', password: 'user123', userId: 2 },
     ];
 
-    const user = validUsers.find(u => u.username === username && u.password === pass);
-    
+    const user = validUsers.find((u) => u.username === username && u.password === pass);
+
     if (user) {
       return { userId: user.userId, username: user.username };
     }
-    
+
     return null;
   }
 

@@ -21,7 +21,7 @@ export class WalletService {
   }
 
   async findWalletByUserId(user_id: string): Promise<any> {
-    const wallet = await this.walletRepository.findOne({ 
+    const wallet = await this.walletRepository.findOne({
       where: { user_id },
       relations: ['transactions'],
     });

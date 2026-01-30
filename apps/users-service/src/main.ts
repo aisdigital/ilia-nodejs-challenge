@@ -4,10 +4,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.getHttpAdapter().get('/health', (_req, res) => res.status(200).json({ status: 'ok' }));
+
   // Swagger
   if (process.env.NODE_ENV !== 'test') {
     try {
-      // @ts-ignore: optional dependency for Swagger UI; ignore missing types at compile-time
+      // @ts-expect-error: optional dependency for Swagger UI; ignore missing types at compile-time
       const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger');
       const config = new DocumentBuilder()
         .setTitle('Users Service')

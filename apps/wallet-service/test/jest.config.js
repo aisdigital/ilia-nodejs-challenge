@@ -11,4 +11,5 @@ module.exports = {
   maxWorkers: 1,
   silent: true,
   cacheDirectory: '<rootDir>/../../.jest-cache',
+  setupFilesAfterEnv: ['<rootDir>/test/unit/setup.ts'],
 };

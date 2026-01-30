@@ -96,7 +96,7 @@ export class WalletGrpcController {
     try {
       const transactions = await this.walletService.getTransactions(data.wallet_id);
       return {
-        transactions: transactions.map(tx => ({
+        transactions: transactions.map((tx) => ({
           id: tx.id,
           wallet_id: tx.wallet_id,
           amount: tx.amount,

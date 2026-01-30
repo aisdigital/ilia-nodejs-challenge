@@ -6,18 +6,20 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   if (process.env.NODE_ENV !== 'test') {
     const requiredEnvVars = ['JWT_PRIVATE_KEY', 'PORT', 'GRPC_URL'];
-    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-    
+    const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
+
     if (missingVars.length > 0) {
       throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
     }
   }
-  
+
   const app = await NestFactory.create(AppModule);
+
+  app.getHttpAdapter().get('/health', (_req, res) => res.status(200).json({ status: 'ok' }));
 
   if (process.env.NODE_ENV !== 'test') {
     try {
-      // @ts-ignore: optional dependency for Swagger UI; ignore missing types at compile-time
+      // @ts-expect-error: optional dependency for Swagger UI; ignore missing types at compile-time
       const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger');
       const config = new DocumentBuilder()
         .setTitle('Wallet Service')
@@ -31,7 +33,7 @@ async function bootstrap() {
       console.warn('Swagger not enabled:', e.message);
     }
   }
-  
+
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -42,14 +44,16 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  
+
   const port = Number(process.env.PORT);
   await app.listen(port);
-  
+
   if (process.env.NODE_ENV !== 'test') {
     console.log(`🚀 Wallet Service running on HTTP port ${port}`);
     console.log(`🔗 Wallet Service gRPC listening on ${process.env.GRPC_URL}`);
-    console.log(`💾 Database: ${process.env.DB_TYPE || 'sqlite'} on ${process.env.DB_HOST || 'memory'}`);
+    console.log(
+      `💾 Database: ${process.env.DB_TYPE || 'sqlite'} on ${process.env.DB_HOST || 'memory'}`,
+    );
     console.log(`🔐 JWT: Configured`);
   }
 }
