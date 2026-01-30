@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Wallet } from './wallet.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import type { Wallet } from './wallet.entity';
 
 export enum TransactionType {
   DEPOSIT = 'deposit',
@@ -30,6 +37,6 @@ export class Transaction {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Wallet, wallet => wallet.transactions)
+  @ManyToOne('Wallet', (wallet: Wallet) => wallet.transactions)
   wallet: Wallet;
 }

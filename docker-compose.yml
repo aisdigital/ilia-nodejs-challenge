@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: users_db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -22,9 +22,84 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: wallet_db
     ports:
-      - "5433:5432"
+      - '5433:5432'
     volumes:
       - postgres_wallet_data:/var/lib/postgresql/data
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: ilia-zookeeper
+    ports:
+      - '2181:2181'
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: ilia-kafka
+    ports:
+      - '9092:9092'
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_PORT: 9092
+    depends_on:
+      - zookeeper
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: ilia-kafka-ui
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    ports:
+      - '8080:8080'
+    depends_on:
+      - kafka
+
+  users-service:
+    build:
+      context: .
+      dockerfile: apps/users-service/Dockerfile
+    container_name: ilia-users-service
+    environment:
+      NODE_ENV: production
+      JWT_PRIVATE_KEY: ILIACHALLENGE
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: users_db
+      PORT: 3002
+    ports:
+      - '3002:3002'
+    depends_on:
+      - postgres
+    networks:
+      - default
+
+  wallet-service:
+    build:
+      context: .
+      dockerfile: apps/wallet-service/Dockerfile
+    container_name: ilia-wallet-service
+    environment:
+      NODE_ENV: production
+      JWT_PRIVATE_KEY: ILIACHALLENGE
+      JWT_INTERNAL_PRIVATE_KEY: ILIACHALLENGE_INTERNAL
+      DB_HOST: postgres-wallet
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: wallet_db
+      PORT: 3001
+      GRPC_URL: 0.0.0.0:50053
+    ports:
+      - '3001:3001'
+      - '50053:50053'
+    depends_on:
+      - postgres-wallet
+    networks:
+      - default
 
 volumes:
   postgres_data:

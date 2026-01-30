@@ -41,10 +41,12 @@ export class AppModule {
   constructor() {
     if (process.env.NODE_ENV !== 'test') {
       const requiredDbVars = ['DB_HOST', 'DB_PORT', 'DB_USERNAME', 'DB_PASSWORD', 'DB_DATABASE'];
-      const missingDbVars = requiredDbVars.filter(varName => !process.env[varName]);
-      
+      const missingDbVars = requiredDbVars.filter((varName) => !process.env[varName]);
+
       if (missingDbVars.length > 0) {
-        throw new Error(`Missing required database environment variables: ${missingDbVars.join(', ')}`);
+        throw new Error(
+          `Missing required database environment variables: ${missingDbVars.join(', ')}`,
+        );
       }
     }
   }

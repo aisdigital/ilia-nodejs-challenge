@@ -19,12 +19,12 @@ describe('Wallet API (e2e)', () => {
 
   beforeAll(async () => {
     Object.assign(console, mockConsole);
-    
+
     process.env.NODE_ENV = 'test';
     process.env.JWT_PRIVATE_KEY = 'test-jwt-secret-key';
     process.env.PORT = '3001';
     process.env.GRPC_URL = '0.0.0.0:50053';
-    
+
     const { TestAppModule } = await import('../../src/app.module.test');
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -33,17 +33,17 @@ describe('Wallet API (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useLogger(false);
-    
+
     jwtService = moduleFixture.get<JwtService>(JwtService);
-    
+
     await app.init();
-    
+
     authToken = jwtService.sign({ username: 'admin', sub: 1 });
   }, 10000);
 
   afterAll(async () => {
     Object.assign(console, originalConsole);
-    
+
     if (app) {
       await app.close();
     }

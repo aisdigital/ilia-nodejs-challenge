@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Wallet } from './entities/wallet.entity';
 import { Transaction, TransactionType } from './entities/transaction.entity';
 import { CreateWalletDto } from './dto/create-wallet.dto';
@@ -13,6 +13,7 @@ export class WalletService {
     private readonly walletRepository: Repository<Wallet>,
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createWallet(data: CreateWalletDto): Promise<any> {
@@ -21,7 +22,7 @@ export class WalletService {
   }
 
   async findWalletByUserId(user_id: string): Promise<any> {
-    const wallet = await this.walletRepository.findOne({ 
+    const wallet = await this.walletRepository.findOne({
       where: { user_id },
       relations: ['transactions'],
     });
@@ -32,30 +33,42 @@ export class WalletService {
   }
 
   async createTransaction(data: CreateTransactionDto): Promise<any> {
-    const wallet = await this.walletRepository.findOne({
-      where: { id: data.wallet_id },
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!wallet) {
-      throw new NotFoundException('Wallet not found');
-    }
+    try {
+      const walletRepo = queryRunner.manager.getRepository(Wallet);
+      const transactionRepo = queryRunner.manager.getRepository(Transaction);
 
-    if (data.type === TransactionType.WITHDRAW) {
-      if (wallet.balance < data.amount) {
-        throw new Error('Insufficient balance');
+      const wallet = await walletRepo.findOne({ where: { id: data.wallet_id } });
+      if (!wallet) {
+        throw new NotFoundException('Wallet not found');
       }
+
+      if (data.type === TransactionType.WITHDRAW) {
+        if (wallet.balance < data.amount) {
+          throw new Error('Insufficient balance');
+        }
+      }
+
+      const transaction = transactionRepo.create(data);
+      if (data.type === TransactionType.DEPOSIT) {
+        wallet.balance += data.amount;
+      } else if (data.type === TransactionType.WITHDRAW) {
+        wallet.balance -= data.amount;
+      }
+
+      await walletRepo.save(wallet);
+      const saved = await transactionRepo.save(transaction);
+      await queryRunner.commitTransaction();
+      return saved;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-
-    const transaction = this.transactionRepository.create(data);
-
-    if (data.type === TransactionType.DEPOSIT) {
-      wallet.balance += data.amount;
-    } else if (data.type === TransactionType.WITHDRAW) {
-      wallet.balance -= data.amount;
-    }
-
-    await this.walletRepository.save(wallet);
-    return this.transactionRepository.save(transaction);
   }
 
   async getTransactions(wallet_id: string): Promise<Transaction[]> {

@@ -23,5 +23,6 @@
       "@wallet/*": ["./apps/wallet-service/src/*"]
     }
   },
-  "exclude": ["node_modules", "dist"]
+  "include": ["apps/users-service/src/**/*"],
+  "exclude": ["node_modules", "dist", "apps/users-service/test/**/*"]
 }
