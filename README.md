@@ -149,7 +149,80 @@ or with Docker (build images manually according to README-COMPLETO).
 
 ---
 
-If you want, I can generate optional scripts for: running migrations automatically, initial seeds, and a more robust `wait-for-db` script (for example using `wait-for-it` or a small Node script that tries to connect to the DB).
+## Project Decisions
+
+This section documents the key technical decisions made during implementation, the rationale behind each choice, and operational procedures.
+
+### 1. Authentication and Environment Variables
+
+- Standardized variables:
+  - `JWT_PRIVATE_KEY` — key used to validate external tokens
+  - `JWT_INTERNAL_PRIVATE_KEY` — key used for internal service communication
+- Why: separating external and internal secrets explicitly reduces risk of misuse and facilitates auditing
+- Implementation: `wallet-service` requires `JWT_PRIVATE_KEY` in non-`test` environment to start
+
+### 2. Testing and Coverage
+
+- Testing framework: `Jest` with `ts-jest` as TypeScript transformer
+- Coverage provider: `v8` (`coverageProvider: 'v8'`) for consistent reports compatible with modern Node engines
+- Thresholds: global coverage required (configured in `apps/wallet-service/test/unit/jest.config.js`) — current goal: 100% for `wallet-service` in unit tests
+- Note: CI test configuration uses `maxWorkers: 1` to ensure stability on runners with limited resources
+
+### 3. Transpiler and Build (Production)
+
+- Chose a lean configuration: `ts-jest` for tests and a fast TypeScript compiler for production builds (configured via `.swcrc`)
+- Motivation: higher speed, good TypeScript support, compatibility with decorators, and simple configuration
+- Production execution: compiled artifacts are in `dist/` and started with `node dist/.../main.js`
+
+### 4. API Documentation (Swagger)
+
+- Swagger integrated as an optional feature via dynamic import in `main.ts`
+- Implementation accepts absence of package in lean environments
+- By default, repository doesn't install `@nestjs/swagger`/`swagger-ui-express` to avoid peer-dep conflicts
+- To enable locally: `npm install @nestjs/swagger swagger-ui-express`
+- Documentation route: `/api` (only in non-`test` environment) when enabled
+
+### 5. Docker Infrastructure
+
+- `docker-compose.yml` contains minimal necessary services: Postgres for `users` and `wallet`
+- Optionally added `zookeeper`, `kafka` and `kafka-ui` to support messaging scenarios (meeting optional challenge requirement)
+- Note: when using compose locally, confirm variables in `.env.example` before starting
+
+### 6. Continuous Integration (CI)
+
+- Pipeline (`.github/workflows/ci.yml`) performs:
+  1. Repository checkout
+  2. npm cache (`actions/cache`) to speed up installations
+  3. `docker compose up -d --build` to bring up required infrastructure
+  4. Postgres availability check via `pg_isready`
+  5. `npm run lint` execution (fails on lint errors)
+  6. Production build (`build:*`)
+  7. Unit tests with coverage execution (fails if thresholds not met)
+  8. `docker compose down` at job end for cleanup
+
+### 7. Linting and Formatting
+
+- Tools: `ESLint` (`@typescript-eslint`) and `Prettier`
+- Main rules: `prettier/prettier` configured as error; `@typescript-eslint/no-explicit-any` disabled to reduce noise in tests and mocks
+- Configurations included: `.eslintrc.json` and `.prettierrc` in repository
+
+### 8. Main Scripts Added
+
+- Development and production:
+  - `start:dev:wallet`, `start:dev:users` — development mode (watch)
+  - `build:wallet`, `build:users` — production build (fast TypeScript compiler)
+  - `start:prod:wallet`, `start:prod:users` — start compiled artifacts in production
+  - `lint`, `format` — code quality
+- Tests:
+  - `test:wallet`, `test:wallet:unit`, `test:users`, `test:users:unit`, etc.
+
+### 9. Key Project Decisions Summary
+
+- The combination of `ts-jest` (tests) and fast TypeScript compiler (builds) simplifies the toolchain and improves build and test speed
+- Maintaining Swagger via dynamic import allows documentation in complete environments without forcing the dependency in all setups
+- The `.env.example` file was included to standardize environment variable names and values (avoiding ambiguities between `JWT_PRIVATE_KEY` and `JWT_SECRET`, etc.)
+
+---
 
 #### In the end, send us your fork repo updated. As soon as you finish, please let us know.
 

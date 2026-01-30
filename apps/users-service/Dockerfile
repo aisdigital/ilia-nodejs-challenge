@@ -11,7 +11,7 @@ RUN npm ci
 
 # Copy source
 COPY apps/users-service ./apps/users-service
-COPY libs ./libs
+COPY proto ./proto
 COPY tsconfig.json ./
 COPY nest-cli.json ./
 COPY .swcrc ./
@@ -32,6 +32,7 @@ RUN npm ci --only=production
 
 # Copy built application from builder
 COPY --from=builder /build/dist/apps/users-service ./dist
+COPY --from=builder /build/proto ./proto
 
 # Expose port
 EXPOSE 3002

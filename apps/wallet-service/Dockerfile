@@ -11,7 +11,6 @@ RUN npm ci
 
 # Copy source
 COPY apps/wallet-service ./apps/wallet-service
-COPY libs ./libs
 COPY proto ./proto
 COPY tsconfig.json ./
 COPY nest-cli.json ./
