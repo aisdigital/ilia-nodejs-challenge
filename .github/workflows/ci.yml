@@ -27,11 +27,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install Docker Compose action
-        uses: docker/compose-action@v2
-        with:
-          files: docker-compose.yml
-
       - name: Start Docker Compose services
         run: docker compose up -d --build
 
