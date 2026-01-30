@@ -167,6 +167,41 @@ describe('WalletService', () => {
       expect(walletRepository.save).toHaveBeenCalledWith({ ...mockWallet, balance: 70 });
     });
 
+    it('should handle deposit transaction type correctly', async () => {
+      const createTransactionDto = {
+        wallet_id: 'wallet-1',
+        amount: 50,
+        type: TransactionType.DEPOSIT,
+      };
+
+      walletRepository.findOne.mockResolvedValue(mockWallet);
+      transactionRepository.create.mockReturnValue(mockTransaction);
+      transactionRepository.save.mockResolvedValue(mockTransaction);
+      walletRepository.save.mockResolvedValue({ ...mockWallet, balance: 150 });
+
+      await service.createTransaction(createTransactionDto);
+
+      // Verify that balance was increased for deposit
+      expect(walletRepository.save).toHaveBeenCalledWith(expect.objectContaining({ balance: 150 }));
+    });
+
+    it('should handle withdraw transaction type correctly', async () => {
+      const createTransactionDto = {
+        wallet_id: 'wallet-1',
+        amount: 30,
+        type: TransactionType.WITHDRAW,
+      };
+
+      walletRepository.findOne.mockResolvedValue(mockWallet);
+      transactionRepository.create.mockReturnValue(mockTransaction);
+      transactionRepository.save.mockResolvedValue(mockTransaction);
+      walletRepository.save.mockResolvedValue({ ...mockWallet, balance: 70 });
+
+      await service.createTransaction(createTransactionDto);
+
+      expect(walletRepository.save).toHaveBeenCalledWith(expect.objectContaining({ balance: 70 }));
+    });
+
     it('should throw NotFoundException if wallet not found for transaction', async () => {
       const createTransactionDto = {
         wallet_id: 'invalid-wallet',
@@ -199,6 +234,146 @@ describe('WalletService', () => {
       expect(walletRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'wallet-1' },
       });
+    });
+
+    it('should handle transaction rollback on error', async () => {
+      const createTransactionDto = {
+        wallet_id: 'wallet-1',
+        amount: 50,
+        type: TransactionType.DEPOSIT,
+      };
+
+      walletRepository.findOne.mockResolvedValue(mockWallet);
+      transactionRepository.create.mockReturnValue(mockTransaction);
+
+      // Simulate error during save
+      const saveError = new Error('Database error');
+      transactionRepository.save.mockRejectedValue(saveError);
+
+      const mockQueryRunner = {
+        connect: jest.fn().mockResolvedValue(undefined),
+        startTransaction: jest.fn().mockResolvedValue(undefined),
+        commitTransaction: jest.fn().mockResolvedValue(undefined),
+        rollbackTransaction: jest.fn().mockResolvedValue(undefined),
+        release: jest.fn().mockResolvedValue(undefined),
+        manager: {
+          getRepository: jest.fn().mockImplementation((entity: any) => {
+            const name = entity?.name ?? entity;
+            if (name === 'Wallet') return walletRepository;
+            if (name === 'Transaction') return transactionRepository;
+            return walletRepository;
+          }),
+        },
+      };
+
+      const mockDataSource = {
+        createQueryRunner: jest.fn().mockReturnValue(mockQueryRunner),
+      };
+
+      const serviceWithMockDataSource = new RealWalletService(
+        walletRepository,
+        transactionRepository,
+        mockDataSource as any,
+      );
+
+      await expect(
+        serviceWithMockDataSource.createTransaction(createTransactionDto),
+      ).rejects.toThrow('Database error');
+
+      expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
+      expect(mockQueryRunner.release).toHaveBeenCalled();
+    });
+
+    it('should handle transaction commit on success', async () => {
+      const createTransactionDto = {
+        wallet_id: 'wallet-1',
+        amount: 50,
+        type: TransactionType.DEPOSIT,
+      };
+
+      walletRepository.findOne.mockResolvedValue(mockWallet);
+      transactionRepository.create.mockReturnValue(mockTransaction);
+      transactionRepository.save.mockResolvedValue(mockTransaction);
+      walletRepository.save.mockResolvedValue({ ...mockWallet, balance: 150 });
+
+      const mockQueryRunner = {
+        connect: jest.fn().mockResolvedValue(undefined),
+        startTransaction: jest.fn().mockResolvedValue(undefined),
+        commitTransaction: jest.fn().mockResolvedValue(undefined),
+        rollbackTransaction: jest.fn().mockResolvedValue(undefined),
+        release: jest.fn().mockResolvedValue(undefined),
+        manager: {
+          getRepository: jest.fn().mockImplementation((entity: any) => {
+            const name = entity?.name ?? entity;
+            if (name === 'Wallet') return walletRepository;
+            if (name === 'Transaction') return transactionRepository;
+            return walletRepository;
+          }),
+        },
+      };
+
+      const mockDataSource = {
+        createQueryRunner: jest.fn().mockReturnValue(mockQueryRunner),
+      };
+
+      const serviceWithMockDataSource = new RealWalletService(
+        walletRepository,
+        transactionRepository,
+        mockDataSource as any,
+      );
+
+      await serviceWithMockDataSource.createTransaction(createTransactionDto);
+
+      expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
+      expect(mockQueryRunner.release).toHaveBeenCalled();
+    });
+
+    it('should always call release in finally block even when error occurs', async () => {
+      const createTransactionDto = {
+        wallet_id: 'wallet-1',
+        amount: 50,
+        type: TransactionType.DEPOSIT,
+      };
+
+      walletRepository.findOne.mockResolvedValue(mockWallet);
+      transactionRepository.create.mockReturnValue(mockTransaction);
+
+      // Simulate error to test finally block
+      transactionRepository.save.mockRejectedValue(new Error('Database error'));
+
+      const mockQueryRunner = {
+        connect: jest.fn().mockResolvedValue(undefined),
+        startTransaction: jest.fn().mockResolvedValue(undefined),
+        commitTransaction: jest.fn().mockResolvedValue(undefined),
+        rollbackTransaction: jest.fn().mockResolvedValue(undefined),
+        release: jest.fn().mockResolvedValue(undefined),
+        manager: {
+          getRepository: jest.fn().mockImplementation((entity: any) => {
+            const name = entity?.name ?? entity;
+            if (name === 'Wallet') return walletRepository;
+            if (name === 'Transaction') return transactionRepository;
+            return walletRepository;
+          }),
+        },
+      };
+
+      const mockDataSource = {
+        createQueryRunner: jest.fn().mockReturnValue(mockQueryRunner),
+      };
+
+      const serviceWithMockDataSource = new RealWalletService(
+        walletRepository,
+        transactionRepository,
+        mockDataSource as any,
+      );
+
+      // Test error path
+      await expect(
+        serviceWithMockDataSource.createTransaction(createTransactionDto),
+      ).rejects.toThrow('Database error');
+
+      // Verify release was called even in error case
+      expect(mockQueryRunner.release).toHaveBeenCalledTimes(1);
     });
   });
 
