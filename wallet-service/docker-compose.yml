@@ -1,0 +1,34 @@
+
+services:
+
+  app:
+    container_name: wallet-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules/
+    command: yarn start:dev
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: wallet_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: walletdb
+      POSTGRES_USER: walletuser
+      POSTGRES_PASSWORD: walletpass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+volumes:
+  pgdata:
