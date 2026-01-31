@@ -1,8 +1,8 @@
 {
   "lint-staged": {
     "wallet-service/**/*.ts": [
-      "cd wallet-service && yarn lint",
-      "cd wallet-service && yarn format"
+      "yarn --cwd wallet-service lint",
+      "yarn --cwd wallet-service format"
     ]
   },
   "devDependencies": {
