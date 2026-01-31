@@ -1,0 +1,15 @@
+{
+  "lint-staged": {
+    "wallet-service/**/*.ts": [
+      "cd wallet-service && yarn lint",
+      "cd wallet-service && yarn format"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  },
+  "scripts": {
+    "prepare": "husky"
+  }
+}
