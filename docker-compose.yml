@@ -22,7 +22,7 @@ services:
   # Wallet Microservice (Port 3001)
   wallet-service:
     build:
-      context: .
+      context: ./wallet-service
       dockerfile: Dockerfile
     container_name: wallet-service
     environment:
@@ -36,7 +36,7 @@ services:
       wallet-db:
         condition: service_healthy
     volumes:
-      - ./src:/app/src
+      - ./wallet-service/src:/app/src
       - /app/node_modules
     restart: unless-stopped
 
