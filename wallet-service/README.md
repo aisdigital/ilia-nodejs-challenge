@@ -86,10 +86,10 @@ NODE_ENV=development
 ```
 
 **Important Security Notes:**
-- ⚠️ **Never commit `.env` files to git** - they contain secrets
-- ✅ **Always use `.env.example`** to document required variables
-- 🔐 **Change JWT_SECRET in production** - do not use the default
-- 🔑 **Use strong database passwords** in production
+- Never commit `.env` files to git - they contain secrets
+- Always use `.env.example` to document required variables
+- Change JWT_SECRET in production - do not use the default
+- Use strong database passwords in production
 
 See `.env.example` for additional configuration options and descriptions.
 
