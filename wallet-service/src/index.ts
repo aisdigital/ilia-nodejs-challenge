@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import prisma from './lib/prisma';
 import { validate } from './middleware/validate';
-import { createTransactionSchema } from './schemas/transaction.schema';
+import { createTransactionSchema, CreateTransactionInput } from './schemas/transaction.schema';
 
 dotenv.config();
 
@@ -42,14 +42,14 @@ app.get('/health', async (_req: Request, res: Response) => {
 
 app.post('/transactions', authenticate, validate(createTransactionSchema), async (req: Request, res: Response) => {
   try {
-    const { type, amount } = req.body;
+    const validatedData = req.body as CreateTransactionInput;
     const userId = (req as any).user?.id;
 
     const transaction = await prisma.transaction.create({
       data: {
         userId,
-        type,
-        amount,
+        type: validatedData.type,
+        amount: validatedData.amount,
       },
     });
 
@@ -117,18 +117,18 @@ app.get('/balance', authenticate, async (req: Request, res: Response) => {
       return;
     }
 
-    const creditResult = await prisma.transaction.aggregate({
-      where: { userId, type: 'CREDIT' },
+    const groupedTransactions = await prisma.transaction.groupBy({
+      by: ['type'],
+      where: { userId },
       _sum: { amount: true },
     });
 
-    const debitResult = await prisma.transaction.aggregate({
-      where: { userId, type: 'DEBIT' },
-      _sum: { amount: true },
-    });
+    const creditSum = groupedTransactions
+      .find((group) => group.type === 'CREDIT')?._sum.amount || 0;
 
-    const creditSum = creditResult._sum.amount || 0;
-    const debitSum = debitResult._sum.amount || 0;
+    const debitSum = groupedTransactions
+      .find((group) => group.type === 'DEBIT')?._sum.amount || 0;
+
     const balance = creditSum - debitSum;
 
     res.status(200).json({ amount: balance });
