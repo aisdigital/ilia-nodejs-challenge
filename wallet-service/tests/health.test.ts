@@ -1,21 +1,19 @@
 import request from 'supertest';
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express from 'express';
 import jwt from 'jsonwebtoken';
+import { Express, Request, Response, NextFunction } from 'express';
 
 const JWT_SECRET = 'ILIACHALLENGE';
 
-// Create a minimal Express app for testing
 const createTestApp = (): Express => {
   const app = express();
 
   app.use(express.json());
 
-  // Health endpoint
   app.get('/health', async (_req: Request, res: Response) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
   });
 
-  // JWT Authentication Middleware
   const authenticate = (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
 
@@ -32,15 +30,13 @@ const createTestApp = (): Express => {
     }
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      (req as any).user = decoded;
+      (req as any).user = jwt.verify(token, JWT_SECRET);
       next();
     } catch (error) {
       res.status(401).json({ error: 'Invalid or expired token' });
     }
   };
 
-  // Protected Routes
   app.get('/transactions', authenticate, async (_req: Request, res: Response) => {
     res.status(200).json({ message: 'Get transactions', user: (_req as any).user });
   });
@@ -49,12 +45,10 @@ const createTestApp = (): Express => {
     res.status(201).json({ message: 'Create transaction', data: (_req as any).body });
   });
 
-  // 404 Handler
   app.use((_req: Request, res: Response) => {
     res.status(404).json({ error: 'Route not found' });
   });
 
-  // Error Handler
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
