@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database for Wallet Microservice
+  wallet-db:
+    image: postgres:15-alpine
+    container_name: wallet-db
+    environment:
+      POSTGRES_DB: wallet_db
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - wallet_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet_user -d wallet_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Wallet Microservice (Port 3001)
+  wallet-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wallet-service
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://wallet_user:wallet_password@wallet-db:5432/wallet_db
+      JWT_SECRET: ILIACHALLENGE
+    ports:
+      - "3001:3001"
+    depends_on:
+      wallet-db:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+    restart: unless-stopped
+
+  # PostgreSQL database for Users Microservice
+  users-db:
+    image: postgres:15-alpine
+    container_name: users-db
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: users_user
+      POSTGRES_PASSWORD: users_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U users_user -d users_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Users Microservice (Port 3002)
+  users-service:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    container_name: users-service
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgresql://users_user:users_password@users-db:5432/users_db
+      JWT_SECRET: ILIACHALLENGE
+      JWT_SECRET_INTERNAL: ILIACHALLENGE_INTERNAL
+      WALLET_SERVICE_URL: http://wallet-service:3001
+    ports:
+      - "3002:3002"
+    depends_on:
+      users-db:
+        condition: service_healthy
+      wallet-service:
+        condition: service_started
+    volumes:
+      - ./users/src:/app/src
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  wallet_db_data:
+  users_db_data:
+
+networks:
+  default:
+    name: ilia-challenge-network
