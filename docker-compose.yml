@@ -4,7 +4,7 @@ services:
     image: postgres:15-alpine
     container_name: wallet-db
     environment:
-      POSTGRES_DB: wallet_db
+      POSTGRES_DB: db_wallet
       POSTGRES_USER: wallet_user
       POSTGRES_PASSWORD: wallet_password
     ports:
@@ -12,7 +12,7 @@ services:
     volumes:
       - wallet_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wallet_user -d wallet_db"]
+      test: ["CMD-SHELL", "pg_isready -U wallet_user -d db_wallet"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,8 +26,16 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3001
-      DATABASE_URL: postgresql://wallet_user:wallet_password@wallet-db:5432/wallet_db
+      DATABASE_URL: postgresql://wallet_user:wallet_password@wallet-db:5432/db_wallet
       JWT_SECRET: ILIACHALLENGE
+      # Database environment variables for docker-entrypoint.sh
+      DB_HOST: wallet-db
+      DB_PORT: 5432
+      DB_USER: wallet_user
+      DB_NAME: db_wallet
+      POSTGRES_DB: db_wallet
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_password
     ports:
       - "3001:3001"
     depends_on:
