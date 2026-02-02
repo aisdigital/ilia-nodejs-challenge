@@ -28,6 +28,14 @@ services:
       PORT: 3001
       DATABASE_URL: postgresql://wallet_user:wallet_password@wallet-db:5432/db_wallet
       JWT_SECRET: ILIACHALLENGE
+      # Database environment variables for docker-entrypoint.sh
+      DB_HOST: wallet-db
+      DB_PORT: 5432
+      DB_USER: wallet_user
+      DB_NAME: db_wallet
+      POSTGRES_DB: db_wallet
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_password
     ports:
       - "3001:3001"
     depends_on:

@@ -20,8 +20,8 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install dumb-init for proper signal handling and postgresql for pg_isready utility
+RUN apk add --no-cache dumb-init postgresql
 
 # Copy package files
 COPY package*.json ./
@@ -32,11 +32,17 @@ RUN npm ci --only=production
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 
+# Copy Prisma schema and migrations
+COPY prisma ./prisma
+
+# Copy docker entrypoint script
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+
+# Make entrypoint script executable
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Expose port 3001
 EXPOSE 3001
 
 # Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
-
-# Start the application
-CMD ["npm", "start"]
+ENTRYPOINT ["dumb-init", "--", "/app/docker-entrypoint.sh"]
