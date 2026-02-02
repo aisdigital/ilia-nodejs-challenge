@@ -46,54 +46,50 @@ services:
       - /app/node_modules
     restart: unless-stopped
 
-  # PostgreSQL database for Users Microservice (Part 2)
-  # COMMENTED OUT: Will be implemented in Part 2
-  # Uncomment below when users-service is ready
-  # users-db:
-  #   image: postgres:15-alpine
-  #   container_name: users-db
-  #   environment:
-  #     POSTGRES_DB: users_db
-  #     POSTGRES_USER: users_user
-  #     POSTGRES_PASSWORD: users_password
-  #   ports:
-  #     - "5433:5432"
-  #   volumes:
-  #     - wallet_db_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U users_user -d users_db"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  # PostgreSQL database for Users Microservice
+  db_users:
+    image: postgres:15-alpine
+    container_name: db_users
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_user -d userdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Users Microservice (Port 3002) - COMMENTED OUT: Will be implemented in Part 2
-  # Uncomment below when users-service directory is created
-  # users-service:
-  #   build:
-  #     context: ./users
-  #     dockerfile: Dockerfile
-  #   container_name: users-service
-  #   environment:
-  #     NODE_ENV: development
-  #     PORT: 3002
-  #     DATABASE_URL: postgresql://users_user:users_password@users-db:5432/users_db
-  #     JWT_SECRET: ILIACHALLENGE
-  #     JWT_SECRET_INTERNAL: ILIACHALLENGE_INTERNAL
-  #     WALLET_SERVICE_URL: http://wallet-service:3001
-  #   ports:
-  #     - "3002:3002"
-  #   depends_on:
-  #     users-db:
-  #       condition: service_healthy
-  #     wallet-service:
-  #       condition: service_started
-  #   volumes:
-  #     - ./users/src:/app/src
-  #     - /app/node_modules
-  #   restart: unless-stopped
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgresql://user_user:user_password@db_users:5432/userdb
+      JWT_SECRET: ILIACHALLENGE
+      INTERNAL_JWT_SECRET: ILIACHALLENGE_INTERNAL
+    ports:
+      - "3002:3002"
+    depends_on:
+      db_users:
+        condition: service_healthy
+      wallet-service:
+        condition: service_started
+    volumes:
+      - ./user-service/src:/app/src
+      - /app/node_modules
+    restart: unless-stopped
 
 volumes:
   wallet_db_data:
+  users_db_data:
 
 networks:
   default:
