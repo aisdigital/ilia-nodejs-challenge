@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Transaction enum matching ms-transactions.yaml specification
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
+
+// Transaction model based on ms-transactions.yaml
+model Transaction {
+  // Primary key as UUID string
+  id String @id @default(uuid())
+
+  // User ID (mapped from user_id in spec)
+  userId String @map("user_id")
+
+  // Transaction amount in cents
+  amount Int
+
+  // Transaction type: CREDIT or DEBIT
+  type TransactionType
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes for common queries
+  @@index([userId])
+  @@index([createdAt])
+  @@index([type])
+}
+
+// Wallet model for storing user balances
+model Wallet {
+  id String @id @default(uuid())
+
+  // User ID - one wallet per user
+  userId String @unique @map("user_id")
+
+  // Current balance in cents
+  balance Int @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+
