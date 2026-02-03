@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/UserService';
 import { RegisterInput, LoginInput } from '../schemas/auth.schema';
+import { AuthenticatedRequest } from '../middleware/authenticate';
 
 export class UserController {
   private service: UserService;
@@ -35,6 +36,28 @@ export class UserController {
       } else {
         console.error('Error logging in user:', error);
         res.status(500).json({ error: 'Failed to login' });
+      }
+    }
+  }
+
+  async getMe(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.userId;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const correlationId = req.headers['x-correlation-id'] as string;
+      const user = await this.service.getUserWithBalance(userId, correlationId);
+      res.status(200).json(user);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'User not found') {
+        res.status(404).json({ error: 'User not found' });
+      } else {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Failed to fetch user' });
       }
     }
   }

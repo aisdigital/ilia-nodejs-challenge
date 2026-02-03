@@ -1,3 +1,6 @@
+// Set environment variable BEFORE importing WalletClient
+process.env.WALLET_SERVICE_URL = 'http://wallet-service:3001';
+
 import { WalletClient, BalanceResponse } from '../../src/services/WalletClient';
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
@@ -11,6 +14,7 @@ describe('WalletClient', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
     mockAxiosGet = jest.fn();
 
     (axios.create as jest.Mock).mockReturnValue({
@@ -18,6 +22,10 @@ describe('WalletClient', () => {
     });
 
     walletClient = new WalletClient();
+  });
+
+  afterEach(() => {
+    // Environment variable is kept for other tests
   });
 
   describe('getUserBalance', () => {
@@ -359,7 +367,7 @@ describe('WalletClient', () => {
 
       const result = await walletClient.getUserBalance(userId);
 
-      expect(result).toEqual({ amount: 0 });
+      expect(result).toEqual({ amount: null });
     });
 
     it('should handle wallet service timeout', async () => {
@@ -371,9 +379,9 @@ describe('WalletClient', () => {
       (jwt.sign as jest.Mock).mockReturnValue(mockToken);
       mockAxiosGet.mockRejectedValueOnce(timeoutError);
 
-      await expect(walletClient.getUserBalance(userId)).rejects.toThrow(
-        'Wallet service timeout'
-      );
+      const result = await walletClient.getUserBalance(userId);
+
+      expect(result).toEqual({ amount: null });
     });
 
     it('should handle 401 unauthorized error gracefully', async () => {
@@ -389,7 +397,7 @@ describe('WalletClient', () => {
 
       const result = await walletClient.getUserBalance(userId);
 
-      expect(result).toEqual({ amount: 0 });
+      expect(result).toEqual({ amount: null });
     });
 
     it('should handle 404 not found error gracefully', async () => {
@@ -405,10 +413,10 @@ describe('WalletClient', () => {
 
       const result = await walletClient.getUserBalance(userId);
 
-      expect(result).toEqual({ amount: 0 });
+      expect(result).toEqual({ amount: null });
     });
 
-    it('should throw error on 500 server error', async () => {
+    it('should return null balance on 500 server error', async () => {
       const userId = 'user-500';
       const mockToken = 'mock-token';
       const serverError = new Error('Server Error') as any;
@@ -419,12 +427,12 @@ describe('WalletClient', () => {
       (jwt.sign as jest.Mock).mockReturnValue(mockToken);
       mockAxiosGet.mockRejectedValueOnce(serverError);
 
-      await expect(walletClient.getUserBalance(userId)).rejects.toThrow(
-        'Wallet service error'
-      );
+      const result = await walletClient.getUserBalance(userId);
+
+      expect(result).toEqual({ amount: null });
     });
 
-    it('should handle unexpected non-axios errors', async () => {
+    it('should return null balance on unexpected non-axios errors', async () => {
       const userId = 'user-unexpected';
       const mockToken = 'mock-token';
       const unexpectedError = new Error('Unexpected error');
@@ -432,9 +440,9 @@ describe('WalletClient', () => {
       (jwt.sign as jest.Mock).mockReturnValue(mockToken);
       mockAxiosGet.mockRejectedValueOnce(unexpectedError);
 
-      await expect(walletClient.getUserBalance(userId)).rejects.toThrow(
-        'Failed to fetch wallet balance'
-      );
+      const result = await walletClient.getUserBalance(userId);
+
+      expect(result).toEqual({ amount: null });
     });
 
     it('should handle ENOTFOUND (DNS resolution failure) gracefully', async () => {
@@ -448,7 +456,7 @@ describe('WalletClient', () => {
 
       const result = await walletClient.getUserBalance(userId);
 
-      expect(result).toEqual({ amount: 0 });
+      expect(result).toEqual({ amount: null });
     });
   });
 });
