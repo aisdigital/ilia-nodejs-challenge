@@ -8,6 +8,8 @@
     "dev": "nodemon --exec tsx src/index.ts",
     "start": "node dist/index.js",
     "test": "jest",
+    "test:unit": "jest --selectProjects=unit",
+    "test:e2e": "jest --selectProjects=e2e --runInBand",
     "test:watch": "jest --watch",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

@@ -1,0 +1,390 @@
+import { UserService } from '../../src/services/UserService';
+import { UserRepository } from '../../src/repositories/UserRepository';
+import * as passwordModule from '../../src/lib/password';
+
+jest.mock('../../src/repositories/UserRepository');
+jest.mock('../../src/lib/password');
+
+describe('UserService', () => {
+  let service: UserService;
+  let mockRepository: jest.Mocked<UserRepository>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockRepository = new UserRepository() as jest.Mocked<UserRepository>;
+    service = new UserService();
+    (service as any).repository = mockRepository;
+  });
+
+  describe('register', () => {
+    it('should hash password and create user successfully', async () => {
+      const registerInput = {
+        email: 'john@example.com',
+        password: 'securePassword123',
+        firstName: 'John',
+        lastName: 'Doe',
+      };
+
+      const hashedPassword = '$2b$10$hashedPasswordString';
+      const newUser = {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        email: registerInput.email,
+        firstName: registerInput.firstName,
+        lastName: registerInput.lastName,
+        createdAt: new Date('2024-02-03T10:00:00Z'),
+        updatedAt: new Date('2024-02-03T10:00:00Z'),
+      };
+
+      (passwordModule.hashPassword as jest.Mock).mockResolvedValueOnce(hashedPassword);
+      mockRepository.findByEmail.mockResolvedValueOnce(null);
+      mockRepository.create.mockResolvedValueOnce(newUser);
+
+      const result = await service.register(registerInput);
+
+      expect(passwordModule.hashPassword).toHaveBeenCalledWith(registerInput.password);
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(registerInput.email);
+      expect(mockRepository.create).toHaveBeenCalledWith({
+        email: registerInput.email,
+        password: hashedPassword,
+        firstName: registerInput.firstName,
+        lastName: registerInput.lastName,
+      });
+      expect(result.id).toBe(newUser.id);
+      expect(result.email).toBe(registerInput.email);
+      expect(result.firstName).toBe(registerInput.firstName);
+      expect(result.lastName).toBe(registerInput.lastName);
+      expect(result.token).toBeDefined();
+      expect(typeof result.token).toBe('string');
+    });
+
+    it('should throw error if email already registered', async () => {
+      const registerInput = {
+        email: 'existing@example.com',
+        password: 'securePassword123',
+        firstName: 'John',
+        lastName: 'Doe',
+      };
+
+      const existingUser = {
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        email: registerInput.email,
+        password: '$2b$10$hashedPassword',
+        firstName: 'Jane',
+        lastName: 'Smith',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(existingUser);
+
+      await expect(service.register(registerInput)).rejects.toThrow('Email already registered');
+      expect(passwordModule.hashPassword).not.toHaveBeenCalled();
+      expect(mockRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('should hash password correctly before saving', async () => {
+      const registerInput = {
+        email: 'newuser@example.com',
+        password: 'myPassword123',
+        firstName: 'Jane',
+        lastName: 'Smith',
+      };
+
+      const hashedPassword = '$2b$10$hashedPasswordFromBcrypt';
+      (passwordModule.hashPassword as jest.Mock).mockResolvedValueOnce(hashedPassword);
+      mockRepository.findByEmail.mockResolvedValueOnce(null);
+      mockRepository.create.mockResolvedValueOnce({
+        id: 'uuid-123',
+        email: registerInput.email,
+        firstName: registerInput.firstName,
+        lastName: registerInput.lastName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await service.register(registerInput);
+
+      const createCall = mockRepository.create.mock.calls[0][0];
+      expect(createCall.password).toBe(hashedPassword);
+      expect(createCall.password).not.toBe(registerInput.password);
+    });
+
+    it('should generate JWT token with user data', async () => {
+      const registerInput = {
+        email: 'jwt@example.com',
+        password: 'password123',
+        firstName: 'JWT',
+        lastName: 'User',
+      };
+
+      const hashedPassword = '$2b$10$hashed';
+      const newUser = {
+        id: 'uuid-jwt-test',
+        email: registerInput.email,
+        firstName: registerInput.firstName,
+        lastName: registerInput.lastName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      (passwordModule.hashPassword as jest.Mock).mockResolvedValueOnce(hashedPassword);
+      mockRepository.findByEmail.mockResolvedValueOnce(null);
+      mockRepository.create.mockResolvedValueOnce(newUser);
+
+      const result = await service.register(registerInput);
+
+      expect(result.token).toBeDefined();
+      expect(typeof result.token).toBe('string');
+      const parts = result.token.split('.');
+      expect(parts).toHaveLength(3);
+    });
+  });
+
+  describe('login', () => {
+    it('should login user with valid credentials', async () => {
+      const loginInput = {
+        email: 'john@example.com',
+        password: 'securePassword123',
+      };
+
+      const hashedPassword = '$2b$10$hashedPasswordString';
+      const user = {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        email: loginInput.email,
+        password: hashedPassword,
+        firstName: 'John',
+        lastName: 'Doe',
+        createdAt: new Date('2024-02-03T10:00:00Z'),
+        updatedAt: new Date('2024-02-03T10:00:00Z'),
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(user);
+      (passwordModule.comparePasswords as jest.Mock).mockResolvedValueOnce(true);
+
+      const result = await service.login(loginInput);
+
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(loginInput.email);
+      expect(passwordModule.comparePasswords).toHaveBeenCalledWith(
+        loginInput.password,
+        hashedPassword
+      );
+      expect(result.id).toBe(user.id);
+      expect(result.email).toBe(user.email);
+      expect(result.firstName).toBe(user.firstName);
+      expect(result.lastName).toBe(user.lastName);
+      expect(result.token).toBeDefined();
+    });
+
+    it('should throw error if user not found', async () => {
+      const loginInput = {
+        email: 'nonexistent@example.com',
+        password: 'password123',
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(null);
+
+      await expect(service.login(loginInput)).rejects.toThrow('Invalid email or password');
+    });
+
+    it('should throw error if password is invalid', async () => {
+      const loginInput = {
+        email: 'john@example.com',
+        password: 'wrongPassword',
+      };
+
+      const user = {
+        id: 'uuid-123',
+        email: loginInput.email,
+        password: '$2b$10$correctHashedPassword',
+        firstName: 'John',
+        lastName: 'Doe',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(user);
+      (passwordModule.comparePasswords as jest.Mock).mockResolvedValueOnce(false);
+
+      await expect(service.login(loginInput)).rejects.toThrow('Invalid email or password');
+    });
+
+    it('should return JWT token on successful login', async () => {
+      const loginInput = {
+        email: 'user@example.com',
+        password: 'password123',
+      };
+
+      const user = {
+        id: 'uuid-456',
+        email: loginInput.email,
+        password: '$2b$10$hashedPassword',
+        firstName: 'Test',
+        lastName: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(user);
+      (passwordModule.comparePasswords as jest.Mock).mockResolvedValueOnce(true);
+
+      const result = await service.login(loginInput);
+
+      expect(result.token).toBeDefined();
+      expect(typeof result.token).toBe('string');
+      const parts = result.token.split('.');
+      expect(parts).toHaveLength(3);
+    });
+
+    it('should include user id and email in JWT token', async () => {
+      const loginInput = {
+        email: 'decode@example.com',
+        password: 'password123',
+      };
+
+      const user = {
+        id: 'user-id-for-token',
+        email: loginInput.email,
+        password: '$2b$10$hashedPassword',
+        firstName: 'Decode',
+        lastName: 'Test',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(user);
+      (passwordModule.comparePasswords as jest.Mock).mockResolvedValueOnce(true);
+
+      const result = await service.login(loginInput);
+
+      const token = result.token;
+      const parts = token.split('.');
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+
+      expect(payload.id).toBe(user.id);
+      expect(payload.email).toBe(user.email);
+    });
+  });
+
+  describe('repository integration', () => {
+    it('should call repository.findByEmail during register to check email uniqueness', async () => {
+      const registerInput = {
+        email: 'check@example.com',
+        password: 'password123',
+        firstName: 'Check',
+        lastName: 'Email',
+      };
+
+      (passwordModule.hashPassword as jest.Mock).mockResolvedValueOnce('hashed');
+      mockRepository.findByEmail.mockResolvedValueOnce(null);
+      mockRepository.create.mockResolvedValueOnce({
+        id: 'uuid',
+        email: registerInput.email,
+        firstName: registerInput.firstName,
+        lastName: registerInput.lastName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await service.register(registerInput);
+
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(registerInput.email);
+    });
+
+    it('should call repository.create with hashed password', async () => {
+      const registerInput = {
+        email: 'create@example.com',
+        password: 'plainPassword',
+        firstName: 'Create',
+        lastName: 'Test',
+      };
+
+      const hashedPassword = '$2b$10$hashed';
+      (passwordModule.hashPassword as jest.Mock).mockResolvedValueOnce(hashedPassword);
+      mockRepository.findByEmail.mockResolvedValueOnce(null);
+      mockRepository.create.mockResolvedValueOnce({
+        id: 'uuid-create',
+        email: registerInput.email,
+        firstName: registerInput.firstName,
+        lastName: registerInput.lastName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await service.register(registerInput);
+
+      expect(mockRepository.create).toHaveBeenCalledWith({
+        email: registerInput.email,
+        password: hashedPassword,
+        firstName: registerInput.firstName,
+        lastName: registerInput.lastName,
+      });
+    });
+
+    it('should call repository.findByEmail during login', async () => {
+      const loginInput = {
+        email: 'findby@example.com',
+        password: 'password123',
+      };
+
+      const user = {
+        id: 'uuid-findby',
+        email: loginInput.email,
+        password: '$2b$10$hashed',
+        firstName: 'Find',
+        lastName: 'By',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(user);
+      (passwordModule.comparePasswords as jest.Mock).mockResolvedValueOnce(true);
+
+      await service.login(loginInput);
+
+      expect(mockRepository.findByEmail).toHaveBeenCalledWith(loginInput.email);
+      expect(mockRepository.findByEmail).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle repository errors gracefully', async () => {
+      const registerInput = {
+        email: 'error@example.com',
+        password: 'password123',
+        firstName: 'Error',
+        lastName: 'Test',
+      };
+
+      (passwordModule.hashPassword as jest.Mock).mockResolvedValueOnce('hashed');
+      mockRepository.findByEmail.mockRejectedValueOnce(new Error('Database error'));
+
+      await expect(service.register(registerInput)).rejects.toThrow('Database error');
+    });
+
+    it('should compare password correctly on login failure', async () => {
+      const loginInput = {
+        email: 'compare@example.com',
+        password: 'wrongPassword',
+      };
+
+      const user = {
+        id: 'uuid-compare',
+        email: loginInput.email,
+        password: '$2b$10$hashedPassword',
+        firstName: 'Compare',
+        lastName: 'Test',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findByEmail.mockResolvedValueOnce(user);
+      (passwordModule.comparePasswords as jest.Mock).mockResolvedValueOnce(false);
+
+      await expect(service.login(loginInput)).rejects.toThrow('Invalid email or password');
+      expect(passwordModule.comparePasswords).toHaveBeenCalledWith(
+        loginInput.password,
+        user.password
+      );
+    });
+  });
+});
