@@ -94,7 +94,7 @@ const createApp = (): Express => {
   return app;
 };
 
-describe('Wallet Integration - Transaction Flow', () => {
+describe('Wallet Transactions Endpoint Integration', () => {
   let app: Express;
   let validToken: string;
 
