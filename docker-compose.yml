@@ -47,9 +47,9 @@ services:
     restart: unless-stopped
 
   # PostgreSQL database for Users Microservice
-  db_users:
+  user-db:
     image: postgres:15-alpine
-    container_name: db_users
+    container_name: user-db
     environment:
       POSTGRES_DB: userdb
       POSTGRES_USER: user_user
@@ -72,13 +72,20 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3002
-      DATABASE_URL: postgresql://user_user:user_password@db_users:5432/userdb
+      DATABASE_URL: postgresql://user_user:user_password@user-db:5432/userdb
       JWT_SECRET: ILIACHALLENGE
       INTERNAL_JWT_SECRET: ILIACHALLENGE_INTERNAL
+      DB_HOST: user-db
+      DB_PORT: 5432
+      DB_USER: user_user
+      DB_NAME: userdb
+      POSTGRES_DB: userdb
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_password
     ports:
       - "3002:3002"
     depends_on:
-      db_users:
+      user-db:
         condition: service_healthy
       wallet-service:
         condition: service_started

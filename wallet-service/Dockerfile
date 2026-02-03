@@ -21,7 +21,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Install dumb-init for proper signal handling and postgresql for pg_isready utility
-RUN apk add --no-cache dumb-init postgresql
+RUN apk add --no-cache dumb-init postgresql openssl
 
 # Copy package files
 COPY package*.json ./
@@ -34,6 +34,9 @@ COPY --from=builder /app/dist ./dist
 
 # Copy Prisma schema and migrations
 COPY prisma ./prisma
+
+# Generate Prisma Client
+RUN npm run prisma:generate
 
 # Copy docker entrypoint script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
