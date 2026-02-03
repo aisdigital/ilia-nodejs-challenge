@@ -49,11 +49,23 @@ export class TransactionController {
 
   async getBalance(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
+      const isInternal = (req as any).isInternal;
+      let userId: string | undefined;
 
-      if (!userId) {
-        res.status(401).json({ error: 'User not authenticated' });
-        return;
+      if (isInternal) {
+        userId = req.query['X-User-Id'] as string || req.query['user_id'] as string;
+
+        if (!userId) {
+          res.status(400).json({ error: 'Missing user_id in query parameters for internal calls' });
+          return;
+        }
+      } else {
+        userId = (req as any).user?.id;
+
+        if (!userId) {
+          res.status(401).json({ error: 'User not authenticated' });
+          return;
+        }
       }
 
       const balance = await this.service.calculateBalance(userId);

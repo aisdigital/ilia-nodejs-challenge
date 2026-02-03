@@ -37,9 +37,11 @@ describe('WalletClient', () => {
         { expiresIn: '5m' }
       );
       expect(mockAxiosGet).toHaveBeenCalledWith('/balance', {
+        params: {
+          user_id: userId,
+        },
         headers: {
           Authorization: `Bearer ${mockToken}`,
-          'X-User-Id': userId,
         },
       });
       expect(result).toEqual(expectedBalance);
@@ -76,7 +78,7 @@ describe('WalletClient', () => {
       );
     });
 
-    it('should send user ID in X-User-Id header', async () => {
+    it('should send user ID in query parameter', async () => {
       const userId = 'specific-user-123';
       const mockToken = 'mock-token';
 
@@ -88,8 +90,8 @@ describe('WalletClient', () => {
       expect(mockAxiosGet).toHaveBeenCalledWith(
         '/balance',
         expect.objectContaining({
-          headers: expect.objectContaining({
-            'X-User-Id': userId,
+          params: expect.objectContaining({
+            user_id: userId,
           }),
         })
       );

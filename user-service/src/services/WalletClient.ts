@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import * as jwt from 'jsonwebtoken';
 
 const WALLET_SERVICE_URL = process.env.WALLET_SERVICE_URL || 'http://wallet-service:3001';
-const INTERNAL_JWT_SECRET = process.env.ILIACHALLENGE_INTERNAL || 'ILIACHALLENGE_INTERNAL';
+const INTERNAL_JWT_SECRET = process.env.INTERNAL_JWT_SECRET || 'ILIACHALLENGE_INTERNAL';
 
 export interface BalanceResponse {
   amount: number;
@@ -23,9 +23,11 @@ export class WalletClient {
       const token = this.generateInternalToken();
 
       const response = await this.axiosInstance.get<BalanceResponse>('/balance', {
+        params: {
+          user_id: userId,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
-          'X-User-Id': userId,
         },
       });
 
