@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { hashPassword, comparePasswords } from '../lib/password';
 import { UserRepository } from '../repositories/UserRepository';
 import { RegisterInput, LoginInput } from '../schemas/auth.schema';
+import { WalletClient } from './WalletClient';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ILIACHALLENGE';
 
@@ -13,11 +14,21 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface UserWithBalanceResponse {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  balance: number | null;
+}
+
 export class UserService {
   private repository: UserRepository;
+  private walletClient: WalletClient;
 
   constructor() {
     this.repository = new UserRepository();
+    this.walletClient = new WalletClient();
   }
 
   async register(data: RegisterInput): Promise<AuthResponse> {
@@ -68,6 +79,24 @@ export class UserService {
       firstName: user.firstName,
       lastName: user.lastName,
       token,
+    };
+  }
+
+  async getUserWithBalance(userId: string, correlationId?: string): Promise<UserWithBalanceResponse> {
+    const user = await this.repository.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const balanceData = await this.walletClient.getUserBalance(userId, correlationId);
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      balance: balanceData.amount,
     };
   }
 

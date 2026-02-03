@@ -1,19 +1,32 @@
+// Set environment variable BEFORE importing WalletClient
+process.env.WALLET_SERVICE_URL = 'http://wallet-service:3001';
+
 import { UserService } from '../../src/services/UserService';
 import { UserRepository } from '../../src/repositories/UserRepository';
 import * as passwordModule from '../../src/lib/password';
+import { WalletClient } from '../../src/services/WalletClient';
 
 jest.mock('../../src/repositories/UserRepository');
 jest.mock('../../src/lib/password');
+jest.mock('../../src/services/WalletClient');
 
 describe('UserService', () => {
   let service: UserService;
   let mockRepository: jest.Mocked<UserRepository>;
+  let mockWalletClient: jest.Mocked<WalletClient>;
 
   beforeEach(() => {
     jest.clearAllMocks();
+
     mockRepository = new UserRepository() as jest.Mocked<UserRepository>;
+    mockWalletClient = new WalletClient() as jest.Mocked<WalletClient>;
     service = new UserService();
     (service as any).repository = mockRepository;
+    (service as any).walletClient = mockWalletClient;
+  });
+
+  afterEach(() => {
+    // Environment variable is kept for other tests
   });
 
   describe('register', () => {
@@ -454,6 +467,143 @@ describe('UserService', () => {
       expect(passwordModule.comparePasswords).toHaveBeenCalledWith(
         loginInput.password,
         user.password
+      );
+    });
+  });
+
+  describe('getUserWithBalance', () => {
+    it('should fetch user and combine with wallet balance', async () => {
+      const userId = '550e8400-e29b-41d4-a716-446655440000';
+      const correlationId = 'corr-123';
+
+      const user = {
+        id: userId,
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const balanceResponse = { amount: 5000 };
+
+      mockRepository.findById.mockResolvedValueOnce(user);
+      mockWalletClient.getUserBalance.mockResolvedValueOnce(balanceResponse);
+
+      const result = await service.getUserWithBalance(userId, correlationId);
+
+      expect(mockRepository.findById).toHaveBeenCalledWith(userId);
+      expect(mockWalletClient.getUserBalance).toHaveBeenCalledWith(userId, correlationId);
+      expect(result).toEqual({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        balance: 5000,
+      });
+    });
+
+    it('should use user id from token payload correctly', async () => {
+      const tokenUserId = '550e8400-e29b-41d4-a716-446655440001';
+
+      const user = {
+        id: tokenUserId,
+        email: 'tokenuser@example.com',
+        firstName: 'Token',
+        lastName: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findById.mockResolvedValueOnce(user);
+      mockWalletClient.getUserBalance.mockResolvedValueOnce({ amount: 1000 });
+
+      const result = await service.getUserWithBalance(tokenUserId);
+
+      expect(mockRepository.findById).toHaveBeenCalledWith(tokenUserId);
+      expect(result.id).toBe(tokenUserId);
+      expect(result.email).toBe('tokenuser@example.com');
+    });
+
+    it('should return user with null balance when wallet service is unavailable', async () => {
+      const userId = '550e8400-e29b-41d4-a716-446655440000';
+
+      const user = {
+        id: userId,
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findById.mockResolvedValueOnce(user);
+      mockWalletClient.getUserBalance.mockResolvedValueOnce({ amount: null });
+
+      const result = await service.getUserWithBalance(userId);
+
+      expect(result).toEqual({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        balance: null,
+      });
+    });
+
+    it('should throw error when user is not found', async () => {
+      const userId = 'non-existent-id';
+
+      mockRepository.findById.mockResolvedValueOnce(null);
+
+      await expect(service.getUserWithBalance(userId)).rejects.toThrow('User not found');
+      expect(mockRepository.findById).toHaveBeenCalledWith(userId);
+      expect(mockWalletClient.getUserBalance).not.toHaveBeenCalled();
+    });
+
+    it('should forward correlation id to wallet client', async () => {
+      const userId = '550e8400-e29b-41d4-a716-446655440000';
+      const correlationId = 'unique-corr-id-456';
+
+      const user = {
+        id: userId,
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findById.mockResolvedValueOnce(user);
+      mockWalletClient.getUserBalance.mockResolvedValueOnce({ amount: 1000 });
+
+      await service.getUserWithBalance(userId, correlationId);
+
+      expect(mockWalletClient.getUserBalance).toHaveBeenCalledWith(userId, correlationId);
+    });
+
+    it('should not expose sensitive data in response', async () => {
+      const userId = '550e8400-e29b-41d4-a716-446655440000';
+
+      const user = {
+        id: userId,
+        email: 'secure@example.com',
+        firstName: 'Secure',
+        lastName: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockRepository.findById.mockResolvedValueOnce(user);
+      mockWalletClient.getUserBalance.mockResolvedValueOnce({ amount: 2000 });
+
+      const result = await service.getUserWithBalance(userId);
+
+      expect(result).not.toHaveProperty('password');
+      expect(result).not.toHaveProperty('createdAt');
+      expect(result).not.toHaveProperty('updatedAt');
+      expect(Object.keys(result).sort()).toEqual(
+        ['id', 'email', 'firstName', 'lastName', 'balance'].sort()
       );
     });
   });

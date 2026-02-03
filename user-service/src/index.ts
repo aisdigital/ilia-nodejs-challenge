@@ -1,6 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import { validate } from './middleware/validate';
+import { authenticate, AuthenticatedRequest } from './middleware/authenticate';
 import { registerSchema, loginSchema } from './schemas/auth.schema';
 import { UserController } from './controllers/UserController';
 
@@ -29,6 +30,12 @@ app.post(
   (req: Request, res: Response) => userController.login(req, res)
 );
 
+app.get(
+  '/users/me',
+  authenticate,
+  (req: AuthenticatedRequest, res: Response) => userController.getMe(req, res)
+);
+
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Route not found' });
 });
@@ -41,3 +48,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 app.listen(PORT, () => {
   console.log(`User Microservice running on port ${PORT}`);
 });
+
+

@@ -30,6 +30,8 @@ COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 
 RUN chmod +x /app/docker-entrypoint.sh
 
+ENV WALLET_SERVICE_URL=http://wallet-service:3001
+
 EXPOSE 3002
 
 ENTRYPOINT ["dumb-init", "--", "/app/docker-entrypoint.sh"]
