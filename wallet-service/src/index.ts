@@ -92,7 +92,7 @@ app.get('/transactions', authenticate, async (req: Request, res: Response) => {
       orderBy: { createdAt: 'desc' },
     });
 
-    const response = transactions.map((tx) => ({
+    const response = transactions.map((tx: typeof transactions[number]) => ({
       id: tx.id,
       user_id: tx.userId,
       type: tx.type,
@@ -124,10 +124,10 @@ app.get('/balance', authenticate, async (req: Request, res: Response) => {
     });
 
     const creditSum = groupedTransactions
-      .find((group) => group.type === 'CREDIT')?._sum.amount || 0;
+      .find((group: typeof groupedTransactions[number]) => group.type === 'CREDIT')?._sum.amount || 0;
 
     const debitSum = groupedTransactions
-      .find((group) => group.type === 'DEBIT')?._sum.amount || 0;
+      .find((group: typeof groupedTransactions[number]) => group.type === 'DEBIT')?._sum.amount || 0;
 
     const balance = creditSum - debitSum;
 
