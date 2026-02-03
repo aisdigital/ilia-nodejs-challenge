@@ -1,142 +1,41 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import prisma from './lib/prisma';
+import { authenticate } from './middleware/authenticate';
 import { validate } from './middleware/validate';
-import { createTransactionSchema, CreateTransactionInput } from './schemas/transaction.schema';
+import { createTransactionSchema } from './schemas/transaction.schema';
+import { TransactionController } from './controllers/TransactionController';
 
 dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'ILIACHALLENGE';
 
 app.use(express.json());
 
-const authenticate = (req: Request, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    res.status(401).json({ error: 'Missing authorization header' });
-    return;
-  }
-
-  const token = authHeader.split(' ')[1];
-
-  if (!token) {
-    res.status(401).json({ error: 'Missing token' });
-    return;
-  }
-
-  try {
-    (req as any).user = jwt.verify(token, JWT_SECRET);
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
-};
+const transactionController = new TransactionController();
 
 app.get('/health', async (_req: Request, res: Response) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-app.post('/transactions', authenticate, validate(createTransactionSchema), async (req: Request, res: Response) => {
-  try {
-    const validatedData = req.body as CreateTransactionInput;
-    const userId = (req as any).user?.id;
+app.post(
+  '/transactions',
+  authenticate,
+  validate(createTransactionSchema),
+  (req: Request, res: Response) => transactionController.create(req, res)
+);
 
-    const transaction = await prisma.transaction.create({
-      data: {
-        userId,
-        type: validatedData.type,
-        amount: validatedData.amount,
-      },
-    });
+app.get(
+  '/transactions',
+  authenticate,
+  (req: Request, res: Response) => transactionController.list(req, res)
+);
 
-    res.status(200).json({
-      id: transaction.id,
-      user_id: transaction.userId,
-      type: transaction.type,
-      amount: transaction.amount,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt,
-    });
-  } catch (error) {
-    console.error('Error creating transaction:', error);
-    res.status(500).json({ error: 'Failed to create transaction' });
-  }
-});
-
-app.get('/transactions', authenticate, async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id;
-    const typeFilter = req.query.type as string | undefined;
-
-    if (!userId) {
-      res.status(401).json({ error: 'User not authenticated' });
-      return;
-    }
-
-    const where: any = { userId };
-
-    if (typeFilter) {
-      if (!['CREDIT', 'DEBIT'].includes(typeFilter)) {
-        res.status(400).json({ error: 'Type must be CREDIT or DEBIT' });
-        return;
-      }
-      where.type = typeFilter;
-    }
-
-    const transactions = await prisma.transaction.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
-
-    const response = transactions.map((tx: typeof transactions[number]) => ({
-      id: tx.id,
-      user_id: tx.userId,
-      type: tx.type,
-      amount: tx.amount,
-      createdAt: tx.createdAt,
-      updatedAt: tx.updatedAt,
-    }));
-
-    res.status(200).json(response);
-  } catch (error) {
-    console.error('Error fetching transactions:', error);
-    res.status(500).json({ error: 'Failed to fetch transactions' });
-  }
-});
-
-app.get('/balance', authenticate, async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id;
-
-    if (!userId) {
-      res.status(401).json({ error: 'User not authenticated' });
-      return;
-    }
-
-    const groupedTransactions = await prisma.transaction.groupBy({
-      by: ['type'],
-      where: { userId },
-      _sum: { amount: true },
-    });
-
-    const creditSum = groupedTransactions
-      .find((group: typeof groupedTransactions[number]) => group.type === 'CREDIT')?._sum.amount || 0;
-
-    const debitSum = groupedTransactions
-      .find((group: typeof groupedTransactions[number]) => group.type === 'DEBIT')?._sum.amount || 0;
-
-    const balance = creditSum - debitSum;
-
-    res.status(200).json({ amount: balance });
-  } catch (error) {
-    console.error('Error calculating balance:', error);
-    res.status(500).json({ error: 'Failed to calculate balance' });
-  }
-});
+app.get(
+  '/balance',
+  authenticate,
+  (req: Request, res: Response) => transactionController.getBalance(req, res)
+);
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Route not found' });
