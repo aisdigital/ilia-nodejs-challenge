@@ -41,7 +41,7 @@ export class TransactionService {
   async listTransactions(userId: string, typeFilter?: string): Promise<TransactionOutput[]> {
     const transactions = await this.repository.findByUser(userId, typeFilter);
 
-    return transactions.map((tx) => ({
+    return transactions.map((tx: any) => ({
       id: tx.id,
       user_id: tx.userId,
       type: tx.type as 'CREDIT' | 'DEBIT',
@@ -54,8 +54,8 @@ export class TransactionService {
   async calculateBalance(userId: string): Promise<BalanceOutput> {
     const groupedTransactions = await this.repository.getGroupedByType(userId);
 
-    const creditSum = groupedTransactions.find((group) => group.type === 'CREDIT')?._sum.amount || 0;
-    const debitSum = groupedTransactions.find((group) => group.type === 'DEBIT')?._sum.amount || 0;
+    const creditSum = groupedTransactions.find((group: any) => group.type === 'CREDIT')?._sum.amount || 0;
+    const debitSum = groupedTransactions.find((group: any) => group.type === 'DEBIT')?._sum.amount || 0;
 
     const balance = creditSum - debitSum;
 
