@@ -1,6 +1,8 @@
 import { TransactionRepository } from '../repositories/TransactionRepository';
 import { CreateTransactionInput } from '../schemas/transaction.schema';
 
+const MAX_INT32 = Number.MAX_SAFE_INTEGER;
+
 interface TransactionOutput {
   id: string;
   user_id: string;
@@ -22,6 +24,10 @@ export class TransactionService {
   }
 
   async createTransaction(userId: string, data: CreateTransactionInput): Promise<TransactionOutput> {
+    if (data.amount > MAX_INT32) {
+      throw new Error(`Amount exceeds maximum allowed value of ${MAX_INT32} cents (${(MAX_INT32 / 100).toFixed(2)} dollars)`);
+    }
+
     const transaction = await this.repository.create({
       userId,
       type: data.type,
