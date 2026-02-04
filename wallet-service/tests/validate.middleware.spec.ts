@@ -6,6 +6,7 @@ import { validate } from '../src/middleware/validate';
 import { createTransactionSchema } from '../src/schemas/transaction.schema';
 
 const JWT_SECRET = 'ILIACHALLENGE';
+const VALID_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 const createTestApp = (): Express => {
   const app = express();
@@ -57,6 +58,7 @@ describe('Zod Validation Middleware', () => {
   describe('POST /transactions - Validation', () => {
     it('should accept valid transaction data', async () => {
       const validData = {
+        user_id: VALID_USER_ID,
         amount: 100,
         type: 'CREDIT',
       };
@@ -74,6 +76,7 @@ describe('Zod Validation Middleware', () => {
 
     it('should reject missing amount', async () => {
       const invalidData = {
+        user_id: VALID_USER_ID,
         type: 'CREDIT',
       };
 
@@ -88,6 +91,7 @@ describe('Zod Validation Middleware', () => {
 
     it('should reject invalid amount (negative)', async () => {
       const invalidData = {
+        user_id: VALID_USER_ID,
         amount: -50,
         type: 'CREDIT',
       };
@@ -103,6 +107,7 @@ describe('Zod Validation Middleware', () => {
 
     it('should reject invalid type', async () => {
       const invalidData = {
+        user_id: VALID_USER_ID,
         amount: 100,
         type: 'INVALID',
       };
@@ -118,6 +123,7 @@ describe('Zod Validation Middleware', () => {
 
     it('should reject non-integer amount', async () => {
       const invalidData = {
+        user_id: VALID_USER_ID,
         amount: 100.5,
         type: 'DEBIT',
       };
@@ -133,6 +139,7 @@ describe('Zod Validation Middleware', () => {
 
     it('should reject amount of zero', async () => {
       const invalidData = {
+        user_id: VALID_USER_ID,
         amount: 0,
         type: 'CREDIT',
       };
@@ -148,9 +155,10 @@ describe('Zod Validation Middleware', () => {
 
     it('should reject extra fields in body', async () => {
       const invalidData = {
+        user_id: VALID_USER_ID,
         amount: 100,
         type: 'CREDIT',
-        user_id: '550e8400-e29b-41d4-a716-446655440000',
+        extraField: 'should-not-exist',
       };
 
       const response = await request(app)

@@ -36,6 +36,24 @@ app.get(
   (req: AuthenticatedRequest, res: Response) => userController.getMe(req, res)
 );
 
+app.post(
+  '/users/me/transactions',
+  authenticate,
+  (req: AuthenticatedRequest, res: Response) => userController.createTransaction(req, res)
+);
+
+app.get(
+  '/users/me/transactions',
+  authenticate,
+  (req: AuthenticatedRequest, res: Response) => userController.getTransactions(req, res)
+);
+
+app.get(
+  '/users/me/balance',
+  authenticate,
+  (req: AuthenticatedRequest, res: Response) => userController.getBalance(req, res)
+);
+
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Route not found' });
 });

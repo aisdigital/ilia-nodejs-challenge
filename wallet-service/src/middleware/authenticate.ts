@@ -1,14 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'ILIACHALLENGE';
 const INTERNAL_JWT_SECRET = process.env.ILIACHALLENGE_INTERNAL || 'ILIACHALLENGE_INTERNAL';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
-      isInternal?: boolean;
+      service?: any;
     }
   }
 }
@@ -28,23 +26,13 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     return;
   }
 
-  let user = null;
-  let isInternal = false;
-
   try {
-    user = jwt.verify(token, JWT_SECRET);
-    isInternal = false;
-  } catch (externalError) {
-    try {
-      user = jwt.verify(token, INTERNAL_JWT_SECRET);
-      isInternal = true;
-    } catch (internalError) {
-      res.status(401).json({ error: 'Invalid or expired token' });
-      return;
-    }
+    const service = jwt.verify(token, INTERNAL_JWT_SECRET);
+    (req as any).service = service;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid or expired internal token' });
   }
-
-  (req as any).user = user;
-  (req as any).isInternal = isInternal;
-  next();
 };
+
+

@@ -61,4 +61,58 @@ export class UserController {
       }
     }
   }
+
+  async createTransaction(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.userId;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const correlationId = req.headers['x-correlation-id'] as string;
+      const transaction = await this.service.createTransaction(userId, req.body, correlationId);
+      res.status(201).json(transaction);
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      res.status(500).json({ error: 'Failed to create transaction' });
+    }
+  }
+
+  async getTransactions(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.userId;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const correlationId = req.headers['x-correlation-id'] as string;
+      const result = await this.service.getTransactions(userId, correlationId);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      res.status(500).json({ error: 'Failed to fetch transactions' });
+    }
+  }
+
+  async getBalance(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.userId;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const correlationId = req.headers['x-correlation-id'] as string;
+      const balance = await this.service.getBalance(userId, correlationId);
+      res.status(200).json(balance);
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      res.status(500).json({ error: 'Failed to fetch balance' });
+    }
+  }
 }
