@@ -1,0 +1,61 @@
+services:
+  transactions-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: transactions
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54321:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  users-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54322:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  transactions-api:
+    build:
+      context: .
+      dockerfile: apps/transactions/Dockerfile
+    environment:
+      TRANSACTIONS_PORT: ${TRANSACTIONS_PORT}
+      TRANSACTIONS_DB_URL: ${TRANSACTIONS_DB_URL}
+      JWT_EXTERNAL_SECRET: ${JWT_EXTERNAL_SECRET}
+      JWT_INTERNAL_SECRET: ${JWT_INTERNAL_SECRET}
+    ports:
+      - "3001:3001"
+    depends_on:
+      transactions-db:
+        condition: service_healthy
+
+  users-api:
+    build:
+      context: .
+      dockerfile: apps/users/Dockerfile
+    environment:
+      USERS_PORT: ${USERS_PORT}
+      USERS_DB_URL: ${USERS_DB_URL}
+      JWT_EXTERNAL_SECRET: ${JWT_EXTERNAL_SECRET}
+      JWT_INTERNAL_SECRET: ${JWT_INTERNAL_SECRET}
+      TRANSACTIONS_INTERNAL_BASE_URL: ${TRANSACTIONS_INTERNAL_BASE_URL}
+    ports:
+      - "3002:3002"
+    depends_on:
+      users-db:
+        condition: service_healthy
+      transactions-api:
+        condition: service_started

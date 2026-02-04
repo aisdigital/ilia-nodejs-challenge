@@ -1,0 +1,14 @@
+{
+  "name": "@ilia/users",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "dependencies": {
+    "@ilia/shared": "0.0.1",
+    "fastify": "^4.0.0",
+    "jsonwebtoken": "^9.0.0"
+  }
+}
