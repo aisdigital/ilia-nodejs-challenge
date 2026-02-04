@@ -18,6 +18,7 @@ describe('TransactionService', () => {
     it('should create a transaction and return it with transformed user_id', async () => {
       const userId = '550e8400-e29b-41d4-a716-446655440000';
       const createInput = {
+        user_id: userId,
         amount: 1000,
         type: 'CREDIT' as const,
       };
@@ -56,6 +57,7 @@ describe('TransactionService', () => {
     it('should handle DEBIT transactions correctly', async () => {
       const userId = '550e8400-e29b-41d4-a716-446655440001';
       const createInput = {
+        user_id: userId,
         amount: 500,
         type: 'DEBIT' as const,
       };
@@ -81,6 +83,7 @@ describe('TransactionService', () => {
     it('should pass correct parameters to repository', async () => {
       const userId = 'test-user-id';
       const createInput = {
+        user_id: userId,
         amount: 2000,
         type: 'CREDIT' as const,
       };

@@ -12,11 +12,15 @@ export class TransactionController {
   async create(req: Request, res: Response): Promise<void> {
     try {
       const validatedData = req.body as CreateTransactionInput;
-      const userId = (req as any).user?.id;
+      const userId = validatedData.user_id;
+
+      if (!userId) {
+        res.status(400).json({ error: 'Missing user_id in request body' });
+        return;
+      }
 
       const transaction = await this.service.createTransaction(userId, validatedData);
-
-      res.status(200).json(transaction);
+      res.status(201).json(transaction);
     } catch (error) {
       console.error('Error creating transaction:', error);
       res.status(500).json({ error: 'Failed to create transaction' });
@@ -25,11 +29,11 @@ export class TransactionController {
 
   async list(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
+      const userId = req.query.user_id as string | undefined;
       const typeFilter = req.query.type as string | undefined;
 
       if (!userId) {
-        res.status(401).json({ error: 'User not authenticated' });
+        res.status(400).json({ error: 'Missing user_id in query parameters' });
         return;
       }
 
@@ -39,8 +43,7 @@ export class TransactionController {
       }
 
       const transactions = await this.service.listTransactions(userId, typeFilter);
-
-      res.status(200).json(transactions);
+      res.status(200).json({ transactions });
     } catch (error) {
       console.error('Error fetching transactions:', error);
       res.status(500).json({ error: 'Failed to fetch transactions' });
@@ -49,23 +52,11 @@ export class TransactionController {
 
   async getBalance(req: Request, res: Response): Promise<void> {
     try {
-      const isInternal = (req as any).isInternal;
-      let userId: string | undefined;
+      const userId = req.query.user_id as string | undefined;
 
-      if (isInternal) {
-        userId = req.query['X-User-Id'] as string || req.query['user_id'] as string;
-
-        if (!userId) {
-          res.status(400).json({ error: 'Missing user_id in query parameters for internal calls' });
-          return;
-        }
-      } else {
-        userId = (req as any).user?.id;
-
-        if (!userId) {
-          res.status(401).json({ error: 'User not authenticated' });
-          return;
-        }
+      if (!userId) {
+        res.status(400).json({ error: 'Missing user_id in query parameters' });
+        return;
       }
 
       const balance = await this.service.calculateBalance(userId);

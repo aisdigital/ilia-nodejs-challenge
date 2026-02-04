@@ -100,6 +100,21 @@ export class UserService {
     };
   }
 
+  async createTransaction(userId: string, data: any, correlationId?: string) {
+    return this.walletClient.createTransaction(
+      { ...data, user_id: userId },
+      correlationId
+    );
+  }
+
+  async getTransactions(userId: string, correlationId?: string) {
+    return this.walletClient.getTransactions(userId, correlationId);
+  }
+
+  async getBalance(userId: string, correlationId?: string) {
+    return this.walletClient.getBalance(userId, correlationId);
+  }
+
   private generateToken(userId: string, email: string): string {
     return jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '24h' });
   }
