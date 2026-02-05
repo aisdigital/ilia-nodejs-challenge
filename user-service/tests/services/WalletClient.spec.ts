@@ -1,7 +1,9 @@
 // Set environment variable BEFORE importing WalletClient
 process.env.WALLET_SERVICE_URL = 'http://wallet-service:3001';
+process.env.INTERNAL_JWT_SECRET = 'test-secret';
 
-import { WalletClient, BalanceResponse } from '../../src/services/WalletClient';
+import { WalletClient } from '../../src/clients/WalletClient';
+import { BalanceResponse } from '../../src/types/wallet-client.types';
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
 

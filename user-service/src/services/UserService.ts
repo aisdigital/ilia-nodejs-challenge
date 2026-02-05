@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { hashPassword, comparePasswords } from '../lib/password';
 import { UserRepository } from '../repositories/UserRepository';
 import { RegisterInput, LoginInput } from '../schemas/auth.schema';
-import { WalletClient } from './WalletClient';
+import { WalletClient } from '../clients/WalletClient';
 import { AuthServiceResponse, UserWithBalanceResponse } from '../types/user.types';
 
 const JWT_SECRET = process.env.JWT_SECRET;
