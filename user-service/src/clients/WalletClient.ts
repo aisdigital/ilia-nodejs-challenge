@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import * as jwt from 'jsonwebtoken';
+import { BalanceResponse, TransactionData, Transaction, TransactionsResponse } from '../types/wallet-client.types';
 
 const WALLET_SERVICE_URL = process.env.WALLET_SERVICE_URL;
 const INTERNAL_JWT_SECRET = process.env.INTERNAL_JWT_SECRET;
@@ -9,29 +10,6 @@ if (!WALLET_SERVICE_URL) {
 }
 if (!INTERNAL_JWT_SECRET) {
   throw new Error('INTERNAL_JWT_SECRET environment variable is required');
-}
-
-export interface BalanceResponse {
-  amount: number | null;
-}
-
-export interface TransactionData {
-  user_id: string;
-  amount: number;
-  type: 'CREDIT' | 'DEBIT';
-}
-
-export interface Transaction {
-  id: string;
-  user_id: string;
-  amount: number;
-  type: 'CREDIT' | 'DEBIT';
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface TransactionsResponse {
-  transactions: Transaction[];
 }
 
 export class WalletClient {

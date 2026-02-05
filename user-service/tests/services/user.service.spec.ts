@@ -1,14 +1,15 @@
 // Set environment variable BEFORE importing WalletClient
 process.env.WALLET_SERVICE_URL = 'http://wallet-service:3001';
+process.env.INTERNAL_JWT_SECRET = 'test-secret';
 
 import { UserService } from '../../src/services/UserService';
 import { UserRepository } from '../../src/repositories/UserRepository';
 import * as passwordModule from '../../src/lib/password';
-import { WalletClient } from '../../src/services/WalletClient';
+import { WalletClient } from '../../src/clients/WalletClient';
 
 jest.mock('../../src/repositories/UserRepository');
 jest.mock('../../src/lib/password');
-jest.mock('../../src/services/WalletClient');
+jest.mock('../../src/clients/WalletClient');
 
 describe('UserService', () => {
   let service: UserService;
