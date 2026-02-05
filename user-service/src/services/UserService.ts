@@ -3,24 +3,13 @@ import { hashPassword, comparePasswords } from '../lib/password';
 import { UserRepository } from '../repositories/UserRepository';
 import { RegisterInput, LoginInput } from '../schemas/auth.schema';
 import { WalletClient } from './WalletClient';
+import { AuthServiceResponse, UserWithBalanceResponse } from '../types/user.types';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'ILIACHALLENGE';
-
-export interface AuthResponse {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  token: string;
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
 }
 
-export interface UserWithBalanceResponse {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  balance: number | null;
-}
 
 export class UserService {
   private repository: UserRepository;
@@ -31,7 +20,7 @@ export class UserService {
     this.walletClient = new WalletClient();
   }
 
-  async register(data: RegisterInput): Promise<AuthResponse> {
+  async register(data: RegisterInput): Promise<AuthServiceResponse> {
     const existingUser = await this.repository.findByEmail(data.email);
 
     if (existingUser) {
@@ -58,7 +47,7 @@ export class UserService {
     };
   }
 
-  async login(data: LoginInput): Promise<AuthResponse> {
+  async login(data: LoginInput): Promise<AuthServiceResponse> {
     const user = await this.repository.findByEmail(data.email);
 
     if (!user) {
@@ -116,6 +105,6 @@ export class UserService {
   }
 
   private generateToken(userId: string, email: string): string {
-    return jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '24h' });
+    return jwt.sign({ id: userId, email }, JWT_SECRET!, { expiresIn: '24h' });
   }
 }
