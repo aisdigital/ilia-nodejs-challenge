@@ -4,6 +4,7 @@ import { authenticate } from './middleware/authenticate';
 import { validate } from './middleware/validate';
 import { createTransactionSchema } from './schemas/transaction.schema';
 import { TransactionController } from './controllers/TransactionController';
+import { loggingMiddleware, logger } from './lib/logger';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app: Express = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use(loggingMiddleware);
 
 const transactionController = new TransactionController();
 
@@ -42,10 +44,10 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err);
+  logger.error({ error: err.message, stack: err.stack }, 'Unhandled error');
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
 app.listen(PORT, () => {
-  console.log(`Wallet Microservice running on port ${PORT}`);
+  logger.info(`Wallet Microservice running on port ${PORT}`);
 });
