@@ -4,6 +4,7 @@ import { validate } from './middleware/validate';
 import { authenticate, AuthenticatedRequest } from './middleware/authenticate';
 import { registerSchema, loginSchema } from './schemas/auth.schema';
 import { UserController } from './controllers/UserController';
+import { loggingMiddleware, logger } from './lib/logger';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app: Express = express();
 const PORT = process.env.PORT || 3002;
 
 app.use(express.json());
+app.use(loggingMiddleware);
 
 const userController = new UserController();
 
@@ -59,12 +61,12 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err);
+  logger.error({ error: err.message, stack: err.stack }, 'Unhandled error');
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
 app.listen(PORT, () => {
-  console.log(`User Microservice running on port ${PORT}`);
+  logger.info(`User Microservice running on port ${PORT}`);
 });
 
 

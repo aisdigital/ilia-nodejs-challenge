@@ -36,15 +36,7 @@ export class WalletClient {
 
   async getUserBalance(userId: string, correlationId?: string): Promise<BalanceResponse> {
     try {
-      const token = this.generateInternalToken();
-
-      const headers: any = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      if (correlationId) {
-        headers['x-correlation-id'] = correlationId;
-      }
+      const headers = this.getHeaders(correlationId);
 
       const response = await this.axiosInstance.get<BalanceResponse>('/balance', {
         params: {
@@ -59,7 +51,6 @@ export class WalletClient {
         return this.handleAxiosError(error as AxiosError, userId);
       }
 
-      console.error('Unexpected error fetching wallet balance:', error);
       return { amount: null };
     }
   }
@@ -77,7 +68,6 @@ export class WalletClient {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`Error creating transaction for user ${data.user_id}:`, error.response?.data);
         throw new Error('Failed to create transaction');
       }
       throw new Error('Failed to create transaction');
@@ -96,40 +86,13 @@ export class WalletClient {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`Error fetching transactions for user ${userId}:`, error.response?.data);
         return { transactions: [] };
       }
       return { transactions: [] };
     }
   }
 
-  private handleAxiosError(error: AxiosError, userId: string): BalanceResponse {
-    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-      console.warn(`Wallet service unavailable for user ${userId}. Returning null balance.`);
-      return { amount: null };
-    }
-
-    if (error.response?.status === 401) {
-      console.error(`Unauthorized access to wallet service for user ${userId}`);
-      return { amount: null };
-    }
-
-    if (error.response?.status === 404) {
-      console.warn(`Wallet not found for user ${userId}`);
-      return { amount: null };
-    }
-
-    if (error.response?.status === 500) {
-      console.error(`Wallet service internal error for user ${userId}`);
-      return { amount: null };
-    }
-
-    if (error.code === 'ECONNABORTED') {
-      console.error(`Wallet service timeout for user ${userId}`);
-      return { amount: null };
-    }
-
-    console.error(`Error fetching wallet balance for user ${userId}:`, error.message);
+  private handleAxiosError(_error: AxiosError, _userId: string): BalanceResponse {
     return { amount: null };
   }
 }
