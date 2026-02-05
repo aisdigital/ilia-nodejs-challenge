@@ -9,6 +9,17 @@ import * as jwt from 'jsonwebtoken';
 
 jest.mock('axios');
 jest.mock('jsonwebtoken');
+jest.mock('../../src/lib/logger', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+  getCorrelationId: jest.fn(() => 'test-correlation-id'),
+  setCorrelationId: jest.fn(),
+  sanitize: jest.fn((obj) => obj),
+}));
 
 describe('WalletClient', () => {
   let walletClient: WalletClient;
