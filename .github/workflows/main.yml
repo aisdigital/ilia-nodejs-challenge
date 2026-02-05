@@ -21,6 +21,8 @@ jobs:
       matrix:
         node-version: [20.x]
         service: [user-service, wallet-service]
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
 
     steps:
       - name: Checkout code
