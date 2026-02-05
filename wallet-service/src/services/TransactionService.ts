@@ -1,20 +1,9 @@
 import { TransactionRepository } from '../repositories/TransactionRepository';
 import { CreateTransactionInput } from '../schemas/transaction.schema';
+import { TransactionModel, BalanceResponse, GroupedTransaction } from '../types/transaction.types';
 
 const MAX_INT32 = Number.MAX_SAFE_INTEGER;
 
-interface TransactionOutput {
-  id: string;
-  user_id: string;
-  type: 'CREDIT' | 'DEBIT';
-  amount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface BalanceOutput {
-  amount: number;
-}
 
 export class TransactionService {
   private repository: TransactionRepository;
@@ -23,7 +12,7 @@ export class TransactionService {
     this.repository = new TransactionRepository();
   }
 
-  async createTransaction(userId: string, data: CreateTransactionInput): Promise<TransactionOutput> {
+  async createTransaction(userId: string, data: CreateTransactionInput): Promise<TransactionModel> {
     if (data.amount > MAX_INT32) {
       throw new Error(`Amount exceeds maximum allowed value of ${MAX_INT32} cents (${(MAX_INT32 / 100).toFixed(2)} dollars)`);
     }
@@ -44,7 +33,7 @@ export class TransactionService {
     };
   }
 
-  async listTransactions(userId: string, typeFilter?: string): Promise<TransactionOutput[]> {
+  async listTransactions(userId: string, typeFilter?: string): Promise<TransactionModel[]> {
     const transactions = await this.repository.findByUser(userId, typeFilter);
 
     return transactions.map((tx: any) => ({
@@ -57,11 +46,11 @@ export class TransactionService {
     }));
   }
 
-  async calculateBalance(userId: string): Promise<BalanceOutput> {
+  async calculateBalance(userId: string): Promise<BalanceResponse> {
     const groupedTransactions = await this.repository.getGroupedByType(userId);
 
-    const creditSum = groupedTransactions.find((group: any) => group.type === 'CREDIT')?._sum.amount || 0;
-    const debitSum = groupedTransactions.find((group: any) => group.type === 'DEBIT')?._sum.amount || 0;
+    const creditSum = groupedTransactions.find((group: GroupedTransaction) => group.type === 'CREDIT')?._sum.amount || 0;
+    const debitSum = groupedTransactions.find((group: GroupedTransaction) => group.type === 'DEBIT')?._sum.amount || 0;
 
     const balance = creditSum - debitSum;
 
