@@ -20,6 +20,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
+        service: [user-service, wallet-service]
 
     steps:
       - name: Checkout code
@@ -30,45 +31,32 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: './${{ matrix.service }}/package-lock.json'
 
-      - name: Install dependencies - User Service
-        working-directory: ./user-service
+      - name: Install dependencies - ${{ matrix.service }}
+        working-directory: ./${{ matrix.service }}
         run: npm ci
 
-      - name: Install dependencies - Wallet Service
-        working-directory: ./wallet-service
-        run: npm ci
-
-      - name: Run unit tests - User Service
-        working-directory: ./user-service
+      - name: Run unit tests - ${{ matrix.service }}
+        working-directory: ./${{ matrix.service }}
         run: npm run test:unit
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           INTERNAL_JWT_SECRET: ${{ secrets.INTERNAL_JWT_SECRET }}
 
-      - name: Run E2E tests - User Service
-        working-directory: ./user-service
+      - name: Run E2E tests - ${{ matrix.service }}
+        if: matrix.service == 'user-service'
+        working-directory: ./${{ matrix.service }}
         run: npm run test:e2e
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           INTERNAL_JWT_SECRET: ${{ secrets.INTERNAL_JWT_SECRET }}
 
-      - name: Run unit tests - Wallet Service
-        working-directory: ./wallet-service
-        run: npm run test:unit
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          INTERNAL_JWT_SECRET: ${{ secrets.INTERNAL_JWT_SECRET }}
-
-      - name: Security audit - User Service
-        working-directory: ./user-service
+      - name: Security audit - ${{ matrix.service }}
+        working-directory: ./${{ matrix.service }}
         run: npm audit --audit-level=moderate
         continue-on-error: true
 
-      - name: Security audit - Wallet Service
-        working-directory: ./wallet-service
-        run: npm audit --audit-level=moderate
-        continue-on-error: true
 
   build:
     needs: test
