@@ -2,10 +2,13 @@ import axios, { AxiosError } from 'axios';
 import * as jwt from 'jsonwebtoken';
 
 const WALLET_SERVICE_URL = process.env.WALLET_SERVICE_URL;
-const INTERNAL_JWT_SECRET = process.env.INTERNAL_JWT_SECRET || 'ILIACHALLENGE_INTERNAL';
+const INTERNAL_JWT_SECRET = process.env.INTERNAL_JWT_SECRET;
 
 if (!WALLET_SERVICE_URL) {
   throw new Error('WALLET_SERVICE_URL environment variable is required');
+}
+if (!INTERNAL_JWT_SECRET) {
+  throw new Error('INTERNAL_JWT_SECRET environment variable is required');
 }
 
 export interface BalanceResponse {
@@ -38,7 +41,7 @@ export class WalletClient {
   });
 
   private generateInternalToken(): string {
-    return jwt.sign({ internal: true }, INTERNAL_JWT_SECRET, { expiresIn: '5m' });
+    return jwt.sign({ internal: true }, INTERNAL_JWT_SECRET!, { expiresIn: '5m' });
   }
 
   private getHeaders(correlationId?: string): any {
