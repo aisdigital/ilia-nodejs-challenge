@@ -12,7 +12,7 @@ export class WalletOutboxRepository implements IWalletOutboxRepository {
         userId: request.userId,
         eventType: request.eventType,
         payload: request.payload,
-        status: 'PENDING',
+        status: request.status || 'PENDING',
       },
     });
 
