@@ -1,4 +1,4 @@
-import { WalletUserRepository } from '../repositories/WalletUserRepository';
+import { WalletUserRepository } from '../repositories/wallet-user.repository';
 import { CreateWalletUserInput } from '../schemas/wallet-user.schema';
 
 interface WalletUserResponse {

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { WalletUserService } from '../services/WalletUserService';
+import { WalletUserService } from '../services/wallet-user.service';
 import { CreateWalletUserInput } from '../schemas/wallet-user.schema';
 
 export class WalletUserController {

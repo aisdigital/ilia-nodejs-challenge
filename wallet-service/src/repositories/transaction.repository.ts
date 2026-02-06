@@ -1,8 +1,9 @@
 import prisma from '../lib/prisma';
+import { TRANSACTION_TYPES } from '../constants/transaction.constants';
 
 interface CreateTransactionInput {
   userId: string;
-  type: 'CREDIT' | 'DEBIT';
+  type: typeof TRANSACTION_TYPES[keyof typeof TRANSACTION_TYPES];
   amount: number;
 }
 

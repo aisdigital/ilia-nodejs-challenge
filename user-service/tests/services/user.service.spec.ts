@@ -2,16 +2,16 @@
 process.env.WALLET_SERVICE_URL = 'http://wallet-service:3001';
 process.env.INTERNAL_JWT_SECRET = 'test-secret';
 
-import { UserService } from '../../src/services/UserService';
-import { UserRepository } from '../../src/repositories/UserRepository';
+import { UserService } from '../../src/services/user.service';
+import { UserRepository } from '../../src/repositories/user.repository';
 import * as passwordModule from '../../src/lib/password';
-import { WalletClient } from '../../src/clients/WalletClient';
-import { WalletOutboxRepository } from '../../src/repositories/WalletOutboxRepository';
+import { WalletClient } from '../../src/clients/wallet.client';
+import { WalletOutboxRepository } from '../../src/repositories/wallet-outbox.repository';
 
-jest.mock('../../src/repositories/UserRepository');
+jest.mock('../../src/repositories/user.repository');
 jest.mock('../../src/lib/password');
-jest.mock('../../src/clients/WalletClient');
-jest.mock('../../src/repositories/WalletOutboxRepository');
+jest.mock('../../src/clients/wallet.client');
+jest.mock('../../src/repositories/wallet-outbox.repository');
 
 describe('UserService', () => {
   let service: UserService;

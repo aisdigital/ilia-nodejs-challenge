@@ -2,7 +2,7 @@
 process.env.WALLET_SERVICE_URL = 'http://wallet-service:3001';
 process.env.INTERNAL_JWT_SECRET = 'test-secret';
 
-import { WalletClient } from '../../src/clients/WalletClient';
+import { WalletClient } from '../../src/clients/wallet.client';
 import { BalanceResponse } from '../../src/types/wallet-client.types';
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';

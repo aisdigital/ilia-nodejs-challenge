@@ -1,9 +1,9 @@
-import { TransactionService } from '../../src/services/TransactionService';
-import { TransactionRepository } from '../../src/repositories/TransactionRepository';
-import { WalletUserRepository } from '../../src/repositories/WalletUserRepository';
+import { TransactionService } from '../../src/services/transaction.service';
+import { TransactionRepository } from '../../src/repositories/transaction.repository';
+import { WalletUserRepository } from '../../src/repositories/wallet-user.repository';
 
-jest.mock('../../src/repositories/TransactionRepository');
-jest.mock('../../src/repositories/WalletUserRepository');
+jest.mock('../../src/repositories/transaction.repository');
+jest.mock('../../src/repositories/wallet-user.repository');
 
 describe('TransactionService', () => {
   let service: TransactionService;

@@ -1,5 +1,5 @@
 import { PrismaClient, WalletUser as PrismaWalletUser } from '@prisma/client';
-import { IWalletUserRepository } from './IWalletUserRepository';
+import { IWalletUserRepository } from './wallet-user.repository.interface';
 import { WalletUser, CreateWalletUserRequest } from '../types/wallet-user.types';
 import prisma from '../lib/prisma';
 

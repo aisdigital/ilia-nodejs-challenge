@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { TransactionService } from '../services/TransactionService';
+import { TransactionService } from '../services/transaction.service';
 import { CreateTransactionInput } from '../schemas/transaction.schema';
+import { TRANSACTION_TYPE_VALUES, TRANSACTION_ERRORS } from '../constants/transaction.constants';
 
 export class TransactionController {
   private service: TransactionService;
@@ -15,7 +16,7 @@ export class TransactionController {
       const userId = validatedData.user_id;
 
       if (!userId) {
-        res.status(400).json({ error: 'Missing user_id in request body' });
+        res.status(400).json({ error: TRANSACTION_ERRORS.MISSING_USER_ID });
         return;
       }
 
@@ -26,8 +27,7 @@ export class TransactionController {
         res.status(400).json({ error: error.message });
         return;
       }
-      console.error('Error creating transaction:', error);
-      res.status(500).json({ error: 'Failed to create transaction', internalMessage: error.message });
+      res.status(500).json({ error: TRANSACTION_ERRORS.FAILED_TO_CREATE, internalMessage: error.message });
     }
   }
 
@@ -37,20 +37,19 @@ export class TransactionController {
       const typeFilter = req.query.type as string | undefined;
 
       if (!userId) {
-        res.status(400).json({ error: 'Missing user_id in query parameters' });
+        res.status(400).json({ error: TRANSACTION_ERRORS.MISSING_USER_ID_QUERY });
         return;
       }
 
-      if (typeFilter && !['CREDIT', 'DEBIT'].includes(typeFilter)) {
-        res.status(400).json({ error: 'Type must be CREDIT or DEBIT' });
+      if (typeFilter && !TRANSACTION_TYPE_VALUES.includes(typeFilter as any)) {
+        res.status(400).json({ error: TRANSACTION_ERRORS.INVALID_TYPE });
         return;
       }
 
       const transactions = await this.service.listTransactions(userId, typeFilter);
       res.status(200).json({ transactions });
     } catch (error) {
-      console.error('Error fetching transactions:', error);
-      res.status(500).json({ error: 'Failed to fetch transactions' });
+      res.status(500).json({ error: TRANSACTION_ERRORS.FAILED_TO_LIST });
     }
   }
 
@@ -59,7 +58,7 @@ export class TransactionController {
       const userId = req.query.user_id as string | undefined;
 
       if (!userId) {
-        res.status(400).json({ error: 'Missing user_id in query parameters' });
+        res.status(400).json({ error: TRANSACTION_ERRORS.MISSING_USER_ID_QUERY });
         return;
       }
 
@@ -67,8 +66,7 @@ export class TransactionController {
 
       res.status(200).json(balance);
     } catch (error) {
-      console.error('Error calculating balance:', error);
-      res.status(500).json({ error: 'Failed to calculate balance' });
+      res.status(500).json({ error: TRANSACTION_ERRORS.FAILED_TO_CALCULATE });
     }
   }
 }

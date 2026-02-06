@@ -1,9 +1,9 @@
 import { PrismaClient, WalletOutbox as PrismaWalletOutbox, OutboxStatus as PrismaOutboxStatus, EventType as PrismaEventType } from '@prisma/client';
-import { IWalletOutboxRepository } from './IWalletOutboxRepository';
+import { IWalletCreationOutboxRepository } from './wallet-creation-outbox.repository.interface';
 import { WalletOutbox, CreateOutboxRequest, UpdateOutboxStatusRequest, OutboxStatus, EventType, FindOutboxByStatusRequest } from '../types/outbox.types';
 import prisma from '../lib/prisma';
 
-export class WalletOutboxRepository implements IWalletOutboxRepository {
+export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepository {
   constructor(private client: PrismaClient = prisma) {}
 
   async create(request: CreateOutboxRequest): Promise<WalletOutbox> {
@@ -12,7 +12,7 @@ export class WalletOutboxRepository implements IWalletOutboxRepository {
         userId: request.userId,
         eventType: request.eventType,
         payload: request.payload,
-        status: request.status || 'PENDING',
+        status: 'PENDING',
       },
     });
 
@@ -78,3 +78,7 @@ export class WalletOutboxRepository implements IWalletOutboxRepository {
     };
   }
 }
+
+
+
+
