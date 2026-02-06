@@ -74,6 +74,19 @@ export class WalletClient {
     }
   }
 
+  async createWalletUser(userId: string, correlationId?: string): Promise<void> {
+    try {
+      await this.axiosInstance.post('/wallet/users', { user_id: userId }, {
+        headers: this.getHeaders(correlationId),
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error('Failed to create wallet user');
+      }
+      throw error;
+    }
+  }
+
   async getTransactions(userId: string, correlationId?: string): Promise<TransactionsResponse> {
     try {
       const response = await this.axiosInstance.get<TransactionsResponse>('/transactions', {

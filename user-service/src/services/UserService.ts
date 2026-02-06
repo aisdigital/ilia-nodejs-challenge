@@ -38,6 +38,26 @@ export class UserService {
       lastName: data.lastName,
     });
 
+    let syncStatus: 'COMPLETED' | 'PENDING' = 'PENDING';
+    try {
+      await this.walletClient.createWalletUser(user.id);
+      syncStatus = 'COMPLETED';
+    } catch (error) {
+      console.error('Failed to sync user to wallet', error);
+    }
+
+    await this.outboxRepository.create({
+      userId: user.id,
+      eventType: 'USER_CREATED',
+      payload: {
+        user_id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      status: syncStatus,
+    } as any);
+
     const token = this.generateToken(user.id, user.email);
 
     return {
