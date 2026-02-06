@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, WalletCreationOutbox as PrismaWalletCreationOutbox, OutboxStatus as PrismaOutboxStatus } from '@prisma/client';
 import { IWalletCreationOutboxRepository } from './IWalletCreationOutboxRepository';
 import { WalletCreationOutbox, CreateOutboxRequest, UpdateOutboxStatusRequest, OutboxStatus } from '../types/outbox.types';
 
@@ -30,21 +30,21 @@ export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepo
       where: { userId },
     });
 
-    return outboxes.map((outbox) => this.mapToWalletCreationOutbox(outbox));
+    return outboxes.map((outbox: PrismaWalletCreationOutbox) => this.mapToWalletCreationOutbox(outbox));
   }
 
   async findByStatus(status: OutboxStatus): Promise<WalletCreationOutbox[]> {
     const outboxes = await this.prisma.walletCreationOutbox.findMany({
-      where: { status },
+      where: { status: status as PrismaOutboxStatus },
     });
 
-    return outboxes.map((outbox) => this.mapToWalletCreationOutbox(outbox));
+    return outboxes.map((outbox: PrismaWalletCreationOutbox) => this.mapToWalletCreationOutbox(outbox));
   }
 
   async updateStatus(request: UpdateOutboxStatusRequest): Promise<WalletCreationOutbox> {
     const outbox = await this.prisma.walletCreationOutbox.update({
       where: { id: request.id },
-      data: { status: request.status },
+      data: { status: request.status as PrismaOutboxStatus },
     });
 
     return this.mapToWalletCreationOutbox(outbox);
@@ -56,12 +56,12 @@ export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepo
     });
   }
 
-  private mapToWalletCreationOutbox(outbox: any): WalletCreationOutbox {
+  private mapToWalletCreationOutbox(outbox: PrismaWalletCreationOutbox): WalletCreationOutbox {
     return {
       id: outbox.id,
       userId: outbox.userId,
       status: outbox.status as OutboxStatus,
-      payload: outbox.payload,
+      payload: outbox.payload as Record<string, unknown>,
       createdAt: outbox.createdAt,
       updatedAt: outbox.updatedAt,
     };
