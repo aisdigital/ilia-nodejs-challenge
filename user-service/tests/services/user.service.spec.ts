@@ -6,29 +6,32 @@ import { UserService } from '../../src/services/UserService';
 import { UserRepository } from '../../src/repositories/UserRepository';
 import * as passwordModule from '../../src/lib/password';
 import { WalletClient } from '../../src/clients/WalletClient';
+import { WalletCreationOutboxRepository } from '../../src/repositories/WalletCreationOutboxRepository';
 
 jest.mock('../../src/repositories/UserRepository');
 jest.mock('../../src/lib/password');
 jest.mock('../../src/clients/WalletClient');
+jest.mock('../../src/repositories/WalletCreationOutboxRepository');
 
 describe('UserService', () => {
   let service: UserService;
   let mockRepository: jest.Mocked<UserRepository>;
   let mockWalletClient: jest.Mocked<WalletClient>;
+  let mockOutboxRepository: jest.Mocked<WalletCreationOutboxRepository>;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     mockRepository = new UserRepository() as jest.Mocked<UserRepository>;
     mockWalletClient = new WalletClient() as jest.Mocked<WalletClient>;
+    mockOutboxRepository = new WalletCreationOutboxRepository() as jest.Mocked<WalletCreationOutboxRepository>;
     service = new UserService();
     (service as any).repository = mockRepository;
     (service as any).walletClient = mockWalletClient;
+    (service as any).outboxRepository = mockOutboxRepository;
   });
 
-  afterEach(() => {
-    // Environment variable is kept for other tests
-  });
+  // ...existing tests...
 
   describe('register', () => {
     it('should hash password and create user successfully', async () => {
@@ -608,4 +611,222 @@ describe('UserService', () => {
       );
     });
   });
-});
+
+  describe('createTransaction', () => {
+    it('should save outbox record atomically before calling wallet API', async () => {
+      const userId = 'user-123';
+      const transactionData = {
+        amount: 1000,
+        type: 'CREDIT',
+      };
+
+      const mockTransaction = {
+        id: 'txn-456',
+        user_id: userId,
+        amount: 1000,
+        type: 'CREDIT' as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
+        return callback({
+          walletCreationOutbox: {
+            create: jest.fn().mockResolvedValueOnce({
+              id: 'outbox-123',
+              userId,
+              payload: { user_id: userId, amount: 1000, type: 'CREDIT' },
+              status: 'PENDING',
+            }),
+          },
+        });
+      });
+
+      mockWalletClient.createTransaction.mockResolvedValueOnce(mockTransaction);
+      mockOutboxRepository.updateStatus.mockResolvedValueOnce({
+        id: 'outbox-123',
+        userId,
+        status: 'COMPLETED',
+        payload: { user_id: userId, amount: 1000, type: 'CREDIT' },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const result = await service.createTransaction(userId, transactionData);
+
+      expect(mockOutboxRepository.createWithinTransaction).toHaveBeenCalledTimes(1);
+      expect(mockWalletClient.createTransaction).toHaveBeenCalledWith(
+        { ...transactionData, user_id: userId },
+        undefined
+      );
+      expect(mockOutboxRepository.updateStatus).toHaveBeenCalledWith({
+        id: 'outbox-123',
+        status: 'COMPLETED',
+      });
+      expect(result).toEqual(mockTransaction);
+    });
+
+    it('should update outbox status to COMPLETED after successful wallet API call', async () => {
+      const userId = 'user-abc';
+      const transactionData = {
+        amount: 2000,
+        type: 'DEBIT',
+      };
+
+      const mockTransaction = {
+        id: 'txn-789',
+        user_id: userId,
+        amount: 2000,
+        type: 'DEBIT' as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
+        return callback({
+          walletCreationOutbox: {
+            create: jest.fn().mockResolvedValueOnce({
+              id: 'outbox-789',
+              userId,
+              payload: { user_id: userId, amount: 2000, type: 'DEBIT' },
+              status: 'PENDING',
+            }),
+          },
+        });
+      });
+
+      mockWalletClient.createTransaction.mockResolvedValueOnce(mockTransaction);
+      mockOutboxRepository.updateStatus.mockResolvedValueOnce({
+        id: 'outbox-789',
+        userId,
+        status: 'COMPLETED',
+        payload: { user_id: userId, amount: 2000, type: 'DEBIT' },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await service.createTransaction(userId, transactionData);
+
+      expect(mockOutboxRepository.updateStatus).toHaveBeenCalledWith({
+        id: 'outbox-789',
+        status: 'COMPLETED',
+      });
+    });
+
+    it('should NOT throw error when wallet API call fails', async () => {
+      const userId = 'user-fail';
+      const transactionData = {
+        amount: 500,
+        type: 'CREDIT',
+      };
+
+      const walletError = new Error('Wallet service unavailable');
+
+      mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
+        return callback({
+          walletCreationOutbox: {
+            create: jest.fn().mockResolvedValueOnce({
+              id: 'outbox-fail',
+              userId,
+              payload: { user_id: userId, amount: 500, type: 'CREDIT' },
+              status: 'PENDING',
+            }),
+          },
+        });
+      });
+
+      mockWalletClient.createTransaction.mockRejectedValueOnce(walletError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const result = await service.createTransaction(userId, transactionData);
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining(`Failed to create transaction for user ${userId}`),
+        walletError
+      );
+      expect(mockOutboxRepository.updateStatus).not.toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should keep outbox record as PENDING when wallet API fails', async () => {
+      const userId = 'user-pending';
+      const transactionData = {
+        amount: 750,
+        type: 'DEBIT',
+      };
+
+      mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
+        return callback({
+          walletCreationOutbox: {
+            create: jest.fn().mockResolvedValueOnce({
+              id: 'outbox-pending',
+              userId,
+              payload: { user_id: userId, amount: 750, type: 'DEBIT' },
+              status: 'PENDING',
+            }),
+          },
+        });
+      });
+
+      mockWalletClient.createTransaction.mockRejectedValueOnce(new Error('Network error'));
+      jest.spyOn(console, 'error').mockImplementation();
+
+      await service.createTransaction(userId, transactionData);
+
+      expect(mockOutboxRepository.updateStatus).not.toHaveBeenCalled();
+      jest.restoreAllMocks();
+    });
+
+    it('should pass correlationId to wallet client', async () => {
+      const userId = 'user-correlation';
+      const correlationId = 'corr-123';
+      const transactionData = {
+        amount: 1500,
+        type: 'CREDIT',
+      };
+
+      const mockTransaction = {
+        id: 'txn-corr',
+        user_id: userId,
+        amount: 1500,
+        type: 'CREDIT' as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
+        return callback({
+          walletCreationOutbox: {
+            create: jest.fn().mockResolvedValueOnce({
+              id: 'outbox-corr',
+              userId,
+              payload: { user_id: userId, amount: 1500, type: 'CREDIT' },
+              status: 'PENDING',
+            }),
+          },
+        });
+      });
+
+      mockWalletClient.createTransaction.mockResolvedValueOnce(mockTransaction);
+      mockOutboxRepository.updateStatus.mockResolvedValueOnce({
+        id: 'outbox-corr',
+        userId,
+        status: 'COMPLETED',
+        payload: { user_id: userId, amount: 1500, type: 'CREDIT' },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await service.createTransaction(userId, transactionData, correlationId);
+
+      expect(mockWalletClient.createTransaction).toHaveBeenCalledWith(
+        { ...transactionData, user_id: userId },
+        correlationId
+      );
+    });
+  });
+})
+

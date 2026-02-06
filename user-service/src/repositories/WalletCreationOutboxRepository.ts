@@ -1,12 +1,13 @@
 import { PrismaClient, WalletCreationOutbox as PrismaWalletCreationOutbox, OutboxStatus as PrismaOutboxStatus } from '@prisma/client';
 import { IWalletCreationOutboxRepository } from './IWalletCreationOutboxRepository';
 import { WalletCreationOutbox, CreateOutboxRequest, UpdateOutboxStatusRequest, OutboxStatus } from '../types/outbox.types';
+import prisma from '../lib/prisma';
 
 export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private client: PrismaClient = prisma) {}
 
   async create(request: CreateOutboxRequest): Promise<WalletCreationOutbox> {
-    const outbox = await this.prisma.walletCreationOutbox.create({
+    const outbox = await this.client.walletCreationOutbox.create({
       data: {
         userId: request.userId,
         payload: request.payload,
@@ -18,7 +19,7 @@ export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepo
   }
 
   async findById(id: string): Promise<WalletCreationOutbox | null> {
-    const outbox = await this.prisma.walletCreationOutbox.findUnique({
+    const outbox = await this.client.walletCreationOutbox.findUnique({
       where: { id },
     });
 
@@ -26,7 +27,7 @@ export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepo
   }
 
   async findByUserId(userId: string): Promise<WalletCreationOutbox[]> {
-    const outboxes = await this.prisma.walletCreationOutbox.findMany({
+    const outboxes = await this.client.walletCreationOutbox.findMany({
       where: { userId },
     });
 
@@ -34,7 +35,7 @@ export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepo
   }
 
   async findByStatus(status: OutboxStatus): Promise<WalletCreationOutbox[]> {
-    const outboxes = await this.prisma.walletCreationOutbox.findMany({
+    const outboxes = await this.client.walletCreationOutbox.findMany({
       where: { status: status as PrismaOutboxStatus },
     });
 
@@ -42,7 +43,7 @@ export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepo
   }
 
   async updateStatus(request: UpdateOutboxStatusRequest): Promise<WalletCreationOutbox> {
-    const outbox = await this.prisma.walletCreationOutbox.update({
+    const outbox = await this.client.walletCreationOutbox.update({
       where: { id: request.id },
       data: { status: request.status as PrismaOutboxStatus },
     });
@@ -51,9 +52,13 @@ export class WalletCreationOutboxRepository implements IWalletCreationOutboxRepo
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.walletCreationOutbox.delete({
+    await this.client.walletCreationOutbox.delete({
       where: { id },
     });
+  }
+
+  async createWithinTransaction<T>(callback: (tx: any) => Promise<T>): Promise<T> {
+    return this.client.$transaction(callback);
   }
 
   private mapToWalletCreationOutbox(outbox: PrismaWalletCreationOutbox): WalletCreationOutbox {
