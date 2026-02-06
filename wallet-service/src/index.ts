@@ -4,8 +4,8 @@ import { authenticate } from './middleware/authenticate';
 import { validate } from './middleware/validate';
 import { createTransactionSchema } from './schemas/transaction.schema';
 import { createWalletUserSchema } from './schemas/wallet-user.schema';
-import { TransactionController } from './controllers/TransactionController';
-import { WalletUserController } from './controllers/WalletUserController';
+import { TransactionController } from './controllers/transaction.controller';
+import { WalletUserController } from './controllers/wallet-user.controller';
 import { loggingMiddleware, logger } from './lib/logger';
 
 dotenv.config();

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { validate } from './middleware/validate';
 import { authenticate, AuthenticatedRequest } from './middleware/authenticate';
 import { registerSchema, loginSchema } from './schemas/auth.schema';
-import { UserController } from './controllers/UserController';
+import { UserController } from './controllers/user.controller';
 import { loggingMiddleware, logger } from './lib/logger';
 
 dotenv.config();
