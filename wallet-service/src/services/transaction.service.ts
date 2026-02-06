@@ -2,8 +2,7 @@ import { TransactionRepository } from '../repositories/transaction.repository';
 import { WalletUserRepository } from '../repositories/wallet-user.repository';
 import { CreateTransactionInput } from '../schemas/transaction.schema';
 import { TransactionModel, BalanceResponse, GroupedTransaction } from '../types/transaction.types';
-
-const MAX_INT32 = Number.MAX_SAFE_INTEGER;
+import { TRANSACTION_TYPES, TRANSACTION_ERRORS, TRANSACTION_MAX_INT32 } from '../constants/transaction.constants';
 
 export class TransactionService {
   private readonly repository: TransactionRepository;
@@ -17,11 +16,11 @@ export class TransactionService {
   async createTransaction(userId: string, data: CreateTransactionInput): Promise<TransactionModel> {
     const walletUser = await this.walletUserRepository.findByExternalUserId(userId);
     if (!walletUser) {
-      throw new Error('User Not Valid');
+      throw new Error(TRANSACTION_ERRORS.USER_NOT_FOUND);
     }
 
-    if (data.amount > MAX_INT32) {
-      throw new Error(`Amount exceeds maximum allowed value of ${MAX_INT32} cents (${(MAX_INT32 / 100).toFixed(2)} dollars)`);
+    if (data.amount > TRANSACTION_MAX_INT32) {
+      throw new Error(`Amount exceeds maximum allowed value of ${TRANSACTION_MAX_INT32} cents (${(TRANSACTION_MAX_INT32 / 100).toFixed(2)} dollars)`);
     }
 
     const transaction = await this.repository.create({
@@ -58,8 +57,8 @@ export class TransactionService {
   async calculateBalance(userId: string): Promise<BalanceResponse> {
     const groupedTransactions = await this.repository.getGroupedByType(userId);
 
-    const creditSum = groupedTransactions.find((group: GroupedTransaction) => group.type === 'CREDIT')?._sum.amount || 0;
-    const debitSum = groupedTransactions.find((group: GroupedTransaction) => group.type === 'DEBIT')?._sum.amount || 0;
+    const creditSum = groupedTransactions.find((group: GroupedTransaction) => group.type === TRANSACTION_TYPES.CREDIT)?._sum.amount || 0;
+    const debitSum = groupedTransactions.find((group: GroupedTransaction) => group.type === TRANSACTION_TYPES.DEBIT)?._sum.amount || 0;
 
     const balance = creditSum - debitSum;
 
