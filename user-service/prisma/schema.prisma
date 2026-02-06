@@ -16,5 +16,29 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  walletOutboxes WalletCreationOutbox[]
+
   @@map("users")
 }
+
+enum OutboxStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model WalletCreationOutbox {
+  id        String        @id @default(uuid())
+  userId    String        @map("user_id")
+  status    OutboxStatus  @default(PENDING)
+  payload   Json
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallet_creation_outbox")
+  @@index([status])
+  @@index([userId])
+}
+
