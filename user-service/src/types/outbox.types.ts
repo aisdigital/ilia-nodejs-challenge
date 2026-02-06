@@ -19,6 +19,7 @@ export interface CreateOutboxRequest {
   userId: string;
   eventType: EventType;
   payload: WalletOutboxPayload;
+  status?: OutboxStatus;
 }
 
 export interface UpdateOutboxStatusRequest {

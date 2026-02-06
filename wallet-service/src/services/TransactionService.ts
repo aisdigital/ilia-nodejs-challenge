@@ -1,18 +1,25 @@
 import { TransactionRepository } from '../repositories/TransactionRepository';
+import { WalletUserRepository } from '../repositories/WalletUserRepository';
 import { CreateTransactionInput } from '../schemas/transaction.schema';
 import { TransactionModel, BalanceResponse, GroupedTransaction } from '../types/transaction.types';
 
 const MAX_INT32 = Number.MAX_SAFE_INTEGER;
 
-
 export class TransactionService {
   private readonly repository: TransactionRepository;
+  private readonly walletUserRepository: WalletUserRepository;
 
   constructor() {
     this.repository = new TransactionRepository();
+    this.walletUserRepository = new WalletUserRepository();
   }
 
   async createTransaction(userId: string, data: CreateTransactionInput): Promise<TransactionModel> {
+    const walletUser = await this.walletUserRepository.findByExternalUserId(userId);
+    if (!walletUser) {
+      throw new Error('User Not Valid');
+    }
+
     if (data.amount > MAX_INT32) {
       throw new Error(`Amount exceeds maximum allowed value of ${MAX_INT32} cents (${(MAX_INT32 / 100).toFixed(2)} dollars)`);
     }
@@ -32,6 +39,8 @@ export class TransactionService {
       updatedAt: transaction.updatedAt,
     };
   }
+
+  // ...existing code...
 
   async listTransactions(userId: string, typeFilter?: string): Promise<TransactionModel[]> {
     const transactions = await this.repository.findByUser(userId, typeFilter);
