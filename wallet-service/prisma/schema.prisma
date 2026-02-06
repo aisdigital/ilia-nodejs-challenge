@@ -57,4 +57,13 @@ model Wallet {
   @@index([userId])
 }
 
+model WalletUser {
+  id String @id @default(uuid())
 
+  externalUserId String @unique @map("external_user_id")
+
+  createdAt DateTime @default(now())
+
+  @@map("wallet_users")
+  @@index([externalUserId])
+}
