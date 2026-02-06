@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ms-wallet-postgres
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ms-wallet
+    environment:
+      - PORT=${PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - postgres
+    volumes:
+      - ./src:/app/src
+
+volumes:
+  postgres_data:

@@ -13,6 +13,6 @@ async function bootstrap() {
 
   if (!process.env.PORT) throw new Error('PORT env missing');
 
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT, '0.0.0.0');
 }
 bootstrap();
