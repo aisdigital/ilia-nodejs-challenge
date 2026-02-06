@@ -16,7 +16,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  walletOutboxes WalletCreationOutbox[]
+  walletOutboxes WalletOutbox[]
 
   @@map("users")
 }
@@ -27,9 +27,15 @@ enum OutboxStatus {
   FAILED
 }
 
-model WalletCreationOutbox {
+enum EventType {
+  USER_CREATED
+  TRANSACTION_CREATED
+}
+
+model WalletOutbox {
   id        String        @id @default(uuid())
   userId    String        @map("user_id")
+  eventType EventType     @map("event_type")
   status    OutboxStatus  @default(PENDING)
   payload   Json
   createdAt DateTime      @default(now()) @map("created_at")
@@ -37,8 +43,9 @@ model WalletCreationOutbox {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("wallet_creation_outbox")
+  @@map("wallet_outbox")
   @@index([status])
   @@index([userId])
+  @@index([eventType])
 }
 

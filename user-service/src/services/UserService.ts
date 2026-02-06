@@ -3,7 +3,7 @@ import { hashPassword, comparePasswords } from '../lib/password';
 import { UserRepository } from '../repositories/UserRepository';
 import { RegisterInput, LoginInput } from '../schemas/auth.schema';
 import { WalletClient } from '../clients/WalletClient';
-import { WalletCreationOutboxRepository } from '../repositories/WalletCreationOutboxRepository';
+import { WalletOutboxRepository } from '../repositories/WalletOutboxRepository';
 import { AuthServiceResponse, UserWithBalanceResponse } from '../types/user.types';
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -14,12 +14,12 @@ if (!JWT_SECRET) {
 export class UserService {
   private readonly repository: UserRepository;
   private readonly walletClient: WalletClient;
-  private readonly outboxRepository: WalletCreationOutboxRepository;
+  private readonly outboxRepository: WalletOutboxRepository;
 
   constructor() {
     this.repository = new UserRepository();
     this.walletClient = new WalletClient();
-    this.outboxRepository = new WalletCreationOutboxRepository();
+    this.outboxRepository = new WalletOutboxRepository();
   }
 
   async register(data: RegisterInput): Promise<AuthServiceResponse> {
@@ -93,9 +93,10 @@ export class UserService {
 
   async createTransaction(userId: string, data: any, correlationId?: string) {
     const outboxId = await this.outboxRepository.createWithinTransaction(async (tx: any) => {
-      const outbox = await tx.walletCreationOutbox.create({
+      const outbox = await tx.walletOutbox.create({
         data: {
           userId,
+          eventType: 'TRANSACTION_CREATED',
           payload: {
             user_id: userId,
             amount: data.amount,

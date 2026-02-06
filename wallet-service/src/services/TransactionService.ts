@@ -6,7 +6,7 @@ const MAX_INT32 = Number.MAX_SAFE_INTEGER;
 
 
 export class TransactionService {
-  private repository: TransactionRepository;
+  private readonly repository: TransactionRepository;
 
   constructor() {
     this.repository = new TransactionRepository();

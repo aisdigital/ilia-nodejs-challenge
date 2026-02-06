@@ -6,25 +6,25 @@ import { UserService } from '../../src/services/UserService';
 import { UserRepository } from '../../src/repositories/UserRepository';
 import * as passwordModule from '../../src/lib/password';
 import { WalletClient } from '../../src/clients/WalletClient';
-import { WalletCreationOutboxRepository } from '../../src/repositories/WalletCreationOutboxRepository';
+import { WalletOutboxRepository } from '../../src/repositories/WalletOutboxRepository';
 
 jest.mock('../../src/repositories/UserRepository');
 jest.mock('../../src/lib/password');
 jest.mock('../../src/clients/WalletClient');
-jest.mock('../../src/repositories/WalletCreationOutboxRepository');
+jest.mock('../../src/repositories/WalletOutboxRepository');
 
 describe('UserService', () => {
   let service: UserService;
   let mockRepository: jest.Mocked<UserRepository>;
   let mockWalletClient: jest.Mocked<WalletClient>;
-  let mockOutboxRepository: jest.Mocked<WalletCreationOutboxRepository>;
+  let mockOutboxRepository: jest.Mocked<WalletOutboxRepository>;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     mockRepository = new UserRepository() as jest.Mocked<UserRepository>;
     mockWalletClient = new WalletClient() as jest.Mocked<WalletClient>;
-    mockOutboxRepository = new WalletCreationOutboxRepository() as jest.Mocked<WalletCreationOutboxRepository>;
+    mockOutboxRepository = new WalletOutboxRepository() as jest.Mocked<WalletOutboxRepository>;
     service = new UserService();
     (service as any).repository = mockRepository;
     (service as any).walletClient = mockWalletClient;
@@ -631,10 +631,11 @@ describe('UserService', () => {
 
       mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
         return callback({
-          walletCreationOutbox: {
+          walletOutbox: {
             create: jest.fn().mockResolvedValueOnce({
               id: 'outbox-123',
               userId,
+              eventType: 'TRANSACTION_CREATED',
               payload: { user_id: userId, amount: 1000, type: 'CREDIT' },
               status: 'PENDING',
             }),
@@ -646,6 +647,7 @@ describe('UserService', () => {
       mockOutboxRepository.updateStatus.mockResolvedValueOnce({
         id: 'outbox-123',
         userId,
+        eventType: 'TRANSACTION_CREATED',
         status: 'COMPLETED',
         payload: { user_id: userId, amount: 1000, type: 'CREDIT' },
         createdAt: new Date(),
@@ -684,10 +686,11 @@ describe('UserService', () => {
 
       mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
         return callback({
-          walletCreationOutbox: {
+          walletOutbox: {
             create: jest.fn().mockResolvedValueOnce({
               id: 'outbox-789',
               userId,
+              eventType: 'TRANSACTION_CREATED',
               payload: { user_id: userId, amount: 2000, type: 'DEBIT' },
               status: 'PENDING',
             }),
@@ -699,6 +702,7 @@ describe('UserService', () => {
       mockOutboxRepository.updateStatus.mockResolvedValueOnce({
         id: 'outbox-789',
         userId,
+        eventType: 'TRANSACTION_CREATED',
         status: 'COMPLETED',
         payload: { user_id: userId, amount: 2000, type: 'DEBIT' },
         createdAt: new Date(),
@@ -724,10 +728,11 @@ describe('UserService', () => {
 
       mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
         return callback({
-          walletCreationOutbox: {
+          walletOutbox: {
             create: jest.fn().mockResolvedValueOnce({
               id: 'outbox-fail',
               userId,
+              eventType: 'TRANSACTION_CREATED',
               payload: { user_id: userId, amount: 500, type: 'CREDIT' },
               status: 'PENDING',
             }),
@@ -760,10 +765,11 @@ describe('UserService', () => {
 
       mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
         return callback({
-          walletCreationOutbox: {
+          walletOutbox: {
             create: jest.fn().mockResolvedValueOnce({
               id: 'outbox-pending',
               userId,
+              eventType: 'TRANSACTION_CREATED',
               payload: { user_id: userId, amount: 750, type: 'DEBIT' },
               status: 'PENDING',
             }),
@@ -799,10 +805,11 @@ describe('UserService', () => {
 
       mockOutboxRepository.createWithinTransaction.mockImplementationOnce(async (callback: any) => {
         return callback({
-          walletCreationOutbox: {
+          walletOutbox: {
             create: jest.fn().mockResolvedValueOnce({
               id: 'outbox-corr',
               userId,
+              eventType: 'TRANSACTION_CREATED',
               payload: { user_id: userId, amount: 1500, type: 'CREDIT' },
               status: 'PENDING',
             }),
@@ -814,6 +821,7 @@ describe('UserService', () => {
       mockOutboxRepository.updateStatus.mockResolvedValueOnce({
         id: 'outbox-corr',
         userId,
+        eventType: 'TRANSACTION_CREATED',
         status: 'COMPLETED',
         payload: { user_id: userId, amount: 1500, type: 'CREDIT' },
         createdAt: new Date(),

@@ -1,24 +1,33 @@
 export type OutboxStatus = 'PENDING' | 'COMPLETED' | 'FAILED';
+export type EventType = 'USER_CREATED' | 'TRANSACTION_CREATED';
 
-export interface WalletCreationOutboxPayload {
+export interface WalletOutboxPayload {
   [key: string]: any;
 }
 
-export interface WalletCreationOutbox {
+export interface WalletOutbox {
   id: string;
   userId: string;
+  eventType: EventType;
   status: OutboxStatus;
-  payload: WalletCreationOutboxPayload;
+  payload: WalletOutboxPayload;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface CreateOutboxRequest {
   userId: string;
-  payload: WalletCreationOutboxPayload;
+  eventType: EventType;
+  payload: WalletOutboxPayload;
 }
 
 export interface UpdateOutboxStatusRequest {
   id: string;
   status: OutboxStatus;
 }
+
+export interface FindOutboxByStatusRequest {
+  status: OutboxStatus;
+  eventType?: EventType;
+}
+
