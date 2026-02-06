@@ -3,6 +3,7 @@ import { hashPassword, comparePasswords } from '../lib/password';
 import { UserRepository } from '../repositories/UserRepository';
 import { RegisterInput, LoginInput } from '../schemas/auth.schema';
 import { WalletClient } from '../clients/WalletClient';
+import { WalletCreationOutboxRepository } from '../repositories/WalletCreationOutboxRepository';
 import { AuthServiceResponse, UserWithBalanceResponse } from '../types/user.types';
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -10,14 +11,15 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required');
 }
 
-
 export class UserService {
-  private repository: UserRepository;
-  private walletClient: WalletClient;
+  private readonly repository: UserRepository;
+  private readonly walletClient: WalletClient;
+  private readonly outboxRepository: WalletCreationOutboxRepository;
 
   constructor() {
     this.repository = new UserRepository();
     this.walletClient = new WalletClient();
+    this.outboxRepository = new WalletCreationOutboxRepository();
   }
 
   async register(data: RegisterInput): Promise<AuthServiceResponse> {
@@ -90,10 +92,38 @@ export class UserService {
   }
 
   async createTransaction(userId: string, data: any, correlationId?: string) {
-    return this.walletClient.createTransaction(
-      { ...data, user_id: userId },
-      correlationId
-    );
+    const outboxId = await this.outboxRepository.createWithinTransaction(async (tx: any) => {
+      const outbox = await tx.walletCreationOutbox.create({
+        data: {
+          userId,
+          payload: {
+            user_id: userId,
+            amount: data.amount,
+            type: data.type,
+          },
+          status: 'PENDING',
+        },
+      });
+
+      return outbox.id;
+    });
+
+    try {
+      const transaction = await this.walletClient.createTransaction(
+        { ...data, user_id: userId },
+        correlationId
+      );
+
+      await this.outboxRepository.updateStatus({
+        id: outboxId,
+        status: 'COMPLETED',
+      });
+
+      return transaction;
+    } catch (error) {
+      console.error(`Failed to create transaction for user ${userId}. Outbox ID: ${outboxId}`, error);
+      return null;
+    }
   }
 
   async getTransactions(userId: string, correlationId?: string) {
