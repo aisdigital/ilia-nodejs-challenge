@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import { authenticate } from './middleware/authenticate';
 import { validate } from './middleware/validate';
 import { createTransactionSchema } from './schemas/transaction.schema';
+import { createWalletUserSchema } from './schemas/wallet-user.schema';
 import { TransactionController } from './controllers/TransactionController';
+import { WalletUserController } from './controllers/WalletUserController';
 import { loggingMiddleware, logger } from './lib/logger';
 
 dotenv.config();
@@ -15,10 +17,18 @@ app.use(express.json());
 app.use(loggingMiddleware);
 
 const transactionController = new TransactionController();
+const walletUserController = new WalletUserController();
 
 app.get('/health', async (_req: Request, res: Response) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+app.post(
+  '/wallet/users',
+  authenticate,
+  validate(createWalletUserSchema),
+  (req: Request, res: Response) => walletUserController.createUser(req, res)
+);
 
 app.post(
   '/transactions',
