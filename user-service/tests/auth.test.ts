@@ -6,7 +6,7 @@ import { validate } from '../src/middleware/validate';
 import { registerSchema, loginSchema, RegisterInput, LoginInput } from '../src/schemas/auth.schema';
 import { hashPassword, comparePasswords } from '../src/lib/password';
 
-const JWT_SECRET = 'ILIACHALLENGE';
+const JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret';
 
 const createApp = (): Express => {
   const app = express();

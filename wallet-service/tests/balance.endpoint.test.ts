@@ -3,7 +3,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { Express, Request, Response, NextFunction } from 'express';
 
-const JWT_SECRET = 'ILIACHALLENGE';
+const JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret';
 const USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 const createTestApp = (): Express => {

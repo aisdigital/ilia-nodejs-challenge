@@ -27,8 +27,6 @@ services:
       NODE_ENV: development
       PORT: 3001
       DATABASE_URL: postgresql://wallet_user:wallet_password@wallet-db:5432/db_wallet
-      JWT_SECRET: ILIACHALLENGE
-      # Database environment variables for docker-entrypoint.sh
       DB_HOST: wallet-db
       DB_PORT: 5432
       DB_USER: wallet_user
@@ -36,6 +34,8 @@ services:
       POSTGRES_DB: db_wallet
       POSTGRES_USER: wallet_user
       POSTGRES_PASSWORD: wallet_password
+    env_file:
+      - ./wallet-service/.env
     ports:
       - "3001:3001"
     depends_on:
@@ -73,8 +73,6 @@ services:
       NODE_ENV: development
       PORT: 3002
       DATABASE_URL: postgresql://user_user:user_password@user-db:5432/userdb
-      JWT_SECRET: ILIACHALLENGE
-      INTERNAL_JWT_SECRET: ILIACHALLENGE_INTERNAL
       WALLET_SERVICE_URL: http://wallet-service:3001
       DB_HOST: user-db
       DB_PORT: 5432
@@ -83,6 +81,8 @@ services:
       POSTGRES_DB: userdb
       POSTGRES_USER: user_user
       POSTGRES_PASSWORD: user_password
+    env_file:
+      - ./user-service/.env
     ports:
       - "3002:3002"
     depends_on:

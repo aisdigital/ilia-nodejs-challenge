@@ -9,7 +9,7 @@ describe('authenticate middleware - Internal Token Only', () => {
   let mockResponse: Partial<Response>;
   let mockNext: jest.Mock;
   let mockJsonWebToken: jest.Mocked<typeof jwt>;
-  const INTERNAL_JWT_SECRET = 'ILIACHALLENGE_INTERNAL';
+  const INTERNAL_JWT_SECRET = process.env.INTERNAL_JWT_SECRET || 'test-internal-secret';
 
   beforeEach(() => {
     jest.clearAllMocks();
