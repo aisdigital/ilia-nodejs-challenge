@@ -1,0 +1,472 @@
+{
+  "info": {
+    "_postman_id": "5d8e92f2-6c32-4721-b958-d5dadd944146",
+    "name": "AIS Digital Challenge - By Alessandro Muniz",
+    "description": "These are the endpoints develop to the User and Wallet services.  \nYou'll find more details on each folder and request.  \n  \nFor more info: alessandrommagalhaes@gmail.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "5066734",
+    "_collection_link": "https://go.postman.co/collection/5066734-5d8e92f2-6c32-4721-b958-d5dadd944146?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Public endpoints",
+          "item": [
+            {
+              "name": "Health",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3002/health",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3002",
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json()",
+                      "",
+                      "console.log(jsonData.token);",
+                      "",
+                      "const token = jsonData.token;",
+                      "",
+                      "if(token) {",
+                      "    pm.globals.set(\"token\", token);",
+                      "    let CryptoJs = require('crypto-js');",
+                      "    a = jsonData.token.split('.');",
+                      "",
+                      "    let words = CryptoJs.enc.Base64.parse(a[1]);",
+                      "    let textString = CryptoJs.enc.Utf8.stringify(words);",
+                      "    console.log(textString);",
+                      "",
+                      "    const userID = JSON.parse(textString).id;",
+                      "",
+                      "    pm.globals.set(\"userID\", userID);",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"test3@teste.com\",\n    \"password\": \"123456789\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Silver\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3002/auth/register",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3002",
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "Register the user.  \nIf the e-mail exists in the database, returns StatusCode 409 (Conflitct)\n\nThere's a script configured on this request to save `JWT token` and `userID` for future requests, so there's no need to copy/past `JWT token` and `userID`."
+              },
+              "response": []
+            },
+            {
+              "name": "Login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json()",
+                      "",
+                      "console.log(jsonData.token);",
+                      "",
+                      "const token = jsonData.token;",
+                      "",
+                      "if(token) {",
+                      "    pm.globals.set(\"token\", token);",
+                      "    let CryptoJs = require('crypto-js');",
+                      "    a = jsonData.token.split('.');",
+                      "",
+                      "    let words = CryptoJs.enc.Base64.parse(a[1]);",
+                      "    let textString = CryptoJs.enc.Utf8.stringify(words);",
+                      "    console.log(textString);",
+                      "",
+                      "    const userID = JSON.parse(textString).id;",
+                      "",
+                      "    pm.globals.set(\"userID\", userID);",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"test1@teste.com\",\n    \"password\": \"123456789a\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3002/auth/login",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3002",
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "This endpoint logs the user in. If email/password don't match, the client will receive StatusCode 401 (Unauthorized).\n\nThere's a script configured on this request to save `JWT token` and `userID` for future requests, so there's no need to copy/past `JWT token` and `userID`."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Private endpoints",
+          "item": [
+            {
+              "name": "User related",
+              "item": [
+                {
+                  "name": "Me",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3002/users/me",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3002",
+                      "path": [
+                        "users",
+                        "me"
+                      ]
+                    },
+                    "description": "Returns User data from the database, inserted on the /register endpoint.\n\nAlso it returns the `balance`value, calling the **Wallet-Service** to demonstrate the integration between the microsevices and make it easier for the Frontend.  \nIn case the **Wallet-service** is down, the `balance` value will be `null` giving a chance to the **Frontend** to display something different to the final user."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Retrives User data from database."
+            },
+            {
+              "name": "Wallet user information",
+              "item": [
+                {
+                  "name": "Balance",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3002/users/me/balance",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3002",
+                      "path": [
+                        "users",
+                        "me",
+                        "balance"
+                      ]
+                    },
+                    "description": "- Returns the user balance, retrieving the user_id from JWT token, and calling **Wallet-Service.**\n    \n- If the **Wallet-service** is down, the returned `amount` will be `null`, giving a chance to the **Frontend** to display something different to the final user."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Transactions",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"email\": \"teste1@teste.com\",\n    \"password\": \"123456789\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://localhost:3002/users/me/transactions",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3002",
+                      "path": [
+                        "users",
+                        "me",
+                        "transactions"
+                      ]
+                    },
+                    "description": "- Returns the user transactions, retrieving the user_id from JWT token, and calling **Wallet-Service.**\n    \n- If the **Wallet-service** is down, the returned `transactions` will be an empty array."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Transactions",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"type\": \"CREDIT\",\n    \"amount\": 7000000\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3002/users/me/transactions",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3002",
+                      "path": [
+                        "users",
+                        "me",
+                        "transactions"
+                      ]
+                    },
+                    "description": "- Creates the current user a transaction, retrieving the user_id from JWT token, and calling **Wallet-Service** with his user_id**.**\n    \n- Possible values for the `type` property: `CREDIT` or `DEBIT`\n    \n- If the **Wallet-service** is down, the response will be `null`_,_ giving a chance to the Frontend to display something different to the final user.\n    \n- _If the_ _**Wallet-service**_ _is down the system will use the Outbox pattern, creating a row on table_ `wallet_outbox` _with 'PENDING' status to be (or not) processed on the future._"
+                  },
+                  "response": []
+                }
+              ],
+              "description": "These requests are calling Wallet-Service, using the proper internal token, configured in .env file.\n\nIf the Wallet-service is down, the endpoints will not fail, but they will return a specific result, giving a chance to the Frontend to display a different view to the final user."
+            }
+          ]
+        }
+      ],
+      "description": "This service manage the user entity, giving the ability to **register**, **login**, and **retrieve user data** (personal, balance, transactions).  \n  \nIt uses it's own secret (different than the Wallet-service) to authenticate, configured under the `JWT_SECRET` property on the .env file."
+    },
+    {
+      "name": "Wallet Service",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJjOTI5YTRkLTE5YzMtNDk1ZC05NzBkLWM2ZjQxYTg3M2NiZiIsImVtYWlsIjoidGVzdGUyQHRlc3RlLmNvbSIsImlhdCI6MTc3MDM4NTA1OSwiZXhwIjoxNzkyNDcxNDU5fQ.p8Dy4rsgl25G-fCcKgt27gJXPQm0gAk0o9mZ0fCKjiY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": \"{{userID}}\",\n    \"type\": \"DEBIT\",\n    \"amount\": 10000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3001/transactions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "transactions"
+              ]
+            },
+            "description": "Create user transaction.  \nPossible values for the `type` property: `CREDIT` or `DEBIT`"
+          },
+          "response": []
+        },
+        {
+          "name": "Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJjOTI5YTRkLTE5YzMtNDk1ZC05NzBkLWM2ZjQxYTg3M2NiZiIsImVtYWlsIjoidGVzdGUyQHRlc3RlLmNvbSIsImlhdCI6MTc3MDM4NTA1OSwiZXhwIjoxNzkyNDcxNDU5fQ.p8Dy4rsgl25G-fCcKgt27gJXPQm0gAk0o9mZ0fCKjiY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/transactions?user_id={{userID}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{userID}}"
+                }
+              ]
+            },
+            "description": "Retrieves user-specific list of transactions"
+          },
+          "response": []
+        },
+        {
+          "name": "Balance",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJjOTI5YTRkLTE5YzMtNDk1ZC05NzBkLWM2ZjQxYTg3M2NiZiIsImVtYWlsIjoidGVzdGUyQHRlc3RlLmNvbSIsImlhdCI6MTc3MDM4NTA1OSwiZXhwIjoxNzkyNDcxNDU5fQ.p8Dy4rsgl25G-fCcKgt27gJXPQm0gAk0o9mZ0fCKjiY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/balance?user_id={{userID}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "balance"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{userID}}"
+                }
+              ]
+            },
+            "description": "Retrieves user-specific balance"
+          },
+          "response": []
+        }
+      ],
+      "description": "This service manages Wallet/Transactions data.\n\nIt uses it's own secret (different than the User-service) to authenticate, configured under the `INTERNAL_JWT_SECRET` property in .env file.\n\n**To reduce friction when testing, the default JWT token value for calling Wallet-Service directly is configured in POSTMAN, and it's value is:**  \neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJjOTI5YTRkLTE5YzMtNDk1ZC05NzBkLWM2ZjQxYTg3M2NiZiIsImVtYWlsIjoidGVzdGUyQHRlc3RlLmNvbSIsImlhdCI6MTc3MDM4NTA1OSwiZXhwIjoxNzkyNDcxNDU5fQ.p8Dy4rsgl25G-fCcKgt27gJXPQm0gAk0o9mZ0fCKjiY"
+    }
+  ]
+}

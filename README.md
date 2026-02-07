@@ -252,6 +252,63 @@ npm test:e2e
 npm test:unit -- --watch
 ```
 
+## API Testing with Postman
+
+A complete **Postman collection** is included for testing all API endpoints:
+
+📁 **File**: `postman/AIS Digital Challenge - By Alessandro Muniz.postman_collection.json`
+
+### Using the Collection
+
+1. Open Postman
+2. Click **Import** → Select the collection file from `postman/` directory
+3. The collection includes:
+   - **Health checks** for both services
+   - **Authentication endpoints** (register, login)
+   - **User endpoints** (profile, balance, transactions)
+   - **Wallet endpoints** (direct service calls)
+   - **Pre-configured variables** that auto-populate after login (JWT token, user ID)
+
+### Features
+
+-  **Auto-populated JWT tokens** - Login requests automatically extract and save your JWT token for subsequent requests
+-  **Organized by service** - Separate folders for User Service and Wallet Service endpoints
+-  **Public & Private endpoints** - Clear separation between unauthenticated and authenticated routes
+-  **Environment variables** - Uses Postman globals for `token` and `userID`
+
+### Quick Start in Postman
+
+1. Run `docker-compose up` to start services
+2. Import the collection
+3. Go to **User Service** → **Register** (or Login)
+4. Click Send - your JWT token and user ID are automatically saved
+5. All other requests will use your saved token automatically
+
+## CI/CD Pipeline & Gitflow
+
+This project follows the **Gitflow branching model** for organized development and deployment:
+
+### Branch Strategy
+
+- **`develop`** - Integration branch for features. Automatically tested on every push or pull request.
+- **`main`** - Production-ready code. Tagged with version numbers. Deployed to production environments.
+- **Feature branches** - Created from `develop` (e.g., `feature/wallet-endpoints`). Merged back via pull requests.
+
+### Automated CI/CD Pipeline
+
+GitHub Actions automatically runs on both `develop` and `main` branches:
+
+1. **Test Job** (runs on all PRs and pushes)
+   - Installs dependencies for both services
+   - Runs unit tests (`npm run test:unit`)
+   - Runs security audits (`npm audit`)
+   - Fails the build if any tests fail or vulnerabilities are found
+
+2. **Build Job** (runs only if tests pass)
+   - Builds Docker images for both services
+   - Tags images with commit SHA for traceability
+   - Can be extended to push to container registry
+
 ## Project Structure
 
 ```
