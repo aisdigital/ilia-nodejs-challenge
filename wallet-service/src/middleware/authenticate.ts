@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const INTERNAL_JWT_SECRET = process.env.ILIACHALLENGE_INTERNAL || 'ILIACHALLENGE_INTERNAL';
+const INTERNAL_JWT_SECRET = process.env.INTERNAL_JWT_SECRET;
+
+if (!INTERNAL_JWT_SECRET) {
+  throw new Error('INTERNAL_JWT_SECRET environment variable is required');
+}
 
 declare global {
   namespace Express {

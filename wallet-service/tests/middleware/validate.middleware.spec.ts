@@ -5,7 +5,7 @@ import { Express, Request, Response, NextFunction } from 'express';
 import { validate } from '../../src/middleware/validate';
 import { createTransactionSchema } from '../../src/schemas/transaction.schema';
 
-const JWT_SECRET = 'ILIACHALLENGE';
+const JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret';
 const VALID_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 const createTestApp = (): Express => {

@@ -13,6 +13,11 @@ yarn-error.log
 dist/
 build/
 
+# Compiled JavaScript (from TypeScript compilation)
+*.js
+*.js.map
+!jest.config.js
+
 # IDE
 .idea/
 .vscode/
