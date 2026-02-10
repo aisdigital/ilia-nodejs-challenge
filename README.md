@@ -65,12 +65,21 @@ You will build a **web application** that allows a user to:
 - Create transactions (credit/debit)
 - Handle loading, empty, and error states properly
 
+### Design Guidelines
+
+No visual prototype or UI mockups will be provided for this challenge on purpose. This is intentional so we can evaluate your product sense, design judgment, and ability to translate business requirements into a coherent user experience. You should focus on creating a clean, modern, and intuitive interface that prioritizes usability and clarity of financial information. Pay special attention to information hierarchy (for example, making balance visibility prominent), form usability and validation, transaction readability, and clear feedback for system states such as loading, success, and errors. Consistency in layout, spacing, typography, and component reuse is important, as well as responsiveness and accessibility basics. *We are not evaluating graphic design skills*, but rather your ability to craft a professional, production-ready UI that engineers and users would find reliable and easy to use.
+
+Feel free to leverage on any opensource components library.
+
+### Requirements 
 This frontend should reflect real-world practices:
 - secure JWT handling
 - clean UX flows
 - robust API integration
 - scalable component structure
 - test coverage where it matters
+- supports i18n
+- responsive design (supporting mobile browser)
 
 #### In the end, send us your fork repo updated. As soon as you finish, please let us know.
 
