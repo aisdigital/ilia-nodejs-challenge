@@ -39,6 +39,39 @@ This microservice must be a digital Wallet where the user transactions will be s
     - Internal Communication Security (JWT, SSL, ...), if it is JWT the PrivateKey must be ILIACHALLENGE_INTERNAL (passed by env var).
     - Communication between Microservices using any of the following: gRPC, REST, Kafka or via Messaging Queues (update your readme with the instructions to run if using a Docker/Container environment).
 
+## Part 3 - Frontend Implementation - Fullstack candidates only
+
+In this challenge, you will build the frontend application for a FinTech Wallet platform, integrating with the backend microservices provided in the Node.js challenge.
+
+The application must allow users to authenticate, view their wallet balance, list transactions, and create credit or debit operations. The goal is to evaluate your ability to design a modern, secure, and well-structured UI that consumes microservice APIs, handles authentication via JWT, and provides a solid user experience with proper loading, error, and empty states.
+
+You may implement the solution using React, Vue, or Angular, following the required stack for the position you're running for and best practices outlined in the challenge.
+
+### Before you start ⚠️
+
+- **Create a separate folder for the Frontend project**
+- Frontend must be built in **Typescript**.  
+- The goal is to deliver a production-like UI that consumes the backend services:
+  - Wallet Service (port **3001**)
+  - Users Service (port **3002**, optional but mandatory for Senior)
+
+### Challenge Overview
+
+You will build a **web application** that allows a user to:
+
+- Authenticate (if Users service exists)
+- View wallet balance
+- List transactions
+- Create transactions (credit/debit)
+- Handle loading, empty, and error states properly
+
+This frontend should reflect real-world practices:
+- secure JWT handling
+- clean UX flows
+- robust API integration
+- scalable component structure
+- test coverage where it matters
+
 #### In the end, send us your fork repo updated. As soon as you finish, please let us know.
 
 #### We are available to answer any questions.
