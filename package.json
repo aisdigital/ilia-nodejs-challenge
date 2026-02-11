@@ -1,0 +1,18 @@
+{
+  "name": "ilia-nodejs-challenge-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "ms-wallet",
+    "ms-users",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:wallet": "npm --workspace ms-wallet run start:dev",
+    "dev:users": "npm --workspace ms-users run start:dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "build": "npm run build -ws",
+    "test": "npm run test -ws",
+    "lint": "npm run lint -ws"
+  }
+}

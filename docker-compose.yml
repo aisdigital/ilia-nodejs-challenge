@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  wallet-db:
+    image: postgres:16-alpine
+    container_name: wallet-db
+    environment:
+      POSTGRES_DB: wallet
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: wallet_pass
+    ports:
+      - '5433:5432'
+    volumes:
+      - wallet_db_data:/var/lib/postgresql/data
+
+  users-db:
+    image: postgres:16-alpine
+    container_name: users-db
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: users_user
+      POSTGRES_PASSWORD: users_pass
+    ports:
+      - '5434:5432'
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+
+  ms-wallet:
+    build:
+      context: ./ms-wallet
+    container_name: ms-wallet
+    env_file:
+      - ./ms-wallet/.env
+    ports:
+      - '3001:3001'
+    depends_on:
+      - wallet-db
+
+  ms-users:
+    build:
+      context: ./ms-users
+    container_name: ms-users
+    env_file:
+      - ./ms-users/.env
+    ports:
+      - '3002:3002'
+    depends_on:
+      - users-db
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    env_file:
+      - ./frontend/.env
+    ports:
+      - '5173:5173'
+    depends_on:
+      - ms-wallet
+      - ms-users
+
+volumes:
+  wallet_db_data:
+  users_db_data:
