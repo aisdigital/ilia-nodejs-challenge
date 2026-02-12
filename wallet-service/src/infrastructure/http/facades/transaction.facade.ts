@@ -7,7 +7,7 @@ import { TransactionEntity } from '../../../core/domain/entities/transaction.ent
 import { BalanceResponseDto } from '../../../core/use-cases/get-balance/get-balance.dto';
 
 @Injectable()
-export class TransactionService {
+export class TransactionFacade {
   constructor(
     private readonly createTransactionUseCase: CreateTransactionUseCase,
     private readonly listTransactionsUseCase: ListTransactionsUseCase,

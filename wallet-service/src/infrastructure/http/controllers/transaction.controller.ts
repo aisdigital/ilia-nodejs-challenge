@@ -18,7 +18,7 @@ import {
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import type { CurrentUserData } from '../interfaces/current-user-data.interface';
-import { TransactionService } from '../services/transaction.service';
+import { TransactionFacade } from '../facades/transaction.facade';
 import { TransactionType } from '../../../core/domain/enum/transaction-type.enum';
 import { CreateTransactionRequest } from '../dtos/create-transaction-request.dto';
 import { TransactionResponse } from '../dtos/transaction-response.dto';
@@ -29,7 +29,7 @@ import { BalanceResponse } from '../dtos/balance-response.dto';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(private readonly transactionFacade: TransactionFacade) {}
 
   @Post('transactions')
   @HttpCode(HttpStatus.OK)
@@ -44,7 +44,7 @@ export class TransactionController {
     @CurrentUser() user: CurrentUserData,
     @Body() request: CreateTransactionRequest,
   ): Promise<TransactionResponse> {
-    const transaction = await this.transactionService.createTransaction(
+    const transaction = await this.transactionFacade.createTransaction(
       user.userId,
       request.amount,
       request.type,
@@ -76,7 +76,7 @@ export class TransactionController {
     @CurrentUser() user: CurrentUserData,
     @Query('type') type?: TransactionType,
   ): Promise<TransactionResponse[]> {
-    const transactions = await this.transactionService.listTransactions(
+    const transactions = await this.transactionFacade.listTransactions(
       user.userId,
       type,
     );
@@ -104,7 +104,7 @@ export class TransactionController {
   async getBalance(
     @CurrentUser() user: CurrentUserData,
   ): Promise<BalanceResponse> {
-    const balance = await this.transactionService.getBalance(user.userId);
+    const balance = await this.transactionFacade.getBalance(user.userId);
 
     return {
       amount: balance.amount,

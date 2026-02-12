@@ -10,7 +10,7 @@ import { CreateTransactionUseCase } from '../../core/use-cases/create-transactio
 import { ListTransactionsUseCase } from '../../core/use-cases/list-transactions/list-transactions.use-case';
 import { GetBalanceUseCase } from '../../core/use-cases/get-balance/get-balance.use-case';
 import { TransactionController } from '../../infrastructure/http/controllers/transaction.controller';
-import { TransactionService } from '../../infrastructure/http/services/transaction.service';
+import { TransactionFacade } from '../../infrastructure/http/facades/transaction.facade';
 
 @Module({
   imports: [
@@ -27,8 +27,8 @@ import { TransactionService } from '../../infrastructure/http/services/transacti
     CreateTransactionUseCase,
     ListTransactionsUseCase,
     GetBalanceUseCase,
-    TransactionService,
+    TransactionFacade,
   ],
-  exports: [TransactionService],
+  exports: [TransactionFacade],
 })
 export class TransactionModule {}
