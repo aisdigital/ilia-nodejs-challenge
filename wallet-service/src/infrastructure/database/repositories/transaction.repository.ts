@@ -9,6 +9,11 @@ import {
   TransactionDocument,
 } from '../mongodb/schemas/transaction.schema';
 
+type BalanceAggregationResult = {
+  _id: TransactionType;
+  total: number;
+};
+
 @Injectable()
 export class TransactionRepository implements ITransactionRepository {
   constructor(
@@ -31,7 +36,10 @@ export class TransactionRepository implements ITransactionRepository {
     userId: string,
     type?: TransactionType,
   ): Promise<TransactionEntity[]> {
-    const filter: any = { user_id: userId };
+    const filter: {
+      user_id: string;
+      type?: TransactionType;
+    } = { user_id: userId };
 
     if (type) {
       filter.type = type;
@@ -46,15 +54,16 @@ export class TransactionRepository implements ITransactionRepository {
   }
 
   async calculateBalance(userId: string): Promise<number> {
-    const result = await this.transactionModel.aggregate([
-      { $match: { user_id: userId } },
-      {
-        $group: {
-          _id: '$type',
-          total: { $sum: '$amount' },
+    const result =
+      await this.transactionModel.aggregate<BalanceAggregationResult>([
+        { $match: { user_id: userId } },
+        {
+          $group: {
+            _id: '$type',
+            total: { $sum: '$amount' },
+          },
         },
-      },
-    ]);
+      ]);
 
     let credits = 0;
     let debits = 0;

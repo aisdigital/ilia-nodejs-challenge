@@ -11,12 +11,12 @@ import jwtConfig from './infrastructure/config/jwt.config';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, jwtConfig],
-      envFilePath: '../.env'
+      envFilePath: '../.env',
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('database.uri')!,
       }),
     }),
