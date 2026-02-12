@@ -1,0 +1,48 @@
+services:
+  wallet-mongodb:
+    image: mongo:7
+    container_name: wallet-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGODB}
+    ports:
+      - "27017:27017"
+    volumes:
+      - wallet_mongo_data:/data/db
+    networks:
+      - wallet-network
+
+  wallet-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: wallet-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PORT}
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_INTERNAL_SECRET: ${JWT_INTERNAL_SECRET}
+    depends_on:
+      - wallet-mongodb
+    volumes:
+      - ./wallet-service/src:/app/src
+      - ./wallet-service/package.json:/app/package.json
+      - ./wallet-service/tsconfig.json:/app/tsconfig.json
+      - ./wallet-service/nest-cli.json:/app/nest-cli.json
+      - /app/node_modules
+    networks:
+      - wallet-network
+
+volumes:
+  wallet_mongo_data:
+
+networks:
+  wallet-network:
+    driver: bridge
