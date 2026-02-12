@@ -1,0 +1,71 @@
+version: '3.3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - ilia_challenge_net
+  
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017" 
+    restart: unless-stopped 
+    networks:
+      - ilia_challenge_net
+  
+  pg:
+    image: postgres
+    container_name: pg
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: users
+    restart: unless-stopped
+    networks:
+      - ilia_challenge_net
+  
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    container_name: users
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: postgresql://root:root@pg:5432/users?schema=public
+    depends_on:
+      - pg
+      - mongodb
+      - rabbitmq
+    networks:
+      - ilia_challenge_net
+  
+  wallet:
+    build:
+      context: ./wallet
+      dockerfile: Dockerfile
+    container_name: wallet
+    ports:
+      - "3001:3001"
+    depends_on:
+      - pg
+      - users
+      - mongodb
+      - rabbitmq
+    networks:
+      - ilia_challenge_net
+
+networks:
+  ilia_challenge_net:
+    driver: bridge
