@@ -3,9 +3,12 @@ import { TransactionType } from '../enum/transaction-type.enum';
 
 export interface ITransactionRepository {
   create(transaction: TransactionEntity): Promise<TransactionEntity>;
-  
-  findByUserId(userId: string, type?: TransactionType): Promise<TransactionEntity[]>;
-  
+
+  findByUserId(
+    userId: string,
+    type?: TransactionType,
+  ): Promise<TransactionEntity[]>;
+
   calculateBalance(userId: string): Promise<number>;
 }
 

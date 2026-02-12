@@ -1,4 +1,4 @@
-import { TransactionType } from "../enum/transaction-type.enum";
+import { TransactionType } from '../enum/transaction-type.enum';
 
 export class TransactionEntity {
   id?: string;

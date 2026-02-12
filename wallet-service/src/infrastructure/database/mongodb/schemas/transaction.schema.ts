@@ -16,7 +16,7 @@ export class Transaction {
   type: TransactionType;
 
   createdAt?: Date;
-  
+
   updatedAt?: Date;
 }
 
