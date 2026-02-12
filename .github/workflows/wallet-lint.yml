@@ -1,0 +1,37 @@
+name: Wallet Service Lint
+
+on:
+  pull_request:
+    paths:
+      - 'wallet-service/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'wallet-service/**'
+
+jobs:
+  lint:
+    name: Lint Wallet Service
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: wallet-service
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: wallet-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
