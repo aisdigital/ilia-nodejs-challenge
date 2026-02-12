@@ -1,89 +1,120 @@
-# ília - Code Challenge NodeJS
-**English**
-##### Before we start ⚠️
-**Please create a fork from this repository**
+# Ilia Node.js Challenge
 
-## The Challenge:
-One of the ília Digital verticals is Financial and to level your knowledge we will do a Basic Financial Application and for that we divided this Challenge in 2 Parts.
+A microservices architecture project built with Node.js, TypeScript, Express, and PostgreSQL using Docker Compose for orchestration.
 
-The first part is mandatory, which is to create a Wallet microservice to store the users' transactions, the second part is optional (*for Seniors, it's mandatory*) which is to create a Users Microservice with integration between the two microservices (Wallet and Users), using internal communications between them, that can be done in any of the following strategies: gRPC, REST, Kafka or via Messaging Queues and this communication must have a different security of the external application (JWT, SSL, ...), **Development in javascript (Node) is required.**
+## Project Structure
 
-![diagram](diagram.png)
+This project consists of two independent microservices:
 
-### General Instructions:
-## Part 1 - Wallet Microservice
+```
+├── services/
+│   ├── users/          # User management service (port 3002)
+│   └── wallet/         # Wallet management service (port 3001)
+├── docker-compose.yml  # Service orchestration
+└── README.md           # This file
+```
 
-This microservice must be a digital Wallet where the user transactions will be stored 
+## Services
 
-### The Application must have
+### Users Service
+- **Port**: 3002
+- **Database**: PostgreSQL (users-db on port 5434)
+- **Technology**: Node.js, TypeScript, Express
+- **Endpoints**:
+  - `GET /` - Service status check
+  - `GET /health` - Health check with uptime
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.
-    - Have a dedicated database (Postgres, MySQL, Mongo, DynamoDB, ...).
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Configure the Microservice port to 3001. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a team work and not just a commit.
+### Wallet Service
+- **Port**: 3001
+- **Database**: PostgreSQL (wallet-db on port 5433)
+- **Technology**: Node.js, TypeScript, Express
+- **Endpoints**:
+  - `GET /` - Service status check
+  - `GET /health` - Health check with uptime
 
-## Part 2 - Microservice Users and Wallet Integration
+## Getting Started
 
-### The Application must have:
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 20+ (for local development without Docker)
+- npm
 
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.   
-    - Have a dedicated database(Postgres, MySQL, Mongo, DynamoDB...), you may use an Auth service like AWS Cognito.
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Set the Microservice port to 3002. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a teamwork and not just a commit.
-    - Internal Communication Security (JWT, SSL, ...), if it is JWT the PrivateKey must be ILIACHALLENGE_INTERNAL (passed by env var).
-    - Communication between Microservices using any of the following: gRPC, REST, Kafka or via Messaging Queues (update your readme with the instructions to run if using a Docker/Container environment).
+### Environment Setup
 
-## Part 3 - Frontend Implementation - Fullstack candidates only
+1. Copy the example environment file:
 
-In this challenge, you will build the frontend application for a FinTech Wallet platform, integrating with the backend microservices provided in the Node.js challenge.
+```bash
+cp .env.example .env
+```
 
-The application must allow users to authenticate, view their wallet balance, list transactions, and create credit or debit operations. The goal is to evaluate your ability to design a modern, secure, and well-structured UI that consumes microservice APIs, handles authentication via JWT, and provides a solid user experience with proper loading, error, and empty states.
+2. Update `.env` with your configuration if needed:
 
-You may implement the solution using React, Vue, or Angular, following the required stack for the position you're running for and best practices outlined in the challenge.
+```env
+WALLET_DB_URL=postgres://postgres:password@wallet-db:5432/wallet
+WALLET_JWT_SECRET=ILIACHALLENGE
+USERS_DB_URL=postgres://postgres:password@users-db:5432/users
+USERS_JWT_SECRET=ILIACHALLENGE
+USERS_JWT_INTERNAL_SECRET=ILIACHALLENGEINTERNAL
+NODE_ENV=development
+```
 
-### Before you start ⚠️
+### Running with Docker Compose
 
-- **Create a separate folder for the Frontend project**
-- Frontend must be built in **Typescript**.  
-- The goal is to deliver a production-like UI that consumes the backend services:
-  - Wallet Service (port **3001**)
-  - Users Service (port **3002**, optional but mandatory for Senior)
+```bash
+docker-compose up
+```
 
-### Challenge Overview
+This will:
+- Start both PostgreSQL databases
+- Build and start the users service (http://localhost:3002)
+- Build and start the wallet service (http://localhost:3001)
 
-You will build a **web application** that allows a user to:
+### Running Locally (Development)
 
-- Authenticate (if Users service exists)
-- View wallet balance
-- List transactions
-- Create transactions (credit/debit)
-- Handle loading, empty, and error states properly
+For each service, navigate to the service directory and run:
 
-### Design Guidelines
+```bash
+cd services/users
+npm install
+npm run dev
+```
 
-No visual prototype or UI mockups will be provided for this challenge on purpose. This is intentional so we can evaluate your product sense, design judgment, and ability to translate business requirements into a coherent user experience. You should focus on creating a clean, modern, and intuitive interface that prioritizes usability and clarity of financial information. Pay special attention to information hierarchy (for example, making balance visibility prominent), form usability and validation, transaction readability, and clear feedback for system states such as loading, success, and errors. Consistency in layout, spacing, typography, and component reuse is important, as well as responsiveness and accessibility basics. *We are not evaluating graphic design skills*, but rather your ability to craft a professional, production-ready UI that engineers and users would find reliable and easy to use.
+```bash
+cd services/wallet
+npm install
+npm run dev
+```
 
-Feel free to leverage on any opensource components library.
+## Available Scripts
 
-### Requirements 
-This frontend should reflect real-world practices:
-- secure JWT handling
-- clean UX flows
-- robust API integration
-- scalable component structure
-- test coverage where it matters
-- supports i18n
-- responsive design (supporting mobile browser)
+Each service has the following npm scripts:
 
-#### In the end, send us your fork repo updated. As soon as you finish, please let us know.
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Compile TypeScript to JavaScript
+- `npm start` - Run compiled JavaScript
 
-#### We are available to answer any questions.
+## Configuration
 
+Environment variables are configured via the `.env` file. Copy `.env.example` to `.env` and update the values as needed.
 
-Happy coding! 🤓
+### Environment Variables
+
+**Wallet Service**:
+- `WALLET_DB_URL` - PostgreSQL connection string
+- `WALLET_JWT_SECRET` - JWT signing secret
+- `NODE_ENV` - Environment (development/production)
+
+**Users Service**:
+- `USERS_DB_URL` - PostgreSQL connection string
+- `USERS_JWT_SECRET` - JWT signing secret
+- `USERS_JWT_INTERNAL_SECRET` - Internal JWT secret for service-to-service communication
+- `NODE_ENV` - Environment (development/production)
+
+## Tech Stack
+
+- **Runtime**: Node.js 20
+- **Language**: TypeScript
+- **Framework**: Express.js
+- **Database**: PostgreSQL 15
+- **Containerization**: Docker & Docker Compose
+- **Development**: tsx (for TypeScript watching)
