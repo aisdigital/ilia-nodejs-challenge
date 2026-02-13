@@ -12,7 +12,7 @@ export class Transaction {
   @Prop({ required: true, type: Number })
   amount: number;
 
-  @Prop({ required: true, enum: TransactionType })
+  @Prop({ type: String, required: true, enum: TransactionType })
   type: TransactionType;
 
   createdAt?: Date;

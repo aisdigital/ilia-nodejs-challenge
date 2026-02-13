@@ -1,0 +1,10 @@
+- name: Wallet Service Test
+
+  uses: jlndk/github-action-jest@1.0.3
+  with:
+    test-command: npm run test
+
+    working-directory: wallet-service
+
+    coverage-comment: false
+          
