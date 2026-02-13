@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  # ----------------------------------------
+  # 1. WALLET MICROSERVICE
+  # ----------------------------------------
+  wallet_db:
+    image: postgres:16-alpine
+    container_name: wallet_db
+    environment:
+      POSTGRES_USER: ${DB_WALLET_USER}
+      POSTGRES_PASSWORD: ${DB_WALLET_PASSWORD}
+      POSTGRES_DB: ${DB_WALLET_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - wallet_data:/var/lib/postgresql/data
+
+  wallet_app:
+    build:
+      context: ./microservices/wallet
+      dockerfile: Dockerfile
+    container_name: wallet_app
+    ports:
+      - "${WALLET_PORT}:${WALLET_PORT}"
+    environment:
+      NODE_ENV: development
+      WALLET_PORT: ${WALLET_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      DB_WALLET_HOST: wallet_db
+      DB_WALLET_NAME: ${DB_WALLET_NAME}
+      DB_WALLET_USER: ${DB_WALLET_USER}
+      DB_WALLET_PASSWORD: ${DB_WALLET_PASSWORD}
+      USERS_GRPC_URL: users_app:50051
+      JWT_SECRET_INTERNAL: ${JWT_SECRET_INTERNAL}
+    depends_on:
+      - wallet_db
+      - users_app
+    command: npm run start:prod
+
+  # ----------------------------------------
+  # 2. USERS MICROSERVICE
+  # ----------------------------------------
+  users_db:
+    image: postgres:16-alpine
+    container_name: users_db
+    environment:
+      POSTGRES_USER: ${DB_USERS_USER}
+      POSTGRES_PASSWORD: ${DB_USERS_PASSWORD}
+      POSTGRES_DB: ${DB_USERS_NAME}
+    volumes:
+      - users_data:/var/lib/postgresql/data
+
+  users_app:
+    build:
+      context: ./microservices/users
+      dockerfile: Dockerfile
+    container_name: users_app
+    ports:
+      - "${USERS_PORT}:${USERS_PORT}"
+      - "50051:50051"
+    environment:
+      NODE_ENV: development
+      USERS_PORT: ${USERS_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET_INTERNAL: ${JWT_SECRET_INTERNAL}
+      DB_USERS_HOST: ${DB_USERS_HOST}
+      DB_USERS_PORT: ${DB_USERS_PORT}
+      DB_USERS_USER: ${DB_USERS_USER}
+      DB_USERS_PASSWORD: ${DB_USERS_PASSWORD}
+      DB_USERS_NAME: ${DB_USERS_NAME}
+    depends_on:
+      - users_db
+    command: npm run start:prod
+
+volumes:
+  wallet_data:
+  users_data:
